@@ -80,9 +80,6 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             )}
           </div>
 
-          {/* <button className="mt-4 w-full bg-gradient-to-r from-light-blue to-blue-800 hover:shadow-blue-800/20 text-white py-2 px-4 rounded-sm transition shadow-md hover:shadow-lg cursor-pointer">
-            Details
-          </button> */}
         </div>
       </div>
 
