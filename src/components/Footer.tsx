@@ -1,57 +1,44 @@
 import Image from "next/image";
 import logoWhite from "../../public/white-logo.webp";
 
-const Footer = () => {
+interface FooterProps {
+  scrollToHome: () => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
   return (
-    <footer className="bg-gradient-to-r from-black to-blue-950 text-white py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
+    <footer className="bg-gradient-to-r from-black to-blue-950 text-white xs:px-5 md:px-16 py-12">
+      <div className="mx-auto">
+        <div className="flex xs:flex-col md:flex-row md:items-center justify-between gap-8">
+          <div className="flex flex-col">
             <Image src={logoWhite} alt="Logo" className="w-32 mb-5" />
-            <p className="text-gray-400">
+            <p className="text-gray-400 w-52">
               Finding your dream property made simple and reliable.
             </p>
           </div>
 
-          <div>
+          <div className="w-52">
             <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition"
-                >
-                  Home
-                </a>
+            <ul className="space-y-2 cursor-pointer">
+              <li
+                onClick={scrollToHome}
+                className="text-gray-400 hover:text-white transition"
+              >
+                Home
               </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition"
-                >
-                  Properties
-                </a>
+              <li className="text-gray-400 hover:text-white transition">
+                Properties
+              </li>{" "}
+              <li className="text-gray-400 hover:text-white transition">
+                About Us
               </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition"
-                >
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-white transition"
-                >
-                  Contact
-                </a>
+              <li className="text-gray-400 hover:text-white transition">
+                Contact
               </li>
             </ul>
           </div>
 
-          <div>
+          <div className="w-52">
             <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
             <address className="not-italic text-gray-400">
               <p>KG 123 st</p>

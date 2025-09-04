@@ -65,7 +65,7 @@ const InterestModal = ({ isOpen, onClose, property }: InterestModalProps) => {
           </div>
 
           <p className="text-gray-600 mb-6">
-            You're interested in:{" "}
+            You&#39;re interested in:&nbsp;
             <span className="font-semibold">{property.title}</span>
           </p>
 

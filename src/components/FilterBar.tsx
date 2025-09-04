@@ -1,16 +1,25 @@
 import { useState, useEffect } from "react";
 
+export interface FilterState {
+  type: string;
+  category: string;
+  minPrice: number;
+  maxPrice: number;
+  bedrooms: number;
+  bathrooms: number;
+  minArea: number;
+  maxArea: number;
+}
+
 interface FilterBarProps {
-  onFilterChange: (filters: any) => void;
-  activeFilters: any;
-  onApplyFilters: () => void;
+  onFilterChange: (filters: FilterState) => void;
+  activeFilters: FilterState;
   onClearFilters: () => void;
 }
 
 const FilterBar = ({
   onFilterChange,
   activeFilters,
-  onApplyFilters,
   onClearFilters,
 }: FilterBarProps) => {
   const [localFilters, setLocalFilters] = useState(activeFilters);
@@ -19,7 +28,7 @@ const FilterBar = ({
     setLocalFilters(activeFilters);
   }, [activeFilters]);
 
-  const handleInputChange = (name: string, value: any) => {
+  const handleInputChange = (name: string, value: string | number) => {
     const newFilters = { ...localFilters, [name]: value };
     setLocalFilters(newFilters);
   };
@@ -54,7 +63,7 @@ const FilterBar = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+    <div className="bg-white p-6 rounded-sm shadow-md mb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div>
           <h3 className="font-medium text-gray-700 mb-3">Property Type</h3>
@@ -66,7 +75,7 @@ const FilterBar = ({
                     type="radio"
                     name="property-type"
                     checked={localFilters.type === type}
-                    onChange={() => handleInputChange("type", type)}
+                    onChange={() => handleInputChange(`type`, type)}
                     className="hidden"
                   />
                   <div
@@ -135,7 +144,6 @@ const FilterBar = ({
                 {localFilters.maxPrice.toLocaleString()}
               </label>
               <div className="relative pt-1">
-                {/* ✅ Add dual range slider for better UX */}
                 <div className="flex gap-2 mt-2">
                   <input
                     type="range"
@@ -149,7 +157,7 @@ const FilterBar = ({
                         localFilters.maxPrice
                       )
                     }
-                    className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-blue-100 rounded-sm appearance-none cursor-pointer"
                   />
                   <input
                     type="range"
@@ -163,7 +171,7 @@ const FilterBar = ({
                         parseInt(e.target.value)
                       )
                     }
-                    className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 bg-blue-100 rounded-sm appearance-none cursor-pointer"
                   />
                 </div>
               </div>
@@ -183,7 +191,7 @@ const FilterBar = ({
                 onChange={(e) =>
                   handleInputChange("bedrooms", parseInt(e.target.value))
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm text-black"
+                className="w-full p-2 border border-gray-300 rounded-sm text-sm text-black"
               >
                 <option value={0}>Any</option>
                 <option value={1}>1+</option>
@@ -202,7 +210,7 @@ const FilterBar = ({
                 onChange={(e) =>
                   handleInputChange("bathrooms", parseInt(e.target.value))
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm text-black"
+                className="w-full p-2 border border-gray-300 rounded-sm text-sm text-black"
               >
                 <option value={0}>Any</option>
                 <option value={1}>1+</option>
@@ -228,7 +236,7 @@ const FilterBar = ({
                     localFilters.maxArea
                   )
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-black"
+                className="w-full p-2 border border-gray-300 rounded-sm text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-black"
               />
               <input
                 type="number"
@@ -242,7 +250,7 @@ const FilterBar = ({
                     parseInt(e.target.value) || 20000
                   )
                 }
-                className="w-full p-2 border border-gray-300 rounded-md text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-black"
+                className="w-full p-2 border border-gray-300 rounded-sm text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none text-black"
               />
             </div>
           </div>
@@ -252,13 +260,13 @@ const FilterBar = ({
       <div className="flex justify-end mt-6 space-x-4">
         <button
           onClick={handleClear}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition cursor-pointer"
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-sm hover:bg-gray-300 transition cursor-pointer"
         >
           Clear All
         </button>
         <button
           onClick={handleApply}
-          className="px-4 py-2 text-sm font-medium text-white bg-light-blue rounded-md shadow-2xl hover:shadow-neutral-500 transition cursor-pointer"
+          className="px-4 py-2 text-sm font-medium text-white bg-light-blue rounded-sm shadow-2xl hover:shadow-neutral-500 transition cursor-pointer"
         >
           Apply Filters
         </button>

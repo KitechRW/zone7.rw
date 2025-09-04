@@ -9,6 +9,6 @@ export interface Property {
   area: number;
   location: string;
   image: string;
-  // featured: boolean;
+  featured: boolean;
   description: string;
 }

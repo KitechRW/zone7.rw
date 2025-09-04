@@ -1,15 +1,45 @@
-import Image from "next/image";
-import welcomeImage from "../../public/house-keys.png";
+"use client";
 
-const Welcome = () => {
+import Image from "next/image";
+import welcomeImage from "../../public/background.webp";
+
+interface WelcomeProps {
+  scrollToProperties: () => void;
+  homeRef: React.RefObject<HTMLDivElement | null>;
+  onFilterUpdate: (filters: { category: string; type: string }) => void;
+}
+
+const Welcome: React.FC<WelcomeProps> = ({
+  scrollToProperties,
+  homeRef,
+  onFilterUpdate,
+}) => {
+  const buyProperties = () => {
+    scrollToProperties();
+    setTimeout(() => {
+      onFilterUpdate({ category: "sale", type: "all" });
+    }, 500);
+  };
+
+  const rentHouse = () => {
+    scrollToProperties();
+    setTimeout(() => {
+      onFilterUpdate({ category: "rent", type: "house" });
+    }, 500);
+  };
+
   return (
-    <section className="relative h-[730px] py-5">
+    <section ref={homeRef} className="relative h-[750px] py-5">
       <div className="absolute inset-0 bg-black/50 z-10"></div>
       <Image
         src={welcomeImage}
         alt="Welcome"
         className="w-full h-full object-cover"
         fill
+        priority
+        quality={85}
+        placeholder="blur"
+        sizes="100vw"
       />
 
       <div className="h-full flex flex-col items-center justify-center relative z-10">
@@ -18,16 +48,29 @@ const Welcome = () => {
             Find The Property
             <br />
             Of Your Dreams
+            <br />
+            in Rwanda
           </h1>
-          <p className="text-xl px-4">
+          <p className=" lg:text-xl px-4">
             Browse the perfect home, plot, or investment opportunity with our
             selection of premium real estate.
           </p>
         </div>
 
-        <button className="absolute bottom-24 bg-gradient-to-r from-light-blue to-blue-800 hover:px-10 text-white px-6 py-4 rounded-lg font-semibold transition-all duration-500 cursor-pointer">
-          Browse Properties
-        </button>
+        <div className="absolute xs:bottom-5 md:bottom-24 flex xs:flex-col md:flex-row items-center xs:gap-5 md:gap-10">
+          <button
+            onClick={buyProperties}
+            className="xs:w-68 md:w-40 bg-gradient-to-r from-light-blue to-blue-800 text-white px-6 py-4 rounded-sm font-semibold transition-all duration-500 cursor-pointer"
+          >
+            Buy Properties
+          </button>
+          <button
+            onClick={rentHouse}
+            className="xs:w-68 md:w-40 bg-gradient-to-r from-green-400 to-green-700 text-white px-6 py-4 rounded-sm font-semibold transition-all duration-500 cursor-pointer"
+          >
+            Rent a House
+          </button>
+        </div>
       </div>
     </section>
   );
