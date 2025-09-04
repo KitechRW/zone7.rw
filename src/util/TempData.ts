@@ -13,6 +13,7 @@ export const mockProperties: Property[] = [
     location: "Gacuriro, Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922340/ID26711-Image_1_aykc3v.jpg",
+    images: [],
     featured: true,
     description:
       "Luxurious modern villa with panoramic city views, private pool, and smart home technology.",
@@ -29,6 +30,7 @@ export const mockProperties: Property[] = [
     location: "Downtown, Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922339/prefab_home_in_burlingame_ca_2_480x480_eow7td.jpg",
+    images: [],
     featured: true,
     description:
       "Stylish downtown apartment with high-end finishes and convenient access to entertainment.",
@@ -43,6 +45,7 @@ export const mockProperties: Property[] = [
     location: "Kanombe, Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922608/39638198283_31e732cb49_b_raavo8.jpg",
+    images: [],
     featured: false,
     description:
       "Prime commercial land ready for development in growing business district.",
@@ -59,6 +62,7 @@ export const mockProperties: Property[] = [
     location: "Kimironko, Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922340/strategies-for-finding-cheap-houses-c81cd7_qh0hoh.jpg",
+    images: [],
     featured: false,
     description:
       "Spacious family home in quiet neighborhood with excellent schools nearby.",
@@ -75,6 +79,7 @@ export const mockProperties: Property[] = [
     location: "Kicukiro, Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922340/edc100123egan-002-6500742f5feb7.jpg_zwjtwf.jpg",
+    images: [],
     featured: true,
     description:
       "Stunning waterfront condo with private dock and panoramic ocean views.",
@@ -89,6 +94,7 @@ export const mockProperties: Property[] = [
     location: "Ruyenzi, Kamonyi",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922338/Homes_Average-House-Price-in-Every-State_nckpd2.jpg",
+    images: [],
     featured: true,
     description: "Nice house in a quiet neighborhood with easy freeway access.",
   },
@@ -102,6 +108,7 @@ export const mockProperties: Property[] = [
     location: "Kagugu, Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922338/9024-Main-Image_1600x_lredub.jpg",
+    images: [],
     featured: false,
     description: "Quiet neighborhood near roadway.",
   },
@@ -115,6 +122,7 @@ export const mockProperties: Property[] = [
     location: "Masaka, Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922607/empty-field_r5g5vh.jpg",
+    images: [],
     featured: false,
     description:
       "Large parcel zoned for residential development with easy freeway access.",
@@ -129,6 +137,7 @@ export const mockProperties: Property[] = [
     location: "Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922339/craftsman-exterior_msrjon.jpg",
+    images: [],
     featured: false,
     description:
       "Luxurious modern villa with panoramic city views, private pool, and smart home technology.",
@@ -143,6 +152,7 @@ export const mockProperties: Property[] = [
     location: "Kabuga, Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922608/https_3A_2F_2Fcloudfront-us-east-1.images.arcpublishing.com_2Fsltrib_2FLOPF5XPO4RGBNNXZ2JZIX4BXLY_gcvqzq.jpg",
+    images: [],
     featured: false,
     description: "Business plot with easy freeway access.",
   },

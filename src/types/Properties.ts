@@ -8,7 +8,10 @@ export interface Property {
   bathrooms?: number;
   area: number;
   location: string;
-  image: string;
   featured: boolean;
   description: string;
+  features?: string[];
+  image: string;
+  images: string[];
+  roomTypes?: string[];
 }

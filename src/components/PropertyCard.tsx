@@ -3,6 +3,7 @@ import InterestModal from "./InterestModal";
 import { Property } from "@/types/Properties";
 import { Bed, LandPlot, MapPin, Toilet } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface PropertyCardProps {
   property: Property;
@@ -11,9 +12,18 @@ interface PropertyCardProps {
 const PropertyCard = ({ property }: PropertyCardProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const router = useRouter();
+
+  const viewDetails = () => {
+    router.push(`/properties/${property.id}`);
+  };
+
   return (
     <>
-      <div className="justify-self-center bg-platinum w-60 h-80 rounded-sm shadow-2xl overflow-hidden transition-all duration-500 shadow-black/10 hover:shadow-cyan-800/20 cursor-pointer">
+      <div
+        onClick={viewDetails}
+        className="justify-self-center bg-platinum w-60 h-80 rounded-sm shadow-2xl overflow-hidden transition-all duration-500 shadow-blue-900/20 hover:scale-[1.02] cursor-pointer"
+      >
         <div className="relative">
           <Image
             src={property.image}
