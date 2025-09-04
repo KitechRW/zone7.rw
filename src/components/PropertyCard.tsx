@@ -79,7 +79,6 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
               </span>
             )}
           </div>
-
         </div>
       </div>
 
