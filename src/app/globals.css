@@ -8,13 +8,23 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-platinum: #f6f6f6;
+  --color-light-blue: #3399ff;
+
+  --font-sans: var(--font-outfit);
   --font-mono: var(--font-geist-mono);
+
+  --breakpoint-xs: 200px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 976px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #f6f6f6;
     --foreground: #ededed;
   }
 }
@@ -22,5 +32,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
