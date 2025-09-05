@@ -38,7 +38,6 @@ const Welcome: React.FC<WelcomeProps> = ({
           className="w-full h-full object-cover"
           fill
           priority
-          quality={85}
           placeholder="blur"
           sizes="100vw"
         />
