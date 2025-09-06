@@ -7,8 +7,8 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
   return (
-    <footer className="bg-gradient-to-r from-black to-blue-950 text-white xs:px-5 md:px-16 py-12">
-      <div className="mx-auto">
+    <footer className="w-screen bg-gradient-to-r from-black to-blue-950 text-white xs:px-5 md:px-16 py-12">
+      <div className="max-w-[2000px] mx-auto">
         <div className="flex xs:flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex flex-col">
             <Image src={logoWhite} alt="Logo" className="w-32 mb-5" />
