@@ -7,12 +7,16 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
   return (
-    <footer className="w-screen bg-gradient-to-r from-black to-blue-950 text-white xs:px-5 md:px-16 py-12">
-      <div className="max-w-[2000px] mx-auto">
+    <footer className="w-screen bg-gradient-to-r from-gray-800 to-black text-white xs:px-10 md:px-20 py-10">
+      <div className="max-w-[1600px] mx-auto">
         <div className="flex xs:flex-col md:flex-row md:items-center justify-between gap-8">
           <div className="flex flex-col">
-            <Image src={logoWhite} alt="Logo" className="w-32 mb-5" />
-            <p className="text-gray-400 w-52">
+            <Image
+              src={logoWhite}
+              alt="Logo"
+              className="xs:w-24 md:w-32 mb-5"
+            />
+            <p className="text-gray-300 w-52">
               Finding your dream property made simple and reliable.
             </p>
           </div>
@@ -22,17 +26,17 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
             <ul className="space-y-2 cursor-pointer">
               <li
                 onClick={scrollToHome}
-                className="text-gray-400 hover:text-white transition"
+                className="text-gray-300 hover:text-white transition"
               >
                 Home
               </li>
-              <li className="text-gray-400 hover:text-white transition">
+              <li className="text-gray-300 hover:text-white transition">
                 Properties
               </li>{" "}
-              <li className="text-gray-400 hover:text-white transition">
+              <li className="text-gray-300 hover:text-white transition">
                 About Us
               </li>
-              <li className="text-gray-400 hover:text-white transition">
+              <li className="text-gray-300 hover:text-white transition">
                 Contact
               </li>
             </ul>

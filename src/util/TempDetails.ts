@@ -81,6 +81,7 @@ export const mockPropertyDetails: Property[] = [
       "Kitchen",
       "Bedroom",
       "Bathroom",
+      "Pool Area",
     ],
   },
   {
@@ -196,6 +197,7 @@ export const mockPropertyDetails: Property[] = [
       "Kitchen",
       "Bedroom",
       "Bathroom",
+      "Pool Area",
     ],
   },
   {
@@ -309,6 +311,7 @@ export const mockPropertyDetails: Property[] = [
       "Kitchen",
       "Bedroom",
       "Bathroom",
+      "Pool Area",
     ],
   },
   {
@@ -344,10 +347,12 @@ export const mockPropertyDetails: Property[] = [
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1757017193/1200px-Backyardpool_iuecg9.jpg",
     ],
     roomTypes: [
-      "Aerial View",
-      "Street View",
-      "Access Road",
-      "Surrounding Area",
+      "Building Exterior",
+      "Living Room",
+      "Kitchen",
+      "Bedroom",
+      "Bathroom",
+      "Pool Area",
     ],
   },
   {
