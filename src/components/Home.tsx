@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Head from "next/head";
 import Header from "../components/Header";
 import Hero from "../components/Welcome";
 import PropertyGrid from "../components/PropertyGrid";
@@ -215,7 +214,7 @@ const HomeComponent = () => {
         onFilterUpdate={handleFilterUpdate}
       />
 
-      <section className="mx-auto px-16 py-8">
+      <section className="max-w-[2000px] mx-auto px-16 py-8">
         <div ref={propertyRef} className="mb-12">
           <h2 className="xs:text-4xl md:text-6xl text-light-blue font-bold text-center mb-5">
             Property Listings
