@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 const Home = () => {
   return (
-    <main className="overflow-x-hidden">
+    <main>
       <Head>
         <title>Find Your Dream Property</title>
         <meta

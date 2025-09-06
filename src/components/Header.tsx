@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import logoWhite from "../../public/white-logo.webp";
 import logoblue from "../../public/blue-logo.webp";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   scrollToProperties: () => void;
@@ -16,8 +17,13 @@ const Header: React.FC<HeaderProps> = ({
   scrollToHome,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const [scrolled, setScrolled] = useState(false);
+
+  const router = useRouter();
+
+  const login = () => {
+    router.push("/login");
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,7 +68,10 @@ const Header: React.FC<HeaderProps> = ({
             >
               Properties
             </h2>
-            <button className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer">
+            <button
+              onClick={login}
+              className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer"
+            >
               Login
             </button>
           </nav>
@@ -82,16 +91,16 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           <nav className="hidden md:flex items-center gap-8">
-            <h2 className="text-white font-medium hover:text-cyan-400 transition cursor-pointer">
-              Home
-            </h2>
             <h2
               onClick={scrollToProperties}
               className="text-white font-medium hover:text-cyan-400 transition cursor-pointer"
             >
               Properties
             </h2>
-            <button className="bg-white text-black font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-white/50 transition cursor-pointer">
+            <button
+              onClick={login}
+              className="bg-white text-black font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-white/50 transition cursor-pointer"
+            >
               Login
             </button>
           </nav>
@@ -113,7 +122,10 @@ const Header: React.FC<HeaderProps> = ({
             <h2 className="text-black font-medium hover:text-cyan-600 transition">
               Properties
             </h2>
-            <button className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer">
+            <button
+              onClick={login}
+              className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer"
+            >
               Login
             </button>
           </nav>
