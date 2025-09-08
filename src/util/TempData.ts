@@ -90,6 +90,8 @@ export const mockProperties: Property[] = [
     type: "house",
     category: "sale",
     price: 95000000,
+    bedrooms: 3,
+    bathrooms: 2,
     area: 610,
     location: "Ruyenzi, Kamonyi",
     image:
@@ -105,6 +107,8 @@ export const mockProperties: Property[] = [
     category: "rent",
     price: 200000,
     area: 380,
+    bedrooms: 4,
+    bathrooms: 3,
     location: "Kagugu, Kigali",
     image:
       "https://res.cloudinary.com/dx2czuzzs/image/upload/v1756922338/9024-Main-Image_1600x_lredub.jpg",
@@ -133,6 +137,8 @@ export const mockProperties: Property[] = [
     type: "house",
     category: "rent",
     price: 1200000,
+    bedrooms: 3,
+    bathrooms: 1,
     area: 280,
     location: "Kigali",
     image:

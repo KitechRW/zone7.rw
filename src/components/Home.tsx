@@ -10,6 +10,7 @@ import { mockProperties } from "@/util/TempData";
 import SearchBar from "@/components/SearchBar";
 import { Filter } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Benefits from "./Benefits";
 
 const HomeComponent = () => {
   const searchParams = useSearchParams();
@@ -214,7 +215,7 @@ const HomeComponent = () => {
         onFilterUpdate={handleFilterUpdate}
       />
 
-      <section className="max-w-[2000px] mx-auto px-16 py-8">
+      <section className="max-w-[1600px] mx-auto px-20 py-10">
         <div ref={propertyRef} className="mb-12">
           <h2 className="xs:text-4xl md:text-6xl text-light-blue font-bold text-center mb-5">
             Property Listings
@@ -344,6 +345,7 @@ const HomeComponent = () => {
           )}
         </div>
       </section>
+      <Benefits />
       <Footer scrollToHome={homeScroll} />
     </>
   );
