@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Home,
-  Shield,
-  Award,
-  Heart,
-  Star,
-  MapPinHouse,
-  Phone,
-} from "lucide-react";
+import { Home, Shield, Award, Heart, MapPinHouse, Phone } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import CountUp from "react-countup";

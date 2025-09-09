@@ -6,6 +6,8 @@ import logoWhite from "../../public/white-logo.webp";
 import logoblue from "../../public/blue-logo.webp";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Avatar from "./Avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   scrollToProperties: () => void;
@@ -20,9 +22,10 @@ const Header: React.FC<HeaderProps> = ({
   const [scrolled, setScrolled] = useState(false);
 
   const router = useRouter();
+  const { user, authLoading, logout } = useAuth();
 
   const login = () => {
-    router.push("/login");
+    router.push("/auth");
   };
 
   useEffect(() => {
@@ -68,12 +71,42 @@ const Header: React.FC<HeaderProps> = ({
             >
               Properties
             </h2>
-            <button
-              onClick={login}
-              className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer"
-            >
-              Login
-            </button>
+            {user ? (
+              <div className="group">
+                <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
+                  <Avatar userName={user.email} />
+                </button>
+                <div className="absolute right-20 z-50 items-center hidden px-2 py-4 bg-platinum/90 rounded-md shadow-lg group-justify-center group-hover:block backdrop-blur-sm">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Link href="/profile">
+                      <p className="px-2 py-1 text-sm text-gray-700 truncate hover:text-cyan-600">
+                        My account
+                      </p>
+                    </Link>
+                    <p className="px-2 py-1 text-sm text-gray-700 truncate">
+                      {user.email}
+                    </p>
+                    <button
+                      onClick={logout}
+                      className="w-20 px-2 pt-1 pb-2 text-sm text-white font-medium bg-red-600 rounded hover:bg-red-700 cursor-pointer"
+                    >
+                      {authLoading ? (
+                        <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
+                      ) : (
+                        "Logout"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={login}
+                className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer"
+              >
+                Login
+              </button>
+            )}
           </nav>
           <button
             className="md:hidden focus:outline-none cursor-pointer"
@@ -95,18 +128,51 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           <nav className="hidden md:flex items-center gap-8">
+            <h2 className="text-white font-medium hover:text-cyan-600 transition cursor-pointer">
+              Home
+            </h2>
             <h2
               onClick={scrollToProperties}
               className="text-white font-medium hover:text-cyan-400 transition cursor-pointer"
             >
               Properties
             </h2>
-            <button
-              onClick={login}
-              className="bg-white text-black font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-white/50 transition cursor-pointer"
-            >
-              Login
-            </button>
+            {user ? (
+              <div className="group">
+                <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
+                  <Avatar userName={user.email} />
+                </button>
+                <div className="absolute right-20 z-50 items-center hidden px-2 py-4 bg-white/5 backdrop-blur-2xl rounded-md shadow-lg group-justify-center group-hover:block">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Link href="/profile">
+                      <p className="px-2 py-1 text-sm text-white hover:text-cyan-300 truncate">
+                        My account
+                      </p>
+                    </Link>
+                    <p className="px-2 py-1 text-sm text-white truncate">
+                      {user.email}
+                    </p>
+                    <button
+                      onClick={logout}
+                      className="w-20 px-2 pt-1 pb-2 text-sm text-white font-medium bg-red-600 rounded hover:bg-red-700 cursor-pointer"
+                    >
+                      {authLoading ? (
+                        <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
+                      ) : (
+                        "Logout"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={login}
+                className="bg-white text-black font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-white/50 transition cursor-pointer"
+              >
+                Login
+              </button>
+            )}
           </nav>
           <button
             className="md:hidden focus:outline-none cursor-pointer"
@@ -137,12 +203,35 @@ const Header: React.FC<HeaderProps> = ({
               >
                 Properties
               </h2>
-              <button
-                onClick={login}
-                className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer"
-              >
-                Login
-              </button>
+              {user ? (
+                <div className="flex flex-col gap-1">
+                  <Link href="/profile">
+                    <p className="font-medium hover:text-cyan-600 text-black truncate">
+                      My account
+                    </p>
+                  </Link>
+                  <p className="py-1 text-sm text-gray-700 truncate">
+                    {user.email}
+                  </p>
+                  <button
+                    onClick={logout}
+                    className="w-20 px-2 pt-1 pb-2 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 cursor-pointer"
+                  >
+                    {authLoading ? (
+                      <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
+                    ) : (
+                      "Logout"
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={login}
+                  className="bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer"
+                >
+                  Login
+                </button>
+              )}
             </nav>
           </div>
         ) : (
@@ -157,12 +246,35 @@ const Header: React.FC<HeaderProps> = ({
               >
                 Properties
               </h2>
-              <button
-                onClick={login}
-                className="bg-white text-black font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-white/20 transition cursor-pointer"
-              >
-                Login
-              </button>
+              {user ? (
+                <div className="flex flex-col gap-1">
+                  <Link href="/profile">
+                    <p className="font-medium hover:text-cyan-300 text-white truncate">
+                      My account
+                    </p>
+                  </Link>
+                  <p className="py-1 text-sm text-platinum/70 truncate">
+                    {user.email}
+                  </p>
+                  <button
+                    onClick={logout}
+                    className="w-20 px-2 pt-1 pb-2 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 cursor-pointer"
+                  >
+                    {authLoading ? (
+                      <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
+                    ) : (
+                      "Logout"
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={login}
+                  className="bg-white text-black font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-white/20 transition cursor-pointer"
+                >
+                  Login
+                </button>
+              )}
             </nav>
           </div>
         ))}
