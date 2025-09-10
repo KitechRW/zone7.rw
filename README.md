@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Zone7.rw
 
 A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allows users to browse, buy, and rent properties in Rwanda.
@@ -95,18 +94,7 @@ zone7.rw/
 └── README.md                # Project documentation
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allows users to browse, buy, and rent properties in Rwanda.
-=======
-Authentication system with MongoDB.
->>>>>>> e6d2ccf (1. MongoDB setup (#6))
-=======
-A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allows users to browse, buy, and rent properties in Rwanda.
->>>>>>> 3bd2a5a (Feature/password reset (#12))
-
-<<<<<<< HEAD
 
 1. Clone the repository:
 
@@ -224,8 +212,6 @@ The application implements a hybrid authentication system built on NextAuth.js w
 
 ## Features
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 - **Authentication**
 
   - User registration and login
@@ -307,7 +293,9 @@ src/
 ```
 
 =======
->>>>>>> 3871659f8d014f18aedbab4e8ce205aeff23bece
+
+> > > > > > > 3871659f8d014f18aedbab4e8ce205aeff23bece
+
 ## Getting Started
 
 1. Clone the repository:
@@ -368,13 +356,13 @@ The application implements a hybrid authentication system built on NextAuth.js w
   - Refresh token rotation
   - Rate limiting on sensitive endpoints
   - HTTP-only cookies for refresh tokens
-<<<<<<< HEAD
+    <<<<<<< HEAD
     <<<<<<< HEAD
   - CSRF protection
   - Input validation with Zod > > > > > > > f1e01a3 (1. MongoDB setup (#6))
     =======
-=======
->>>>>>> 3871659f8d014f18aedbab4e8ce205aeff23bece
+    =======
+    > > > > > > > 3871659f8d014f18aedbab4e8ce205aeff23bece
   - Secure password reset flow
   - Device and user agent tracking
 
@@ -423,231 +411,226 @@ The application implements a hybrid authentication system built on NextAuth.js w
 3. Commit your changes: `git commit -m 'Add my feature'`
 4. Push to the branch: `git push origin feature/my-feature`
 5. Submit a pull request
-<<<<<<< HEAD
+   <<<<<<< HEAD
+   > > > > > > > # 48f8bee (Feature/password reset (#12))
+   > > > > > > >
+   > > > > > > > # 3871659f8d014f18aedbab4e8ce205aeff23bece
+
+- **Secure Authentication**: Email/password and Google OAuth
+- # **Automatic Token Refresh**: 30-day sessions with 15-minute access tokens
+- **Authentication**
+
+  > > > > > > > 3bd2a5a (Feature/password reset (#12))
+
+  - User registration and login
+  - Password reset functionality
+  - Role-based access control (Admin/User)
+  - Protected routes with NextAuth
+
+- **Property Management**
+
+  - Property listing with detailed information
+  - Property search and filtering
+  - Featured properties section
+  - Image management with Cloudinary
+  - Property statistics for admins
+
+- **User Features**
+
+  - User profiles
+  - Property interest management
+  - Contact form for inquiries
+  - Responsive design for all devices
+
+- **Admin Dashboard**
+  - Property management (CRUD operations)
+  - User management
+  - Interest management
+  - Statistics and analytics
+
+## Tech Stack
+
+- **Frontend**
+
+  - Next.js 15+ with App Router
+  - TypeScript
+  - Tailwind CSS
+  - Framer Motion for animations
+  - Context API for state management
+
+- **Backend**
+
+  - Next.js API Routes
+  - MongoDB with Mongoose
+  - NextAuth.js for authentication
+  - Rate limiting middleware
+  - Error handling middleware
+
+- **Services**
+  - Cloudinary for image storage
+  - Email service for notifications
+  - Logging service
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── admin/             # Admin dashboard
+│   ├── auth/              # Authentication pages
+│   ├── properties/        # Property listings and details
+│   └── profile/           # User profile pages
+├── components/            # React components
+│   ├── adminTab/         # Admin dashboard tabs
+│   ├── layout/           # Layout components
+│   ├── misc/             # Miscellaneous components
+│   ├── modals/           # Modal components
+│   └── properties/       # Property-related components
+├── contexts/             # React Context providers
+├── lib/                  # Utility functions and configurations
+│   ├── config/          # Configuration files
+│   ├── controllers/     # API controllers
+│   ├── db/             # Database models and connection
+│   ├── middleware/     # Custom middleware
+│   ├── schema/         # Validation schemas
+│   ├── services/       # Business logic services
+│   ├── types/          # TypeScript types
+│   └── utils/          # Utility functions
+└── types/               # Global TypeScript types
+```
+
+## Getting Started
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/KitechRW/zone7.rw
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file with the following variables:
+
+   ```
+   NEXT_PUBLIC_COMPANY_NAME=
+   NEXT_PUBLIC_COMPANY_URL=
+   NEXT_PUBLIC_EMAIL=
+   NEXT_PUBLIC_PHONE=
+   NEXTAUTH_URL=
+   NEXTAUTH_SECRET=
+   MONGODB_URI=
+   ADMIN_EMAIL=
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+   NEXT_PUBLIC_CLOUDINARY_API_KEY=
+   CLOUDINARY_API_SECRET=
+   BREVO_API_KEY=
+   BREVO_FROM_EMAIL=
+   BREVO_FROM_NAME=
+   ```
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+## Authentication
+
+The application implements a hybrid authentication system built on NextAuth.js with customizations:
+
+- **NextAuth Foundation**
+
+  - JWT-based authentication
+  - Session management with custom callbacks
+  - Credentials provider for email/password login
+
+- **Custom Extensions**
+
+  - Advanced token management (access & refresh tokens)
+  - Token refresh mechanism with concurrency protection
+  - Role-based access control (User/Admin/Owner)
+  - Device tracking and session management
+
+- **Security Features**
+  - Refresh token rotation
+  - Rate limiting on sensitive endpoints
+  - HTTP-only cookies for refresh tokens
+    <<<<<<< HEAD
+  - CSRF protection
+    <<<<<<< HEAD
+  - Input validation with Zod > > > > > > > f1e01a3 (1. MongoDB setup (#6))
+    > > > > > > > # e6d2ccf (1. MongoDB setup (#6))
+  - # Input validation with Zod > > > > > > > f1e01a3 (1. MongoDB setup (#6))
+  - Secure password reset flow
+  - Device and user agent tracking
+
+## API Routes
+
+- `/api/auth/*` - Authentication endpoints
+- `/api/properties/*` - Property management
+- `/api/interests/*` - Interest management
+- `/api/users/*` - User management
+- `/api/contact/*` - Contact form
+
+## Context Providers
+
+- `AuthContext` - Authentication state and methods
+- `PropertyContext` - Property management state
+- `InterestContext` - Interest management state
+- `FilterContext` - Property filtering state
+
+## Components Overview
+
+- **Layout Components**: `Header`, `Footer`, `Welcome`, `Benefits`, etc.
+- **Property Components**: `PropertyCard`, `PropertyDetails`, `PropertyGrid`, etc.
+- **Admin Components**: `PropertyTab`, `UsersTab`, `InterestsTab`
+- **Miscellaneous**: `Avatar`, `Loader`, `Dropdown`, `SearchBar`, etc.
+- **Modals**: `InterestModal`, `PropertyModal`
+
+## Middleware
+
+- `auth.middleware.ts` - Route protection
+- `error.middleware.ts` - Error handling
+- `rateLimit.middleware.ts` - API rate limiting
+- `validation.middleware.ts` - Request validation
+
+## Services
+
+- `auth.service.ts` - Authentication logic
+- `property.service.ts` - Property management
+- `cloudinary.service.ts` - Image upload and management
+- `email.service.ts` - Email notifications
+- `reset.service.ts` - Password reset functionality
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m 'Add my feature'`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Submit a pull request
    > > > > > > > 48f8bee (Feature/password reset (#12))
-=======
->>>>>>> 3871659f8d014f18aedbab4e8ce205aeff23bece
-=======
+   > > > > > > > 3bd2a5a (Feature/password reset (#12))
+   > > > > > > > =======
+   # This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+# Next.js 15.5.2 Authentication Feature
+
+> > > > > > > f1e01a3 (1. MongoDB setup (#6))
+
+Authentication system with MongoDB.
+
+## Features
+
 - **Secure Authentication**: Email/password and Google OAuth
 - **Automatic Token Refresh**: 30-day sessions with 15-minute access tokens
-=======
-- **Authentication**
->>>>>>> 3bd2a5a (Feature/password reset (#12))
 
-  - User registration and login
-  - Password reset functionality
-  - Role-based access control (Admin/User)
-  - Protected routes with NextAuth
-
-- **Property Management**
-
-  - Property listing with detailed information
-  - Property search and filtering
-  - Featured properties section
-  - Image management with Cloudinary
-  - Property statistics for admins
-
-- **User Features**
-
-  - User profiles
-  - Property interest management
-  - Contact form for inquiries
-  - Responsive design for all devices
-
-- **Admin Dashboard**
-  - Property management (CRUD operations)
-  - User management
-  - Interest management
-  - Statistics and analytics
-
-## Tech Stack
-
-- **Frontend**
-
-  - Next.js 15+ with App Router
-  - TypeScript
-  - Tailwind CSS
-  - Framer Motion for animations
-  - Context API for state management
-
-- **Backend**
-
-  - Next.js API Routes
-  - MongoDB with Mongoose
-  - NextAuth.js for authentication
-  - Rate limiting middleware
-  - Error handling middleware
-
-- **Services**
-  - Cloudinary for image storage
-  - Email service for notifications
-  - Logging service
-
-## Project Structure
-
-```
-src/
-├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   ├── admin/             # Admin dashboard
-│   ├── auth/              # Authentication pages
-│   ├── properties/        # Property listings and details
-│   └── profile/           # User profile pages
-├── components/            # React components
-│   ├── adminTab/         # Admin dashboard tabs
-│   ├── layout/           # Layout components
-│   ├── misc/             # Miscellaneous components
-│   ├── modals/           # Modal components
-│   └── properties/       # Property-related components
-├── contexts/             # React Context providers
-├── lib/                  # Utility functions and configurations
-│   ├── config/          # Configuration files
-│   ├── controllers/     # API controllers
-│   ├── db/             # Database models and connection
-│   ├── middleware/     # Custom middleware
-│   ├── schema/         # Validation schemas
-│   ├── services/       # Business logic services
-│   ├── types/          # TypeScript types
-│   └── utils/          # Utility functions
-└── types/               # Global TypeScript types
-```
-
-## Getting Started
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/KitechRW/zone7.rw
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables:
-   Create a `.env` file with the following variables:
-
-   ```
-   NEXT_PUBLIC_COMPANY_NAME=
-   NEXT_PUBLIC_COMPANY_URL=
-   NEXT_PUBLIC_EMAIL=
-   NEXT_PUBLIC_PHONE=
-   NEXTAUTH_URL=
-   NEXTAUTH_SECRET=
-   MONGODB_URI=
-   ADMIN_EMAIL=
-   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
-   NEXT_PUBLIC_CLOUDINARY_API_KEY=
-   CLOUDINARY_API_SECRET=
-   BREVO_API_KEY=
-   BREVO_FROM_EMAIL=
-   BREVO_FROM_NAME=
-   ```
-
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-## Authentication
-
-The application implements a hybrid authentication system built on NextAuth.js with customizations:
-
-- **NextAuth Foundation**
-
-  - JWT-based authentication
-  - Session management with custom callbacks
-  - Credentials provider for email/password login
-
-- **Custom Extensions**
-
-  - Advanced token management (access & refresh tokens)
-  - Token refresh mechanism with concurrency protection
-  - Role-based access control (User/Admin/Owner)
-  - Device tracking and session management
-
-- **Security Features**
-  - Refresh token rotation
-  - Rate limiting on sensitive endpoints
-  - HTTP-only cookies for refresh tokens
-    <<<<<<< HEAD
-  - CSRF protection
 <<<<<<< HEAD
-  - Input validation with Zod
-    > > > > > > > f1e01a3 (1. MongoDB setup (#6))
->>>>>>> e6d2ccf (1. MongoDB setup (#6))
-=======
-  - Input validation with Zod > > > > > > > f1e01a3 (1. MongoDB setup (#6))
-    =======
-  - Secure password reset flow
-  - Device and user agent tracking
-
-## API Routes
-
-- `/api/auth/*` - Authentication endpoints
-- `/api/properties/*` - Property management
-- `/api/interests/*` - Interest management
-- `/api/users/*` - User management
-- `/api/contact/*` - Contact form
-
-## Context Providers
-
-- `AuthContext` - Authentication state and methods
-- `PropertyContext` - Property management state
-- `InterestContext` - Interest management state
-- `FilterContext` - Property filtering state
-
-## Components Overview
-
-- **Layout Components**: `Header`, `Footer`, `Welcome`, `Benefits`, etc.
-- **Property Components**: `PropertyCard`, `PropertyDetails`, `PropertyGrid`, etc.
-- **Admin Components**: `PropertyTab`, `UsersTab`, `InterestsTab`
-- **Miscellaneous**: `Avatar`, `Loader`, `Dropdown`, `SearchBar`, etc.
-- **Modals**: `InterestModal`, `PropertyModal`
-
-## Middleware
-
-- `auth.middleware.ts` - Route protection
-- `error.middleware.ts` - Error handling
-- `rateLimit.middleware.ts` - API rate limiting
-- `validation.middleware.ts` - Request validation
-
-## Services
-
-- `auth.service.ts` - Authentication logic
-- `property.service.ts` - Property management
-- `cloudinary.service.ts` - Image upload and management
-- `email.service.ts` - Email notifications
-- `reset.service.ts` - Password reset functionality
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m 'Add my feature'`
-4. Push to the branch: `git push origin feature/my-feature`
-5. Submit a pull request
-   > > > > > > > 48f8bee (Feature/password reset (#12))
->>>>>>> 3bd2a5a (Feature/password reset (#12))
-=======
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
@@ -668,4 +651,13 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
->>>>>>> 9caa17e (initial setup)
+
+> > > > > > > # 9caa17e (initial setup)
+
+- **Security Best Practices**:
+  - Bcrypt password hashing (12 rounds)
+  - JWT tokens with proper expiration
+  - HTTP-only cookies for refresh tokens
+  - CSRF protection
+  - Input validation with Zod
+    > > > > > > > f1e01a3 (1. MongoDB setup (#6))

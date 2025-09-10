@@ -75,65 +75,62 @@ const HomeComponent = () => {
   const applyFilters = useCallback(() => {
     setIsLoading(true);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      let result = [...properties];
+    let result = [...properties];
 
-      // Apply search query filter
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
-        result = result.filter(
-          (property) =>
-            property.title.toLowerCase().includes(query) ||
-            property.type.toLowerCase().includes(query) ||
-            property.category.toLowerCase().includes(query) ||
-            property.location.toLowerCase().includes(query) ||
-            (property.description &&
-              property.description.toLowerCase().includes(query))
-        );
-      }
-
-      if (activeFilters.type !== "all") {
-        result = result.filter(
-          (property) => property.type === activeFilters.type
-        );
-      }
-
-      if (activeFilters.category !== "all") {
-        result = result.filter(
-          (property) => property.category === activeFilters.category
-        );
-      }
-
+    // Apply search query filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
       result = result.filter(
         (property) =>
-          property.price >= activeFilters.minPrice &&
-          property.price <= activeFilters.maxPrice
+          property.title.toLowerCase().includes(query) ||
+          property.type.toLowerCase().includes(query) ||
+          property.category.toLowerCase().includes(query) ||
+          property.location.toLowerCase().includes(query) ||
+          (property.description &&
+            property.description.toLowerCase().includes(query))
       );
+    }
 
-      if (activeFilters.bedrooms > 0) {
-        result = result.filter(
-          (property) =>
-            property.bedrooms && property.bedrooms >= activeFilters.bedrooms
-        );
-      }
+    if (activeFilters.type !== "all") {
+      result = result.filter(
+        (property) => property.type === activeFilters.type
+      );
+    }
 
-      if (activeFilters.bathrooms > 0) {
-        result = result.filter(
-          (property) =>
-            property.bathrooms && property.bathrooms >= activeFilters.bathrooms
-        );
-      }
+    if (activeFilters.category !== "all") {
+      result = result.filter(
+        (property) => property.category === activeFilters.category
+      );
+    }
 
+    result = result.filter(
+      (property) =>
+        property.price >= activeFilters.minPrice &&
+        property.price <= activeFilters.maxPrice
+    );
+
+    if (activeFilters.bedrooms > 0) {
       result = result.filter(
         (property) =>
-          property.area >= activeFilters.minArea &&
-          property.area <= activeFilters.maxArea
+          property.bedrooms && property.bedrooms >= activeFilters.bedrooms
       );
+    }
 
-      setFilteredProperties(result);
-      setIsLoading(false);
-    }, 300);
+    if (activeFilters.bathrooms > 0) {
+      result = result.filter(
+        (property) =>
+          property.bathrooms && property.bathrooms >= activeFilters.bathrooms
+      );
+    }
+
+    result = result.filter(
+      (property) =>
+        property.area >= activeFilters.minArea &&
+        property.area <= activeFilters.maxArea
+    );
+
+    setFilteredProperties(result);
+    setIsLoading(false);
   }, [searchQuery, properties, activeFilters]);
 
   const handleFilterChange = (newFilters: FilterState) => {
