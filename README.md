@@ -84,7 +84,9 @@ src/
 └── types/               # Global TypeScript types
 ```
 
-## Getting Started
+Authentication system with MongoDB.
+
+<<<<<<< HEAD
 
 1. Clone the repository:
 
@@ -198,4 +200,17 @@ The application implements a hybrid authentication system built on NextAuth.js w
 2. Create your feature branch: `git checkout -b feature/my-feature`
 3. Commit your changes: `git commit -m 'Add my feature'`
 4. Push to the branch: `git push origin feature/my-feature`
-5. Submit a pull request
+5. # Submit a pull request
+
+## Features
+
+- **Secure Authentication**: Email/password and Google OAuth
+- **Automatic Token Refresh**: 30-day sessions with 15-minute access tokens
+
+- **Security Best Practices**:
+  - Bcrypt password hashing (12 rounds)
+  - JWT tokens with proper expiration
+  - HTTP-only cookies for refresh tokens
+  - CSRF protection
+  - Input validation with Zod
+    > > > > > > > f1e01a3 (1. MongoDB setup (#6))
