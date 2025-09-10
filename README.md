@@ -95,7 +95,11 @@ zone7.rw/
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allows users to browse, buy, and rent properties in Rwanda.
+=======
+Authentication system with MongoDB.
+>>>>>>> e6d2ccf (1. MongoDB setup (#6))
 
 <<<<<<< HEAD
 
@@ -215,6 +219,7 @@ The application implements a hybrid authentication system built on NextAuth.js w
 
 ## Features
 
+<<<<<<< HEAD
 - **Authentication**
 
   - User registration and login
@@ -416,3 +421,15 @@ The application implements a hybrid authentication system built on NextAuth.js w
    > > > > > > > 48f8bee (Feature/password reset (#12))
 =======
 >>>>>>> 3871659f8d014f18aedbab4e8ce205aeff23bece
+=======
+- **Secure Authentication**: Email/password and Google OAuth
+- **Automatic Token Refresh**: 30-day sessions with 15-minute access tokens
+
+- **Security Best Practices**:
+  - Bcrypt password hashing (12 rounds)
+  - JWT tokens with proper expiration
+  - HTTP-only cookies for refresh tokens
+  - CSRF protection
+  - Input validation with Zod
+    > > > > > > > f1e01a3 (1. MongoDB setup (#6))
+>>>>>>> e6d2ccf (1. MongoDB setup (#6))
