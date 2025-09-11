@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateRequest } from "@/lib/middleware/validation.middleware";
+import {
+  validate,
+  validateRequest,
+} from "@/lib/middleware/validation.middleware";
 import { AuthController } from "@/lib/controllers/auth.controller";
 import { registerSchema } from "@/lib/schema/auth.schema";
 import { ApiError } from "@/lib/utils/apiError";
@@ -7,6 +10,10 @@ import { z } from "zod";
 import logger from "@/lib/utils/logger";
 
 const authController = AuthController.getInstance();
+const validationMiddleware = validate(registerSchema, {
+  passwordFields: true,
+  customNoSQLRules: { password: "lenient" },
+});
 
 export const POST = async (request: NextRequest) => {
   try {
