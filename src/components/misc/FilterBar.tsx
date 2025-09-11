@@ -12,12 +12,14 @@ export interface FilterState {
 }
 
 interface FilterBarProps {
+  toggleFilter: () => void;
   onFilterChange: (filters: FilterState) => void;
   activeFilters: FilterState;
   onClearFilters: () => void;
 }
 
 const FilterBar = ({
+  toggleFilter,
   onFilterChange,
   activeFilters,
   onClearFilters,
@@ -44,6 +46,7 @@ const FilterBar = ({
   };
 
   const handleApply = () => {
+    toggleFilter();
     onFilterChange(localFilters);
   };
 
@@ -60,6 +63,7 @@ const FilterBar = ({
     };
     setLocalFilters(resetFilters);
     onClearFilters();
+    toggleFilter();
   };
 
   return (

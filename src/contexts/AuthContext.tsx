@@ -13,7 +13,6 @@ interface User {
   id: string;
   username: string;
   email: string;
-  image?: string;
   provider: string;
 }
 
@@ -73,6 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
+      setAuthLoading(true);
       await fetch("/api/auth/logout", { method: "POST" });
 
       await signOut({ callbackUrl: "/" });
@@ -80,6 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Logout error:", error);
       await signOut({ callbackUrl: "/" });
     }
+    setAuthLoading(false);
   };
 
   return (

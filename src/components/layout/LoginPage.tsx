@@ -3,10 +3,11 @@
 import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
-import logo from "../../public/blue-logo.webp";
+import logo from "../../../public/blue-logo.webp";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
+import Loader from "../misc/Loader";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,11 +18,18 @@ const LoginPage = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [pageLoading, SetPageLoading] = useState<boolean>(true);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setTimeout(() => {
+      SetPageLoading(false);
+    }, 1000);
+  }, []);
 
   useEffect(() => {
     const mode = searchParams.get("mode");
@@ -181,14 +189,12 @@ const LoginPage = () => {
   };
 
   const googleSignIn = async () => {
-    setLoading(true);
     try {
       await signIn("google", { callbackUrl: "/" });
     } catch (error) {
       setError(
         (error instanceof Error && error.message) || "Google sign in failed"
       );
-      setLoading(false);
     }
   };
 
@@ -238,7 +244,9 @@ const LoginPage = () => {
       </div>
     ) : null;
 
-  return (
+  return pageLoading ? (
+    <Loader className="h-screen" />
+  ) : (
     <div className="min-h-screen flex">
       <div className="hidden lg:flex lg:w-[60%] relative overflow-hidden">
         <div className="absolute inset-0">
@@ -264,7 +272,7 @@ const LoginPage = () => {
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center space-x-3">
               <Link href="/">
-                <Image src={logo} alt="Logo" width={150} height={100} />
+                <Image src={logo} alt="Logo" width={100} height={100} />
               </Link>
             </div>
           </div>

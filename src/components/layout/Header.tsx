@@ -1,12 +1,14 @@
+"use client";
+
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import logoWhite from "../../public/white-logo.webp";
-import logoblue from "../../public/blue-logo.webp";
+import logoWhite from "../../../public/white-logo.webp";
+import logoblue from "../../../public/blue-logo.webp";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import Avatar from "./Avatar";
+import Avatar from "../misc/Avatar";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
@@ -55,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
         >
           <div>
             <Link href="/">
-              <Image src={logoblue} alt="Logo" className="xs:w-24 md:w-32" />
+              <Image src={logoblue} alt="Logo" className="xs:w-20 md:w-28" />
             </Link>
           </div>
           <nav className="hidden md:flex items-center gap-8">
@@ -79,13 +81,10 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="absolute right-20 z-50 items-center hidden px-2 py-4 bg-platinum/90 rounded-md shadow-lg group-justify-center group-hover:block backdrop-blur-sm">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <Link href="/profile">
-                      <p className="px-2 py-1 text-sm text-gray-700 truncate hover:text-cyan-600">
+                      <p className="px-2 py-1 text-sm text-black font-medium truncate hover:text-cyan-600">
                         My account
                       </p>
                     </Link>
-                    <p className="px-2 py-1 text-sm text-gray-700 truncate">
-                      {user.email}
-                    </p>
                     <button
                       onClick={logout}
                       className="w-20 px-2 pt-1 pb-2 text-sm text-white font-medium bg-red-600 rounded hover:bg-red-700 cursor-pointer"
@@ -102,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({
             ) : (
               <button
                 onClick={login}
-                className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer"
+                className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm text-white shadow-2xl hover:shadow-blue-600 transition cursor-pointer"
               >
                 Login
               </button>
@@ -123,7 +122,7 @@ const Header: React.FC<HeaderProps> = ({
         <div className="relative flex items-center justify-between xs:px-10 md:px-20 py-1 bg-transparent backdrop-blur-[4px] h-20">
           <div>
             <Link href="/" className="text-3xl font-bold text-white">
-              <Image src={logoWhite} alt="Logo" className="xs:w-24 md:w-32" />
+              <Image src={logoWhite} alt="Logo" className="xs:w-20 md:w-28" />
             </Link>
           </div>
 
@@ -149,9 +148,6 @@ const Header: React.FC<HeaderProps> = ({
                         My account
                       </p>
                     </Link>
-                    <p className="px-2 py-1 text-sm text-white truncate">
-                      {user.email}
-                    </p>
                     <button
                       onClick={logout}
                       className="w-20 px-2 pt-1 pb-2 text-sm text-white font-medium bg-red-600 rounded hover:bg-red-700 cursor-pointer"
@@ -206,13 +202,10 @@ const Header: React.FC<HeaderProps> = ({
               {user ? (
                 <div className="flex flex-col gap-1">
                   <Link href="/profile">
-                    <p className="font-medium hover:text-cyan-600 text-black truncate">
+                    <p className="font-medium hover:text-cyan-600 text-black truncate mb-3">
                       My account
                     </p>
                   </Link>
-                  <p className="py-1 text-sm text-gray-700 truncate">
-                    {user.email}
-                  </p>
                   <button
                     onClick={logout}
                     className="w-20 px-2 pt-1 pb-2 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 cursor-pointer"
@@ -249,13 +242,10 @@ const Header: React.FC<HeaderProps> = ({
               {user ? (
                 <div className="flex flex-col gap-1">
                   <Link href="/profile">
-                    <p className="font-medium hover:text-cyan-300 text-white truncate">
+                    <p className="font-medium hover:text-cyan-300 text-white mb-3 truncate">
                       My account
                     </p>
                   </Link>
-                  <p className="py-1 text-sm text-platinum/70 truncate">
-                    {user.email}
-                  </p>
                   <button
                     onClick={logout}
                     className="w-20 px-2 pt-1 pb-2 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 cursor-pointer"

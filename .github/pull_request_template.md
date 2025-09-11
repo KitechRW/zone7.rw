@@ -8,9 +8,9 @@ Closes #[ISSUE_NUMBER]
 
 ## ✅ Changes
 
-- [✔️] Feature added
+- [ ] Feature added
 - [ ] Bug fixed
-- [ ] Refactoring
+- [✔️] Refactoring
 - [ ] Other (please describe):
 
 ---

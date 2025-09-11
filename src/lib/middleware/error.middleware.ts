@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import logger from "../utils/logger";
 import { ZodError } from "zod";
 import mongoose from "mongoose";
-import { randomUUID } from "crypto";
 import { ApiError } from "../utils/apiError";
 
 interface ErrorResponse {
@@ -39,7 +38,9 @@ export class ErrorMiddleware {
       request: NextRequest,
       ...args: unknown[]
     ): Promise<NextResponse> => {
-      const requestId = request.headers.get("x-request-id") || randomUUID();
+      const requestId =
+        request.headers.get("x-request-id") ||
+        `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
       try {
         // Add request ID to headers for tracing
@@ -230,31 +231,3 @@ export class ErrorMiddleware {
     );
   }
 }
-
-//Global error handler
-export const globalErrorHandler = () => {
-  process.on("uncaughtException", (error: Error) => {
-    logger.error("Uncaught Exception - Shutting down", {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    });
-    process.exit(1);
-  });
-
-  process.on("unhandledRejection", (reason: unknown) => {
-    logger.error("Unhandled Rejection - Shutting down", {
-      reason: reason instanceof Error ? reason.message : reason,
-      stack: reason instanceof Error ? reason.stack : undefined,
-    });
-    process.exit(1);
-  });
-
-  // Graceful shutdown
-  ["SIGTERM", "SIGINT"].forEach((signal) => {
-    process.on(signal, () => {
-      logger.info(`${signal} received - Shutting down gracefully`);
-      process.exit(0);
-    });
-  });
-};
