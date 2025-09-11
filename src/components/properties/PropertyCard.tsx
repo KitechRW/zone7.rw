@@ -26,7 +26,8 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             alt={property.title}
             className="h-44 object-cover text-gray-400"
             width={250}
-            height={100}
+            height={176}
+            style={{ width: "auto", height: "auto" }}
           />
           <div className="absolute top-4 left-4">
             <span

@@ -141,6 +141,10 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
 
   // Update URL when filters change
   useEffect(() => {
+    if (!window.location.pathname.match(/^\/(properties|search)?$/)) {
+      return; // Don't update URL for other pages other than home
+    }
+
     const params = new URLSearchParams();
 
     if (activeFilters.category !== "all")
@@ -159,9 +163,12 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
     if (activeFilters.maxArea < defaultFilters.maxArea)
       params.set("maxArea", activeFilters.maxArea.toString());
 
-    router.replace(params.toString() ? `?${params.toString()}` : "/", {
-      scroll: false,
-    });
+    router.replace(
+      params.toString() ? `?${params.toString()}` : window.location.pathname,
+      {
+        scroll: false,
+      }
+    );
   }, [activeFilters, router]);
 
   const updateFilters = (newFilters: Partial<FilterState>) => {

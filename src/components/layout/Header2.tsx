@@ -15,19 +15,24 @@ const Header2 = () => {
 
   return (
     <header className="fixed mx-auto inset-x-0 max-w-[1600px] top-0 z-50">
-      <div className="relative flex items-center justify-between xs:px-10 md:px-20 py-1 bg-white/85 backdrop-blur-md shadow-md h-20">
+      <div className="relative flex items-center justify-between xs:px-10 md:px-20 bg-white/85 backdrop-blur-md shadow-md h-20">
         <div>
           <Link href="/">
-            <Image src={logoblue} alt="Logo" className="xs:w-24 md:w-32" />
+            <Image
+              src={logoblue}
+              alt="Logo"
+              className="xs:w-20 md:w-28"
+              priority
+            />
           </Link>
         </div>
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="flex items-center gap-8">
           {user ? (
             <div className="group">
-              <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
+              <button className="flex items-center justify-center overflow-hidden rounded-full w-8">
                 <Avatar userName={user.email} />
               </button>
-              <div className="absolute right-20 z-50 items-center hidden px-2 py-4 bg-platinum/90 rounded-md shadow-lg group-justify-center group-hover:block backdrop-blur-sm">
+              <div className="absolute right-10 z-50 items-center hidden px-2 py-4 bg-platinum/90 rounded-md shadow-lg group-justify-center group-hover:block backdrop-blur-sm">
                 <div className="flex flex-col items-center justify-center gap-2">
                   <Link href="/profile">
                     <p className="px-2 py-1 text-sm text-gray-700 truncate hover:text-cyan-600">

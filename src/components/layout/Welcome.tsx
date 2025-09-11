@@ -28,7 +28,7 @@ const Welcome: React.FC<WelcomeProps> = ({ homeRef, scrollToProperties }) => {
 
   return (
     <section ref={homeRef} className="relative w-screen h-[750px] mx-auto py-5">
-      <div className="">
+      <div>
         <div className="absolute inset-0 bg-black/50 z-10"></div>
         <Image
           src={welcomeImage}
