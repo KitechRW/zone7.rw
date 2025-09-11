@@ -1,5 +1,5 @@
 import Image from "next/image";
-import logoWhite from "../../public/white-logo.webp";
+import logoWhite from "../../../public/white-logo.webp";
 
 interface FooterProps {
   scrollToHome: () => void;

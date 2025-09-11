@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { LoginCredentials, RegisterCredentials } from "../types/auth";
 import { AuthService } from "../services/auth.service";
-import { ValidationMiddleware } from "../middleware/validation.middleware";
 import { ApiError } from "../utils/apiError";
 import { ErrorMiddleware } from "../middleware/error.middleware";
 import { RateLimitMiddleware } from "../middleware/rateLimit.middleware";
@@ -34,13 +33,6 @@ export class AuthController {
 
       //Parse and validate request
       const body = await request.json();
-      const validation = ValidationMiddleware.registerValidation(body);
-
-      if (!validation.isValid) {
-        ApiError.validationError(
-          `Registration validation failed: ${validation.errors.join(", ")}`
-        );
-      }
 
       const credentials: RegisterCredentials = {
         username: body.username,
@@ -78,13 +70,6 @@ export class AuthController {
       rateLimiter(request);
 
       const body = await request.json();
-      const validation = ValidationMiddleware.loginValidation(body);
-
-      if (!validation.isValid) {
-        throw ApiError.validationError(
-          `Login validation failed: ${validation.errors.join(", ")}`
-        );
-      }
 
       const credentials: LoginCredentials = {
         email: body.email,

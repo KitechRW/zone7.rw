@@ -1,6 +1,6 @@
 "use client";
 
-import Avatar from "@/components/Avatar";
+import Avatar from "@/components/misc/Avatar";
 import { useAuth } from "../../contexts/AuthContext";
 
 const ProfilePage = () => {

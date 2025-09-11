@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Bed, Bath, MapPin, Heart, Calendar, LandPlot } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { mockPropertyDetails } from "@/util/TempDetails";
 import Image from "next/image";
-import Link from "next/link";
-import logoblue from "../../public/blue-logo.webp";
+import Header2 from "../layout/Header2";
+import Loader from "../misc/Loader";
 
 interface PropertyDetailsProps {
   propertyId: string;
@@ -26,6 +26,13 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     router.push("/");
   };
 
+  const [isLoading, SetIsLoading] = useState<boolean>(true);
+  useEffect(() => {
+    setTimeout(() => {
+      SetIsLoading(false);
+    }, 1000);
+  }, []);
+
   if (!property) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -44,26 +51,16 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     );
   }
 
-  return (
-    <div className="min-h-screen">
-      <div className="bg-white shadow-sm">
-        <div className="max-w-[2000px] mx-auto h-[80px] sticky top-0 xs:px-5 md:px-20 z-10">
-          <Link href="/" className="text-3xl font-bold text-light-blue">
-            <Image
-              src={logoblue}
-              alt="Logo"
-              className="w-32"
-              width={300}
-              height={200}
-            />
-          </Link>
-        </div>
-      </div>
+  return isLoading ? (
+    <Loader className="h-screen" />
+  ) : (
+    <div className="max-w-[1600px] mx-auto min-h-screen">
+      <Header2 />
 
-      <div className="max-w-[2000px] mx-auto xs:px-4 md:px-20 py-8">
+      <div className="mt-20 xs:px-4 md:px-20 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 space-y-5">
-            <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+            <div className="bg-white rounded-sm overflow-hidden shadow-sm">
               <div className="relative">
                 <Image
                   src={property.images[currentImageIndex]}

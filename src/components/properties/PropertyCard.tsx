@@ -1,5 +1,3 @@
-import { useState } from "react";
-import InterestModal from "./InterestModal";
 import { Property } from "@/types/Properties";
 import { Bed, LandPlot, MapPin, Toilet } from "lucide-react";
 import Image from "next/image";
@@ -10,8 +8,6 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const router = useRouter();
 
   const viewDetails = () => {
@@ -91,12 +87,6 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </div>
         </div>
       </div>
-
-      <InterestModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        property={property}
-      />
     </>
   );
 };

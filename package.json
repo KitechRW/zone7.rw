@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "dompurify": "^3.2.6",
     "framer-motion": "^12.23.12",
     "jose": "^6.1.0",
+    "jsdom": "^26.1.0",
     "lucide-react": "^0.542.0",
     "mongodb": "^6.19.0",
     "mongoose": "^8.18.0",
@@ -27,6 +29,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

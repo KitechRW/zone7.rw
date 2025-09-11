@@ -1,30 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import welcomeImage from "../../public/background.webp";
+import welcomeImage from "../../../public/background.webp";
+import { useFilter } from "@/contexts/FilterContext";
 
 interface WelcomeProps {
-  scrollToProperties: () => void;
   homeRef: React.RefObject<HTMLDivElement | null>;
-  onFilterUpdate: (filters: { category: string; type: string }) => void;
+  scrollToProperties: () => void;
 }
 
-const Welcome: React.FC<WelcomeProps> = ({
-  scrollToProperties,
-  homeRef,
-  onFilterUpdate,
-}) => {
+const Welcome: React.FC<WelcomeProps> = ({ homeRef, scrollToProperties }) => {
+  const { updateFilters } = useFilter();
+
   const buyProperties = () => {
     scrollToProperties();
     setTimeout(() => {
-      onFilterUpdate({ category: "sale", type: "all" });
+      updateFilters({ category: "sale", type: "all" });
     }, 500);
   };
 
   const rentHouse = () => {
     scrollToProperties();
     setTimeout(() => {
-      onFilterUpdate({ category: "rent", type: "house" });
+      updateFilters({ category: "rent", type: "house" });
     }, 500);
   };
 

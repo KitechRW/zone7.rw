@@ -1,5 +1,5 @@
+import { Property } from "@/types/Properties";
 import PropertyCard from "./PropertyCard";
-import { Property } from "../types/Properties";
 import { motion } from "framer-motion";
 
 interface PropertyGridProps {

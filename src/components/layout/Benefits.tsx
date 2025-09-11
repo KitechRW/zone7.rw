@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Home, Shield, Award, Heart, MapPinHouse, Phone } from "lucide-react";
 import { motion } from "framer-motion";
