@@ -1,11 +1,11 @@
 "use client";
 
 import { RefObject } from "react";
-import PropertyGrid from "./PropertyGrid";
 import FilterBar from "../misc/FilterBar";
 import SearchBar from "@/components/misc/SearchBar";
 import { Filter } from "lucide-react";
 import { useFilter } from "@/contexts/FilterContext";
+import PropertyGrid from "../properties/PropertyGrid";
 
 interface ListingsProps {
   propertyRef: RefObject<HTMLDivElement | null>;
