@@ -57,7 +57,12 @@ const Header: React.FC<HeaderProps> = ({
         >
           <div>
             <Link href="/">
-              <Image src={logoblue} alt="Logo" className="xs:w-20 md:w-28" />
+              <Image
+                src={logoblue}
+                alt="Logo"
+                className="xs:w-20 md:w-28"
+                priority
+              />
             </Link>
           </div>
           <nav className="hidden md:flex items-center gap-8">

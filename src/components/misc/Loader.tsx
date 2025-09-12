@@ -16,6 +16,7 @@ export const Loader: React.FC<LoaderProps> = ({ className = "" }) => {
         width={50}
         height={50}
         className="absolute left-1/2 ml-2 xs:hidden md:block"
+        priority
       />
     </div>
   );
