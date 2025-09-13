@@ -2,11 +2,7 @@ import Image from "next/image";
 import logoWhite from "../../../public/white-logo.webp";
 import Link from "next/link";
 
-interface FooterProps {
-  scrollToHome: () => void;
-}
-
-const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
+const Footer2 = () => {
   return (
     <footer className="w-screen bg-gradient-to-r from-gray-800 to-black">
       <div className="max-w-7xl mx-auto px-5 py-10">
@@ -25,15 +21,11 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
           <div className="w-52">
             <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 cursor-pointer">
-              <li
-                onClick={scrollToHome}
-                className="text-gray-400 hover:text-white transition"
-              >
-                Home
-              </li>
-              <li className="text-gray-400 hover:text-white transition">
-                Properties
-              </li>
+              <Link href="/">
+                <li className="text-gray-400 hover:text-white transition">
+                  Home
+                </li>
+              </Link>
               <Link href="/about">
                 <li className="text-gray-400 hover:text-white transition">
                   About Us
@@ -66,4 +58,4 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
   );
 };
 
-export default Footer;
+export default Footer2;

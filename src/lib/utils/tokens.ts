@@ -1,11 +1,10 @@
 import { randomBytes } from "crypto";
-import { NEXTAUTH_SECRET } from "../config/env";
 import { ApiError } from "./apiError";
 import { jwtVerify, SignJWT } from "jose";
 
 export class Tokens {
   private static readonly JWT_SECRET = new TextEncoder().encode(
-    NEXTAUTH_SECRET
+    process.env.NEXTAUTH_SECRET
   );
 
   static generateRefreshToken(): string {

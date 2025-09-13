@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import logoblue from "../../../public/blue-logo.webp";
@@ -14,14 +16,14 @@ const Header2 = () => {
   };
 
   return (
-    <header className="fixed mx-auto inset-x-0 max-w-[1600px] top-0 z-50">
-      <div className="relative flex items-center justify-between xs:px-10 md:px-20 bg-white/85 backdrop-blur-md shadow-md h-20">
+    <header className="fixed inset-x-0 top-0 bg-white/85 backdrop-blur-md shadow-md z-50">
+      <div className="relative max-w-7xl mx-auto flex items-center justify-between px-5 py-1 h-20">
         <div>
           <Link href="/">
             <Image
               src={logoblue}
               alt="Logo"
-              className="xs:w-20 md:w-28"
+              className="xs:w-20 md:w-24"
               priority
             />
           </Link>
@@ -55,7 +57,7 @@ const Header2 = () => {
           ) : (
             <button
               onClick={login}
-              className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm shadow-2xl hover:shadow-blue-600 transition cursor-pointer"
+              className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm  transition cursor-pointer"
             >
               Login
             </button>

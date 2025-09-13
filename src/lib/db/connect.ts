@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { MONGODB_URI } from "../config/env";
 import { ApiError } from "../utils/apiError";
 import logger from "../utils/logger";
 
@@ -20,7 +19,7 @@ class DBConnection {
     if (this.isConnected) return;
 
     try {
-      const mongoUri = MONGODB_URI;
+      const mongoUri = process.env.MONGODB_URI;
 
       if (!mongoUri) {
         throw ApiError.notFound("MONGODB_URI is not defined");

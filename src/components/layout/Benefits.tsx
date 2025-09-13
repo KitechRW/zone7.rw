@@ -23,8 +23,8 @@ const Benefits = () => {
   ];
 
   return (
-    <div className="xs:px-10 md:px-20">
-      <div className="text-center mb-16">
+    <section>
+      <div className="max-w-7xl mx-auto px-5 text-center mb-16">
         <h2 className="xs:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
           With&nbsp;
           <span className="bg-gradient-to-r from-light-blue to-blue-800 bg-clip-text text-transparent">
@@ -38,7 +38,7 @@ const Benefits = () => {
         </p>
       </div>
 
-      <div className="flex xs:flex-col md:flex-row items-center justify-center gap-10 mb-20">
+      <div className="max-w-7xl mx-auto px-5 flex xs:flex-col md:flex-row items-center justify-center gap-10 mb-20">
         <motion.div
           initial={{ opacity: 0, x: -100 }}
           whileInView={{ opacity: 2, x: 0 }}
@@ -96,48 +96,52 @@ const Benefits = () => {
         </motion.div>
       </div>
 
-      <div className="bg-gradient-to-r from-light-blue/20 to-green-300/20 rounded-3xl p-10 mb-10 relative overflow-hidden">
-        <div className="max-w-[1600px] mx-auto relative z-10">
-          <h3 className="text-3xl font-bold text-black text-center mb-12">
-            Trusted by Hundreds of Satisfied Clients
-          </h3>
+      <div className="bg-gradient-to-r from-light-blue/20 to-green-300/20 p-10 mb-10 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative z-10">
+            <h3 className="text-3xl font-bold text-black text-center mb-12">
+              Trusted by Hundreds of Satisfied Clients
+            </h3>
 
-          <div className="flex flex-wrap justify-evenly gap-10">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div key={index} className="text-center group">
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto transition-colors">
-                    <Icon className="w-8 h-8 text-black" />
+            <div className="flex flex-wrap justify-evenly gap-10">
+              {stats.map((stat, index) => {
+                const Icon = stat.icon;
+                return (
+                  <div key={index} className="text-center group">
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto transition-colors">
+                      <Icon className="w-8 h-8 text-black" />
+                    </div>
+                    <div
+                      ref={ref}
+                      className="xs:text-3xl md:text-5xl font-bold text-black mb-2 group-hover:scale-110 transition-transform duration-500 cursor-default"
+                    >
+                      {count && (
+                        <CountUp
+                          start={0}
+                          end={stat.number}
+                          duration={3}
+                          scrollSpyDelay={500}
+                        />
+                      )}
+                      +
+                    </div>
+                    <div className="text-black/80 font-medium">
+                      {stat.label}
+                    </div>
                   </div>
-                  <div
-                    ref={ref}
-                    className="xs:text-3xl md:text-5xl font-bold text-black mb-2 group-hover:scale-110 transition-transform duration-500 cursor-default"
-                  >
-                    {count && (
-                      <CountUp
-                        start={0}
-                        end={stat.number}
-                        duration={3}
-                        scrollSpyDelay={500}
-                      />
-                    )}
-                    +
-                  </div>
-                  <div className="text-black/80 font-medium">{stat.label}</div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className="absolute top-10 left-5 w-6 h-6 bg-light-blue/20 rounded-full animate-pulse" />
-        <div className="absolute top-28 left-10 w-12 h-12 bg-light-blue/20 rounded-full animate-pulse" />
-        <div className="absolute bottom-10 right-10 w-4 h-4 bg-green-200  rounded-full animate-pulse delay-300" />
-        <div className="absolute bottom-20 right-20 w-8 h-8 bg-green-200 rounded-full animate-pulse delay-700" />
+          <div className="absolute top-10 left-5 w-6 h-6 bg-light-blue/20 rounded-full animate-pulse" />
+          <div className="absolute top-28 left-10 w-12 h-12 bg-light-blue/20 rounded-full animate-pulse" />
+          <div className="absolute bottom-10 right-10 w-4 h-4 bg-green-200  rounded-full animate-pulse delay-300" />
+          <div className="absolute bottom-20 right-20 w-8 h-8 bg-green-200 rounded-full animate-pulse delay-700" />
+        </div>
       </div>
 
-      <div className="text-center py-10 mb-10 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-5 text-center py-10 mb-10 relative overflow-hidden">
         <div className="relative">
           <h3 className="xs:text-3xl md:text-5xl font-bold text-black mb-6">
             Ready to Find Your Perfect Home?
@@ -149,14 +153,14 @@ const Benefits = () => {
           </p>
 
           <div className="flex justify-center">
-            <button className="bg-gradient-to-br from-gray-600 to-gray-800 text-white px-10 py-5 rounded-sm font-semibold flex items-center justify-center hover:shadow-2xl transition cursor-pointer">
+            <button className="bg-gradient-to-br from-gray-600 to-gray-800 text-white px-10 py-5 rounded-sm font-semibold flex items-center justify-center hover:shadow-lg transition cursor-pointer">
               <Phone className="w-5 h-5 mr-3" />
-              Contact The Expert
+              Contact The Agent
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

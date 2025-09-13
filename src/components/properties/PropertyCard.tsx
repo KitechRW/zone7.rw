@@ -15,80 +15,80 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
   };
 
   return (
-    <>
-      <div
-        onClick={viewDetails}
-        className="justify-self-center bg-platinum w-60 h-80 rounded-sm shadow-2xl overflow-hidden transition-all duration-500 shadow-blue-900/20 hover:scale-[1.02] cursor-pointer"
-      >
-        <div className="relative">
-          <Image
-            src={property.image}
-            alt={property.title}
-            className="h-44 object-cover text-gray-400"
-            width={250}
-            height={176}
-            style={{ width: "auto", height: "auto" }}
-          />
-          <div className="absolute top-4 left-4">
-            <span
-              className={`px-3 py-1 text-xs font-semibold text-white rounded-full ${
-                property.category === "rent" ? "bg-green-500" : "bg-blue-500"
-              }`}
-            >
-              {property.category === "rent" ? "For Rent" : "For Sale"}
-            </span>
-          </div>
+    <div
+      onClick={viewDetails}
+      className="relative w-full h-96 rounded-xl shadow-lg overflow-hidden hover:shadow-xl cursor-pointer group"
+    >
+      <div className="relative h-full overflow-hidden">
+        <Image
+          src={property.image}
+          alt={property.title}
+          className="w-full h-full object-cover transition-transform duration-500 "
+          width={400}
+          height={208}
+        />
+        <div className="absolute top-4 left-4">
+          <span
+            className={`px-3 py-1.5 text-xs font-semibold text-white rounded-full shadow-md ${
+              property.category === "rent"
+                ? "bg-gradient-to-b from-green-500 to-green-800"
+                : "bg-gradient-to-b from-blue-500 to-blue-900"
+            }`}
+          >
+            {property.category === "rent" ? "For Rent" : "For Sale"}
+          </span>
         </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent transition-all duration-300 group-hover:from-black" />
+      </div>
 
-        <div className="px-2 py-3 text-center">
-          <h3 className="font-semibold text-sm text-black mb-3 truncate">
+      <div className="absolute bottom-1 w-full p-4 flex flex-col">
+        <div className="translate-y-[5.2rem] group-hover:translate-y-0 transition-transform duration-500">
+          <h3 className="font-bold text-lg text-gray-200 mb-2 line-clamp-2">
             {property.title}
           </h3>
-          <div className="flex items-center justify-center text-gray-500 mb-3">
-            <MapPin className="w-3 h-3 mr-1" />
-            <span className="text-xs">{property.location}</span>
+
+          <div className="flex items-center text-gray-200 mb-4">
+            <MapPin className="w-4 h-4 mr-2 text-gray-200" />
+            <span className="text-sm truncate">{property.location}</span>
           </div>
 
-          <div className="mb-2">
-            <span
-              className={`font-bold ${
-                property.category === "rent"
-                  ? "text-green-500"
-                  : "text-light-blue"
-              }`}
-            >
-              {property.category === "rent"
-                ? `Rwf ${property.price.toLocaleString()}/mo`
-                : `Rwf ${property.price.toLocaleString()}`}
-            </span>
+          <div>
+            <div className="mb-4">
+              <span className="text-2xl font-bold text-gray-200">
+                Rwf {property.price.toLocaleString()}
+                {property.category === "rent" && (
+                  <span className="text-sm font-medium text-gray-200">/mo</span>
+                )}
+              </span>
+            </div>
           </div>
 
-          <div className="flex justify-center gap-6 text-xs text-gray-500 py-2">
+          <div className="flex justify-between text-sm text-gray-300">
             {property.type === "house" ? (
               <>
-                <span className="flex items-center">
-                  <Bed className="w-4 h-4 mr-1" />
-                  {property.bedrooms}
-                </span>
-                <span className="flex items-center">
-                  <Toilet className="w-4 h-4 mr-1" />
-                  {property.bathrooms}
-                </span>
-                <span className="flex items-center">
-                  <LandPlot className="w-4 h-4 mr-1" />
-                  {property.area} m<sup>2</sup>
-                </span>
+                <div className="flex items-center">
+                  <Bed className="w-4 h-4 mr-1 text-gray-300" />
+                  <span>{property.bedrooms} beds</span>
+                </div>
+                <div className="flex items-center">
+                  <Toilet className="w-4 h-4 mr-1 text-gray-300" />
+                  <span>{property.bathrooms} baths</span>
+                </div>
+                <div className="flex items-center">
+                  <LandPlot className="w-4 h-4 mr-1 text-gray-300" />
+                  <span>{property.area} m²</span>
+                </div>
               </>
             ) : (
-              <span className="flex items-center">
-                <LandPlot className="w-4 h-4 mr-1" />
-                {property.area.toLocaleString()} m<sup>2</sup>.
-              </span>
+              <div className="flex items-center">
+                <LandPlot className="w-4 h-4 mr-2 text-gray-400" />
+                <span>{property.area.toLocaleString()} m² land</span>
+              </div>
             )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
