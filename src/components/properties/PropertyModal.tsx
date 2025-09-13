@@ -5,13 +5,6 @@ import { Plus, Trash2, X, Upload, Image as ImageIcon } from "lucide-react";
 import { useState, useRef } from "react";
 import Image from "next/image";
 
-interface UploadProgress {
-  progress: number;
-  status: "uploading" | "processing" | "completed" | "error";
-  message: string;
-  imageIndex?: number;
-}
-
 const PropertyModal = ({
   mode,
   property,

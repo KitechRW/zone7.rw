@@ -53,7 +53,7 @@ const Home = () => {
 
       <Suspense fallback={<Loader className="h-screen" />}>
         <Header scrollToProperties={propertyScroll} scrollToHome={homeScroll} />
-        <Welcome scrollToProperties={propertyScroll} homeRef={homeRef} />
+        <Welcome homeRef={homeRef} />
         <PropertyListings propertyRef={propertyRef} />
         <Benefits />
         <Footer scrollToHome={homeScroll} />

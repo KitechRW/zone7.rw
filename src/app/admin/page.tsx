@@ -38,7 +38,6 @@ const AdminDashboard = () => {
     activeFilters,
     searchQuery,
     isFilterOpen,
-    isLoading,
     updateFilters,
     setSearchQuery,
     toggleFilter,
@@ -125,15 +124,7 @@ const AdminDashboard = () => {
     closeModal();
   };
 
-  const handleTypeChange = (type: "all" | "house" | "plot") => {
-    updateFilters({ type });
-  };
-
-  const handleCategoryChange = (category: "all" | "sale" | "rent") => {
-    updateFilters({ category });
-  };
-
-  return isLoading ? (
+  return pageLoading ? (
     <Loader className="h-screen" />
   ) : (
     <div className="min-h-screen">
