@@ -299,12 +299,16 @@ const FilterBar = ({
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5a717d6 (UI improvement (#10))
           height: 8px;
           width: 8px;
 =======
           height: 14px;
           width: 14px;
 >>>>>>> 6390166 (UI improvement (#10))
+<<<<<<< HEAD
 =======
           height: 8px;
           width: 8px;
@@ -313,6 +317,8 @@ const FilterBar = ({
           height: 8px;
           width: 8px;
 >>>>>>> 3871659f8d014f18aedbab4e8ce205aeff23bece
+=======
+>>>>>>> 5a717d6 (UI improvement (#10))
           border-radius: 50%;
           background: #3399ff;
           cursor: pointer;
