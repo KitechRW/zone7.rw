@@ -5,11 +5,6 @@ import { Plus, Trash2, X, Upload, Image as ImageIcon } from "lucide-react";
 import { useState, useRef } from "react";
 import Image from "next/image";
 
-// interface CloudinaryUploadResponse {
-//   secure_url: string;
-//   public_id: string;
-// }
-
 const PropertyModal = ({
   mode,
   property,
@@ -50,35 +45,6 @@ const PropertyModal = ({
       : mode === "edit"
       ? "Edit Property"
       : "Property Details";
-
-  // const uploadToCloudinary = async (file: File): Promise<string> => {
-  //   const formData = new FormData();
-  //   formData.append("file", file);
-  //   formData.append(
-  //     "upload_preset",
-  //     process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "your_upload_preset"
-  //   );
-
-  //   try {
-  //     const response = await fetch(
-  //       `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-  //       {
-  //         method: "POST",
-  //         body: formData,
-  //       }
-  //     );
-
-  //     if (!response.ok) {
-  //       throw new Error("Upload failed");
-  //     }
-
-  //     const data: CloudinaryUploadResponse = await response.json();
-  //     return data.secure_url;
-  //   } catch (error) {
-  //     console.error("Upload error:", error);
-  //     throw new Error("Failed to upload image");
-  //   }
-  // };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
