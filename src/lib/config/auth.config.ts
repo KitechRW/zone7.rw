@@ -10,7 +10,6 @@ import { AuthService } from "../services/auth.service";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { UserData } from "../types/auth";
-import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXTAUTH_SECRET } from "./env";
 import logger from "../utils/logger";
 import { Tokens } from "../utils/tokens";
 
@@ -19,8 +18,8 @@ const authService = AuthService.getInstance();
 export const authConfig: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: GOOGLE_CLIENT_ID!,
-      clientSecret: GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
           prompt: "consent",
@@ -222,7 +221,5 @@ export const authConfig: NextAuthOptions = {
     },
   },
 
-  // debug: process.env.NODE_ENV === "development",
-
-  secret: NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
 };

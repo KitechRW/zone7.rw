@@ -24,16 +24,25 @@ const PropertyGrid = ({ properties }: PropertyGridProps) => {
     <motion.div
       initial={{ opacity: 0, x: -30 }}
       whileInView={{ opacity: 1, x: 0 }}
-      transition={{ duration: 1.5, ease: "easeOut" }}
+      transition={{ duration: 1, ease: "easeOut" }}
       viewport={{ once: true }}
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(14rem, 1fr))",
-        gap: "2.5rem",
-      }}
+      className="grid xs:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-start"
     >
-      {properties.map((property) => (
-        <PropertyCard key={property.id} property={property} />
+      {properties.map((property, index) => (
+        <motion.div
+          key={property.id}
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{
+            duration: 1,
+            delay: index * 0.1,
+            ease: "easeOut",
+          }}
+          viewport={{ once: true }}
+          className="w-full"
+        >
+          <PropertyCard property={property} />
+        </motion.div>
       ))}
     </motion.div>
   );

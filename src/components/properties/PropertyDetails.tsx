@@ -7,6 +7,7 @@ import { mockPropertyDetails } from "@/util/TempDetails";
 import Image from "next/image";
 import Header2 from "../layout/Header2";
 import Loader from "../misc/Loader";
+import Footer2 from "../layout/Footer2";
 
 interface PropertyDetailsProps {
   propertyId: string;
@@ -54,10 +55,10 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
   return isLoading ? (
     <Loader className="h-screen" />
   ) : (
-    <div className="max-w-[1600px] mx-auto min-h-screen">
+    <div className="overflow-x-hidden">
       <Header2 />
 
-      <div className="mt-20 xs:px-4 md:px-20 py-8">
+      <div className="max-w-7xl mx-auto mt-20 px-5 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 space-y-5">
             <div className="bg-white rounded-sm overflow-hidden shadow-sm">
@@ -293,6 +294,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
           </div>
         </div>
       </div>
+      <Footer2 />
     </div>
   );
 };

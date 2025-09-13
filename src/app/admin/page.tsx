@@ -12,6 +12,7 @@ import {
   Bed,
   Bath,
   LandPlot,
+  Filter,
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -19,6 +20,8 @@ import { useFilter } from "@/contexts/FilterContext";
 import Header2 from "@/components/layout/Header2";
 import SearchBar from "@/components/misc/SearchBar";
 import Loader from "@/components/misc/Loader";
+import { motion, AnimatePresence } from "framer-motion";
+import FilterBar from "@/components/misc/FilterBar";
 
 const AdminDashboard = () => {
   const [properties, setProperties] = useState<Property[]>(mockProperties);
@@ -29,14 +32,21 @@ const AdminDashboard = () => {
   const [modalMode, setModalMode] = useState<"create" | "edit" | "view">(
     "create"
   );
-  const [isLoading, SetIsLoading] = useState(true);
+  const [pageLoading, SetPageLoading] = useState(true);
 
-  const { searchQuery, setSearchQuery, activeFilters, updateFilters } =
-    useFilter();
+  const {
+    activeFilters,
+    searchQuery,
+    isFilterOpen,
+    updateFilters,
+    setSearchQuery,
+    toggleFilter,
+    clearAllFilters,
+  } = useFilter();
 
   useEffect(() => {
     setTimeout(() => {
-      SetIsLoading(false);
+      SetPageLoading(false);
     }, 1000);
   }, []);
 
@@ -114,20 +124,17 @@ const AdminDashboard = () => {
     closeModal();
   };
 
-  const handleTypeChange = (type: "all" | "house" | "plot") => {
-    updateFilters({ type });
-  };
-
-  const handleCategoryChange = (category: "all" | "sale" | "rent") => {
-    updateFilters({ category });
-  };
-
-  return isLoading ? (
+  return pageLoading ? (
     <Loader className="h-screen" />
   ) : (
     <div className="min-h-screen">
       <Header2 />
-      <div className="mt-20 bg-platinum max-w-[1600px] mx-auto py-8 xs:px-10 md:px-20">
+      <div className="mt-20 bg-platinum max-w-7xl mx-auto p-5">
+        <h2 className="xs:text-4xl md:text-5xl font-bold mb-10">
+          <span className="bg-gradient-to-r from-light-blue to-blue-900 bg-clip-text text-transparent">
+            Admin Dashboard
+          </span>
+        </h2>
         <div
           style={{
             display: "grid",
@@ -189,48 +196,57 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white/80 rounded-sm shadow-sm p-6">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              <SearchBar
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-              />
+        <div className="flex xs:flex-col md:flex-row items-center justify-center gap-4 mb-8">
+          <SearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+          <button
+            onClick={toggleFilter}
+            className="xs:flex lg:hidden xs:w-full items-center justify-center gap-2 bg-white text-light-blue border-2 border-gray-300 px-4 py-3.5 rounded-sm font-medium hover:bg-blue-50 cursor-pointer transition"
+          >
+            <Filter className="w-5 h-5" />
+            Filters
+          </button>
+        </div>
 
-              <div className="flex gap-2">
-                <select
-                  value={activeFilters.type}
-                  onChange={(e) =>
-                    handleTypeChange(e.target.value as "all" | "house" | "plot")
-                  }
-                  className="block w-full px-3 py-4 border-2 border-gray-300 rounded-sm leading-5 focus:border-light-blue bg-white placeholder-neutral-400 focus:outline-none text-gray-700 text-sm"
-                >
-                  <option value="all">All Types</option>
-                  <option value="house">Houses</option>
-                  <option value="plot">Plots</option>
-                </select>
+        <div className="lg:hidden">
+          <AnimatePresence>
+            {isFilterOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeInOut",
+                  opacity: { duration: 0.2 },
+                }}
+                className="overflow-hidden"
+              >
+                <FilterBar
+                  toggleFilter={toggleFilter}
+                  onFilterChange={updateFilters}
+                  activeFilters={activeFilters}
+                  onClearFilters={clearAllFilters}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-                <select
-                  value={activeFilters.category}
-                  onChange={(e) =>
-                    handleCategoryChange(
-                      e.target.value as "all" | "sale" | "rent"
-                    )
-                  }
-                  className="block w-full px-3 py-4 border-2 border-gray-300 rounded-sm leading-5 focus:border-light-blue bg-white placeholder-neutral-400 focus:outline-none text-gray-700 text-sm"
-                >
-                  <option value="all">All Categories</option>
-                  <option value="sale">For Sale</option>
-                  <option value="rent">For Rent</option>
-                </select>
-              </div>
-            </div>
-          </div>
+        <div className="xs:hidden lg:block">
+          <FilterBar
+            toggleFilter={toggleFilter}
+            onFilterChange={updateFilters}
+            activeFilters={activeFilters}
+            onClearFilters={clearAllFilters}
+          />
         </div>
 
         <button
           onClick={() => openModal("create")}
-          className="bg-gradient-to-r from-light-blue to-blue-800 text-white font-medium px-4 py-3 my-8 rounded-sm hover:shadow-lg transition-colors flex items-center gap-2 cursor-pointer"
+          className="bg-gradient-to-br from-gray-500 to-black text-white font-medium px-4 py-3 my-8 rounded-sm hover:shadow-lg transition-colors flex items-center gap-2 cursor-pointer"
         >
           Add Property
         </button>
