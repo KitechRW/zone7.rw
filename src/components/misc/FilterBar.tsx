@@ -296,8 +296,13 @@ const FilterBar = ({
         }
 
         .slider::-moz-range-thumb {
+<<<<<<< HEAD
           height: 8px;
           width: 8px;
+=======
+          height: 14px;
+          width: 14px;
+>>>>>>> 6390166 (UI improvement (#10))
           border-radius: 50%;
           background: #3399ff;
           cursor: pointer;
