@@ -24,6 +24,18 @@ export default withAuth(
       }
     }
 
+    // Admin route protection
+    if (pathname.startsWith("/admin")) {
+      if (!req.nextauth.token) {
+        const loginUrl = new URL("/auth/login", origin);
+        loginUrl.searchParams.set("callbackUrl", pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+      if (req.nextauth.token?.user?.role !== UserRole.ADMIN) {
+        return NextResponse.redirect(new URL("/unauthorized", origin));
+      }
+    }
+
     return NextResponse.next();
   },
   {

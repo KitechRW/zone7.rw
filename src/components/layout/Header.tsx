@@ -268,10 +268,14 @@ const Header: React.FC<HeaderProps> = ({
                   </div>
                 ) : (
                   <button
-                    onClick={() => menuItemClick(login)}
-                    className="bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 pb-3 pt-2 rounded-sm hover:shadow-lg transition cursor-pointer"
+                    onClick={() => menuItemClick(logout)}
+                    className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 transition cursor-pointer"
                   >
-                    Login
+                    {authLoading ? (
+                      <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
+                    ) : (
+                      "Logout"
+                    )}
                   </button>
                 )}
               </div>

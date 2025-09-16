@@ -212,7 +212,6 @@ const UsersTab = () => {
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedUsers.length / ITEMS_PER_PAGE);
-
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
