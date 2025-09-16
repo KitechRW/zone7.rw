@@ -1,13 +1,6 @@
-import type {
-  User,
-  Account,
-  Profile,
-  Session,
-  NextAuthOptions,
-} from "next-auth";
+import type { User, NextAuthOptions, Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import { AuthService } from "../services/auth.service";
-import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { UserData } from "../types/auth";
 import logger from "../utils/logger";
@@ -17,17 +10,6 @@ const authService = AuthService.getInstance();
 
 export const authConfig: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code",
-        },
-      },
-    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -51,6 +33,7 @@ export const authConfig: NextAuthOptions = {
             name: user.username,
             username: user.username,
             provider: user.provider,
+            role: user.role,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
           } as UserData;
@@ -78,32 +61,8 @@ export const authConfig: NextAuthOptions = {
   },
 
   callbacks: {
-    async signIn({
-      user,
-      account,
-      profile,
-    }: {
-      user: User;
-      account: Account | null;
-      profile?: Profile;
-    }) {
+    async signIn() {
       try {
-        if (account?.provider === "google" && profile) {
-          const googleUser = await authService.googleUser({
-            id: profile.sub,
-            email: profile.email,
-            name: profile.name,
-          });
-
-          // Update user object with database user info
-          user.id = googleUser._id.toString();
-          user.email = googleUser.email;
-          user.name = googleUser.username;
-          (user as UserData).username = googleUser.username;
-          (user as UserData).provider = googleUser.provider;
-          (user as UserData).createdAt = googleUser.createdAt;
-          (user as UserData).updatedAt = googleUser.updatedAt;
-        }
         return true;
       } catch (error) {
         logger.error("Sign in error:", error);
@@ -111,18 +70,9 @@ export const authConfig: NextAuthOptions = {
       }
     },
 
-    async jwt({
-      token,
-      user,
-      account,
-    }: {
-      token: JWT;
-      user: User;
-      account: Account | null;
-    }) {
+    async jwt({ token, user }: { token: JWT; user: User }) {
       try {
-        // Initial sign in
-        if (user && account) {
+        if (user) {
           const now = Date.now();
           const accessToken = await Tokens.createAccessToken(
             { userId: user.id, type: "access" },
@@ -150,7 +100,7 @@ export const authConfig: NextAuthOptions = {
           return token;
         }
 
-        // Access token has expired, try to update it
+        // Access token has expired, trying to update it
         try {
           const newTokens = await authService.refreshTokens(
             token.refreshToken as string
@@ -169,19 +119,21 @@ export const authConfig: NextAuthOptions = {
         // Refresh token is invalid or expired
         return {
           ...token,
-          accessToken: undefined,
-          refreshToken: undefined,
-          accessTokenExpires: undefined,
-          refreshTokenExpires: undefined,
+          accessToken: "",
+          refreshToken: "",
+          accessTokenExpires: 0,
+          refreshTokenExpires: 0,
+          user: token.user,
         };
       } catch (error) {
         logger.error("JWT callback error:", error);
         return {
           ...token,
-          accessToken: undefined,
-          refreshToken: undefined,
-          accessTokenExpires: undefined,
-          refreshTokenExpires: undefined,
+          accessToken: "",
+          refreshToken: "",
+          accessTokenExpires: 0,
+          refreshTokenExpires: 0,
+          user: token.user,
         };
       }
     },

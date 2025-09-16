@@ -1,106 +1,228 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Bed, Bath, MapPin, Heart, Calendar, LandPlot } from "lucide-react";
+import {
+  Bed,
+  Bath,
+  MapPin,
+  Heart,
+  Calendar,
+  LandPlot,
+  ArrowLeft,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { mockPropertyDetails } from "@/util/TempDetails";
 import Image from "next/image";
-import Header2 from "../layout/Header2";
-import Loader from "../misc/Loader";
-import Footer2 from "../layout/Footer2";
+import Header2 from "@/components/layout/Header2";
+import Loader from "@/components/misc/Loader";
+import Footer2 from "@/components/layout/Footer2";
+import { useProperty } from "@/contexts/PropertyContext";
 
 interface PropertyDetailsProps {
   propertyId: string;
 }
 
-// Mock detailed property data
-const getPropertyDetails = (id: string) => {
-  return mockPropertyDetails.find((property) => property.id === id) || null;
-};
-
 const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
   const router = useRouter();
-  const property = getPropertyDetails(propertyId);
+  const { fetchProperty, currentProperty, error, clearError } = useProperty();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [allImages, setAllImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadProperty = async () => {
+      try {
+        setIsLoading(true);
+        clearError();
+        await fetchProperty(propertyId);
+      } catch (error) {
+        console.error("Failed to load property:", error);
+      } finally {
+        setTimeout(() => setIsLoading(false), 1000);
+      }
+    };
+
+    if (propertyId) {
+      loadProperty();
+    }
+  }, [propertyId, fetchProperty, clearError]);
+
+  // Combine main image with room images when property loads
+  useEffect(() => {
+    if (currentProperty) {
+      const images = [
+        currentProperty.mainImage,
+        ...currentProperty.roomTypeImages.map((img) => img.url),
+      ];
+      setAllImages(images);
+      setCurrentImageIndex(0); // Reset to first image
+    }
+  }, [currentProperty]);
 
   const handleBack = () => {
-    router.push("/");
+    router.push("/properties");
   };
 
-  const [isLoading, SetIsLoading] = useState<boolean>(true);
-  useEffect(() => {
-    setTimeout(() => {
-      SetIsLoading(false);
-    }, 1000);
-  }, []);
+  if (isLoading) {
+    return <Loader className="h-screen" />;
+  }
 
-  if (!property) {
+  if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Property Not Found
-          </h2>
-          <button
-            onClick={handleBack}
-            className="bg-gradient-to-r from-light-blue to-blue-800 text-white px-6 py-2 rounded-sm hover:shadow-blue-600 transition-colors"
-          >
-            Go Back
-          </button>
+      <div className="overflow-x-hidden">
+        <Header2 />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center mt-20">
+          <div className="text-center max-w-md mx-auto p-6">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4">
+              <h2 className="text-2xl font-bold text-red-800 mb-2">
+                Error Loading Property
+              </h2>
+              <p className="text-red-600 mb-4">{error}</p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    clearError();
+                    fetchProperty(propertyId);
+                  }}
+                  className="bg-red-600 text-white px-4 py-2 rounded-sm hover:bg-red-700 transition-colors mr-2"
+                >
+                  Try Again
+                </button>
+                <button
+                  onClick={handleBack}
+                  className="bg-gray-600 text-white px-4 py-2 rounded-sm hover:bg-gray-700 transition-colors"
+                >
+                  Go Back
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+        <Footer2 />
       </div>
     );
   }
 
-  return isLoading ? (
-    <Loader className="h-screen" />
-  ) : (
+  if (!currentProperty) {
+    return (
+      <div className="overflow-x-hidden">
+        <Header2 />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center mt-20">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Property Not Found
+            </h2>
+            <p className="text-gray-600 mb-4">
+              The property you are looking for does not exist or has been
+              removed.
+            </p>
+            <button
+              onClick={handleBack}
+              className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-2 rounded-sm hover:shadow-lg transition-colors flex items-center gap-2 mx-auto"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Properties
+            </button>
+          </div>
+        </div>
+        <Footer2 />
+      </div>
+    );
+  }
+
+  const getCurrentImageInfo = () => {
+    if (currentImageIndex === 0) {
+      return "Main Property Image";
+    }
+
+    const roomImageIndex = currentImageIndex - 1;
+    const roomImage = currentProperty.roomTypeImages[roomImageIndex];
+
+    if (roomImage) {
+      const roomTypeLabels: { [key: string]: string } = {
+        living_room: "Living Room",
+        bedroom: "Bedroom",
+        bathroom: "Bathroom",
+        kitchen: "Kitchen",
+        dining_room: "Dining Room",
+        balcony: "Balcony",
+        exterior: "Exterior",
+        other: "Other",
+      };
+
+      const label = roomTypeLabels[roomImage.roomType] || "Other";
+      return roomImage.description
+        ? `${label}: ${roomImage.description}`
+        : label;
+    }
+
+    return "Property Image";
+  };
+
+  return (
     <div className="overflow-x-hidden">
       <Header2 />
 
-      <div className="max-w-7xl mx-auto mt-20 px-5 py-8">
+      <div className="max-w-7xl mx-auto my-20 px-5 py-8">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Properties
+        </button>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 space-y-5">
             <div className="bg-white rounded-sm overflow-hidden shadow-sm">
               <div className="relative">
                 <Image
-                  src={property.images[currentImageIndex]}
+                  src={allImages[currentImageIndex]}
                   alt="Property image"
                   className="w-full h-96 object-cover"
-                  width={300}
-                  height={200}
+                  width={800}
+                  height={600}
                 />
-                <div className="absolute top-4 left-4">
+
+                <div className="absolute top-4 left-4 flex gap-2">
                   <span
                     className={`px-3 pt-1 pb-1.5 text-sm font-semibold text-white rounded-full ${
-                      property.category === "rent"
+                      currentProperty.category === "rent"
                         ? "bg-green-500"
                         : "bg-blue-600"
                     }`}
                   >
-                    {property.category === "rent" ? "For Rent" : "For Sale"}
+                    {currentProperty.category === "rent"
+                      ? "For Rent"
+                      : "For Sale"}
                   </span>
+                  {currentProperty.featured && (
+                    <span className="px-3 pt-1 pb-1.5 text-sm font-semibold text-white bg-yellow-500 rounded-full">
+                      Featured
+                    </span>
+                  )}
                 </div>
 
-                {property.images.length > 1 && (
+                {allImages.length > 1 && (
                   <>
                     <button
                       onClick={() =>
                         setCurrentImageIndex((prev) =>
-                          prev > 0 ? prev - 1 : property.images.length - 1
+                          prev > 0 ? prev - 1 : allImages.length - 1
                         )
                       }
                       className="absolute left-4 top-1/2 transform -translate-y-1/2 px-3.5 pt-2 pb-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-all cursor-pointer"
+                      aria-label="Previous image"
                     >
                       ←
                     </button>
                     <button
                       onClick={() =>
                         setCurrentImageIndex((prev) =>
-                          prev < property.images.length - 1 ? prev + 1 : 0
+                          prev < allImages.length - 1 ? prev + 1 : 0
                         )
                       }
                       className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white px-3.5 pt-2 pb-3 rounded-full hover:bg-black/70 transition-colors cursor-pointer"
+                      aria-label="Next image"
                     >
                       →
                     </button>
@@ -108,85 +230,85 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 )}
 
                 <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                  {currentImageIndex + 1} / {property.images.length}
+                  {currentImageIndex + 1} / {allImages.length}
                 </div>
               </div>
 
-              <div className="p-4">
-                <div className="flex gap-3 overflow-x-auto pb-2">
-                  {property.images.map((image: string, index: number) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                        index === currentImageIndex
-                          ? "border-blue-500"
-                          : "border-gray-200 hover:border-gray-300"
-                      } cursor-pointer`}
-                    >
-                      <Image
-                        src={image}
-                        alt="Property rooms"
-                        className="w-full h-full object-cover"
-                        width={300}
-                        height={200}
-                      />
-                    </button>
-                  ))}
+              {allImages.length > 1 && (
+                <div className="p-4">
+                  <div className="flex gap-3 overflow-x-auto pb-2">
+                    {allImages.map((image: string, index: number) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                          index === currentImageIndex
+                            ? "border-blue-500"
+                            : "border-gray-200 hover:border-gray-300"
+                        } cursor-pointer`}
+                      >
+                        <Image
+                          src={image}
+                          alt="Property thumbnail"
+                          className="w-full h-full object-cover"
+                          width={80}
+                          height={80}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-2 text-center">
+                    <p className="text-sm text-gray-600">
+                      {getCurrentImageInfo()}
+                    </p>
+                  </div>
                 </div>
-                <div className="mt-2 text-center">
-                  <p className="text-sm text-gray-600">
-                    {property.roomTypes
-                      ? property.roomTypes[currentImageIndex]
-                      : ""}
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <div className="mb-6">
                 <h1 className="text-3xl font-bold text-black mb-2">
-                  {property.title}
+                  {currentProperty.title}
                 </h1>
                 <div className="flex items-center text-gray-600 mb-4">
                   <MapPin className="w-5 h-5 mr-2" />
-                  <span>{property.location}</span>
+                  <span>{currentProperty.location}</span>
                 </div>
                 <div
                   className={`text-3xl font-bold ${
-                    property.category === "sale"
-                      ? "text-light-blue"
+                    currentProperty.category === "sale"
+                      ? "text-blue-600"
                       : "text-green-500"
                   }`}
                 >
-                  {property.category === "rent"
-                    ? `Rwf ${property.price.toLocaleString()}/month`
-                    : `Rwf ${property.price.toLocaleString()}`}
+                  {currentProperty.category === "rent"
+                    ? `Rwf ${currentProperty.price.toLocaleString()}/month`
+                    : `Rwf ${currentProperty.price.toLocaleString()}`}
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
-                {property.type === "house" ? (
+                {currentProperty.type === "house" && (
                   <>
                     <div className="flex items-center">
                       <Bed className="w-5 h-5 mr-2 text-gray-500" />
                       <span className="text-gray-500">
-                        {property.bedrooms} Bedrooms
+                        {currentProperty.bedrooms} Bedrooms
                       </span>
                     </div>
                     <div className="flex items-center">
                       <Bath className="w-5 h-5 mr-2 text-gray-500" />
                       <span className="text-gray-500">
-                        {property.bathrooms} Bathrooms
+                        {currentProperty.bathrooms} Bathrooms
                       </span>
                     </div>
                   </>
-                ) : null}
+                )}
                 <div className="flex items-center">
                   <LandPlot className="w-5 h-5 mr-2 text-gray-500" />
                   <span className="text-gray-500">
-                    {property.area.toLocaleString()} m²
+                    {currentProperty.area.toLocaleString()} m²
                   </span>
                 </div>
               </div>
@@ -196,33 +318,34 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                   Description
                 </h3>
                 <p className="text-gray-700 leading-relaxed">
-                  {property.description}
+                  {currentProperty.description}
                 </p>
               </div>
 
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  Features & Amenities
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {property.features
-                    ? property.features.map(
+              {currentProperty.features &&
+                currentProperty.features.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                      Features & Amenities
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {currentProperty.features.map(
                         (feature: string, index: number) => (
                           <div key={index} className="flex items-center">
                             <div
                               className={`w-2 h-2 ${
-                                property.category === "sale"
-                                  ? "bg-light-blue"
+                                currentProperty.category === "sale"
+                                  ? "bg-blue-600"
                                   : "bg-green-500"
                               } rounded-full mr-3`}
                             ></div>
                             <span className="text-gray-700">{feature}</span>
                           </div>
                         )
-                      )
-                    : ""}
-                </div>
-              </div>
+                      )}
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -231,20 +354,20 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
               <div className="space-y-3">
                 <button
                   className={`flex items-center justify-center w-full bg-gradient-to-r ${
-                    property.category === "sale"
-                      ? "from-light-blue to-blue-800"
-                      : "bg-gradient-to-r from-green-500 to-green-700"
-                  } text-white py-3 px-4 rounded-lg transition-colors cursor-pointer`}
+                    currentProperty.category === "sale"
+                      ? "from-blue-600 to-blue-800"
+                      : "from-green-500 to-green-700"
+                  } text-white py-3 px-4 rounded-lg transition-colors cursor-pointer hover:shadow-lg`}
                 >
                   <Heart className="w-5 h-5 mr-2" />
-                  Place interest
+                  Place Interest
                 </button>
                 <button
-                  className={`flex items-center justify-center w-full border bg-light-blue/5 ${
-                    property.category === "sale"
-                      ? "border-light-blue text-blue-800 "
-                      : "border-green-500 text-green-900 hover:bg-green-500/10"
-                  } py-3 px-4 rounded-lg  transition-colors cursor-pointer`}
+                  className={`flex items-center justify-center w-full border ${
+                    currentProperty.category === "sale"
+                      ? "border-blue-600 text-blue-800 bg-blue-50 hover:bg-blue-100"
+                      : "border-green-500 text-green-900 bg-green-50 hover:bg-green-100"
+                  } py-3 px-4 rounded-lg transition-colors cursor-pointer`}
                 >
                   <Calendar className="w-5 h-5 mr-2" />
                   Schedule Visit
@@ -252,43 +375,63 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
               </div>
             </div>
 
-            <div className="sticky top-68 bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-xl font-semibled text-black mb-4">
+            <div className="sticky top-80 bg-white rounded-lg p-6 shadow-sm">
+              <h3 className="text-xl font-semibold text-black mb-4">
                 Property Overview
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-700">Type:</span>
                   <span className="capitalize text-gray-500">
-                    {property.type}
+                    {currentProperty.type}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-700">Category:</span>
                   <span className="capitalize text-gray-500">
-                    {property.category}
+                    {currentProperty.category}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Area:</span>
                   <span className="text-gray-500">
-                    {property.area.toLocaleString()} m²
+                    {currentProperty.area.toLocaleString()} m²
                   </span>
                 </div>
-                {property.type === "house" && (
+                {currentProperty.type === "house" && (
                   <>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Bedrooms:</span>
-                      <span className="text-gray-500">{property.bedrooms}</span>
+                      <span className="text-gray-500">
+                        {currentProperty.bedrooms}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Bathrooms:</span>
                       <span className="text-gray-500">
-                        {property.bathrooms}
+                        {currentProperty.bathrooms}
                       </span>
                     </div>
                   </>
                 )}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Featured:</span>
+                  <span
+                    className={`text-sm px-2 py-1 rounded-full ${
+                      currentProperty.featured
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {currentProperty.featured ? "Yes" : "No"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Listed:</span>
+                  <span className="text-gray-500">
+                    {new Date(currentProperty.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

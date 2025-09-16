@@ -1,3 +1,4 @@
+// app/api/users/stats/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { ApiError } from "@/lib/utils/apiError";
 import logger from "@/lib/utils/logger";
@@ -7,9 +8,9 @@ const authController = AuthController.getInstance();
 
 export const GET = async (request: NextRequest) => {
   try {
-    return await authController.getSessions(request);
+    return await authController.getUserStats(request);
   } catch (error) {
-    logger.error("Sessions fetch error:", error);
+    logger.error("Get user stats error:", error);
 
     if (error instanceof ApiError) {
       return NextResponse.json(
@@ -25,7 +26,7 @@ export const GET = async (request: NextRequest) => {
       {
         success: false,
         message:
-          error instanceof Error ? error.message : "Failed to fetch sessions",
+          error instanceof Error ? error.message : "Failed to fetch user stats",
       },
       { status: 500 }
     );

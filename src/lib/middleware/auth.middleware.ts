@@ -1,65 +1,76 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Tokens } from "../utils/tokens";
+import { getServerSession } from "next-auth";
+import { UserRole } from "../utils/permission";
+import { authConfig } from "../config/auth.config";
 
 export class AuthMiddleware {
-  static async verifyToken(request: NextRequest): Promise<{
-    isValid: boolean;
-    userId?: string;
-    error?: string;
-  }> {
-    try {
-      const authHeader = request.headers.get("authorization");
-
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return { isValid: false, error: "No valid authorization header" };
-      }
-
-      const token = authHeader.substring(7);
-      const payload = (await Tokens.verifyAccessToken(token)) as {
-        userId: string;
-      };
-
-      return {
-        isValid: true,
-        userId: payload.userId,
-      };
-    } catch (error) {
-      return {
-        isValid: false,
-        error:
-          (error instanceof Error && error.message) ||
-          "Token verification failed",
-      };
-    }
-  }
-
   static async requireAuth(request: NextRequest): Promise<NextResponse | null> {
-    const verification = await this.verifyToken(request);
+    const session = await getServerSession(authConfig);
 
-    if (!verification.isValid) {
+    if (!session || !session.user) {
       return NextResponse.json(
         {
           success: false,
-          message: verification.error || "Authentication required",
+          message: "Authentication required",
         },
         { status: 401 }
       );
     }
 
-    // Add user ID to headers for downstream handlers
-    request.headers.set("x-user-id", verification.userId!);
+    // Add user data to headers for downstream handlers
+    request.headers.set("x-user-id", session.user.id);
+    request.headers.set("x-user-role", session.user.role);
+    request.headers.set("x-user-username", session.user.username);
 
     return null; // No error response means auth passed
   }
 
-  static async optionalAuth(request: NextRequest): Promise<string | null> {
-    const verification = await this.verifyToken(request);
+  static async requireAdmin(
+    request: NextRequest
+  ): Promise<NextResponse | null> {
+    const session = await getServerSession(authConfig);
 
-    if (verification.isValid) {
-      request.headers.set("x-user-id", verification.userId!);
-      return verification.userId!;
+    if (!session || !session.user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Authentication required",
+        },
+        { status: 401 }
+      );
     }
 
+    if (session.user.role !== UserRole.ADMIN) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Admin access required",
+        },
+        { status: 403 }
+      );
+    }
+
+    request.headers.set("x-user-id", session.user.id);
+    request.headers.set("x-user-role", session.user.role);
+
     return null;
+  }
+
+  static async optionalAuth(request: NextRequest): Promise<{
+    userId: string | null;
+    role: UserRole | null;
+  }> {
+    const session = await getServerSession(authConfig);
+
+    if (session?.user) {
+      request.headers.set("x-user-id", session.user.id);
+      request.headers.set("x-user-role", session.user.role);
+      return {
+        userId: session.user.id,
+        role: session.user.role,
+      };
+    }
+
+    return { userId: null, role: null };
   }
 }

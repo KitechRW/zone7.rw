@@ -8,8 +8,8 @@ Closes #[ISSUE_NUMBER]
 
 ## ✅ Changes
 
-- [ ] Feature added
-- [ ] Bug fixed
+- [✔️] Feature added
+- [✔️ ] Bug fixed
 - [✔️] Refactoring
 - [ ] Other (please describe):
 
@@ -19,7 +19,7 @@ Closes #[ISSUE_NUMBER]
 
 Steps for testing this PR:
 
-1.
+1. Browse (https://restate.kitech.rw/admin) to test property and user management
 2.
 3.
 

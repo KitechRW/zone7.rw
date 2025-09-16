@@ -1,15 +1,16 @@
 "use client";
 
 import { RefObject, useEffect, useState } from "react";
-import SearchBar from "@/components/misc/SearchBar";
 import { Filter } from "lucide-react";
 import { useFilter } from "@/contexts/FilterContext";
-import FilterBar from "@/components/misc/FilterBar";
+import { useProperty } from "@/contexts/PropertyContext";
+import FilterBar, { FilterState } from "@/components/misc/FilterBar";
 import PropertyGrid from "@/components/properties/PropertyGrid";
 import Loader from "@/components/misc/Loader";
 import { AnimatePresence, motion } from "framer-motion";
 import Header2 from "@/components/layout/Header2";
 import Footer2 from "@/components/layout/Footer2";
+import { PropertyFilters } from "@/types/Properties";
 
 interface ListingsProps {
   propertyRef: RefObject<HTMLDivElement | null>;
@@ -18,30 +19,136 @@ interface ListingsProps {
 const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
   const {
     activeFilters,
-    filteredProperties,
     searchQuery,
     isFilterOpen,
-    isLoading,
     updateFilters,
-    setSearchQuery,
     toggleFilter,
     clearAllFilters,
   } = useFilter();
 
-  const [pageLoading, SetPageLoading] = useState<boolean>(true);
+  const {
+    properties,
+    loading: propertiesLoading,
+    error,
+    pagination,
+    fetchProperties,
+    clearError,
+  } = useProperty();
 
+  console.log("PropertyPage - Properties from context:", properties);
+  console.log("PropertyPage - Properties length:", properties?.length);
+  console.log("PropertyPage - Loading state:", propertiesLoading);
+  console.log("PropertyPage - Error state:", error);
+
+  const [pageLoading, setPageLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Initialize the page
   useEffect(() => {
-    setTimeout(() => {
-      SetPageLoading(false);
-    }, 1000);
-  }, []);
+    const initializePage = async () => {
+      try {
+        await fetchProperties({}, 1, 12);
+      } catch (error) {
+        console.error("Failed to load properties:", error);
+      } finally {
+        setTimeout(() => setPageLoading(false), 1000);
+      }
+    };
+
+    initializePage();
+  }, [fetchProperties]);
+
+  const createPropertyFilters = (
+    activeFilters: FilterState,
+    searchQuery: string | undefined
+  ): PropertyFilters => {
+    const filters: PropertyFilters = {};
+
+    // Only add filters if they have actual values (not default/empty values)
+    if (activeFilters.type && activeFilters.type !== "all") {
+      filters.type = activeFilters.type as "house" | "plot";
+    }
+
+    if (activeFilters.category && activeFilters.category !== "all") {
+      filters.category = activeFilters.category as "sale" | "rent";
+    }
+
+    if (activeFilters.minPrice && activeFilters.minPrice !== 100000) {
+      filters.minPrice = activeFilters.minPrice;
+    }
+
+    if (activeFilters.maxPrice && activeFilters.maxPrice !== 200000000) {
+      filters.maxPrice = activeFilters.maxPrice;
+    }
+
+    if (activeFilters.bedrooms && activeFilters.bedrooms > 0) {
+      filters.bedrooms = activeFilters.bedrooms;
+    }
+
+    if (activeFilters.bathrooms && activeFilters.bathrooms > 0) {
+      filters.bathrooms = activeFilters.bathrooms;
+    }
+
+    if (activeFilters.minArea && activeFilters.minArea > 0) {
+      filters.minArea = activeFilters.minArea;
+    }
+
+    if (activeFilters.maxArea && activeFilters.maxArea !== 20000) {
+      filters.maxArea = activeFilters.maxArea;
+    }
+
+    if (
+      activeFilters.featured !== undefined &&
+      activeFilters.featured !== false
+    ) {
+      filters.featured = activeFilters.featured;
+    }
+
+    if (activeFilters.location && activeFilters.location.trim()) {
+      filters.location = activeFilters.location.trim();
+    }
+
+    if (searchQuery && searchQuery.trim()) {
+      filters.search = searchQuery.trim();
+    }
+
+    return filters;
+  };
+
+  // Handle filter changes
+  useEffect(() => {
+    if (!pageLoading) {
+      const filters = createPropertyFilters(activeFilters, searchQuery);
+
+      fetchProperties(filters, 1, 12);
+      setCurrentPage(1);
+    }
+  }, [activeFilters, searchQuery, fetchProperties, pageLoading]);
+
+  const handlePageChange = async (page: number) => {
+    setCurrentPage(page);
+    const filters = createPropertyFilters(activeFilters, searchQuery);
+
+    await fetchProperties(filters, page, 12);
+  };
+
+  const hasActiveFilters =
+    activeFilters.type !== "all" ||
+    activeFilters.category !== "all" ||
+    activeFilters.minPrice !== 100000 ||
+    activeFilters.maxPrice !== 200000000 ||
+    activeFilters.bedrooms !== 0 ||
+    activeFilters.bathrooms !== 0 ||
+    activeFilters.minArea !== 0 ||
+    activeFilters.maxArea !== 20000 ||
+    searchQuery.trim();
 
   return pageLoading ? (
     <Loader className="min-h-screen" />
   ) : (
     <section className="overflow-x-hidden">
       <Header2 />
-      <div ref={propertyRef} className="max-w-7xl mx-auto mt-20 p-5 mb-12">
+      <div ref={propertyRef} className="max-w-7xl mx-auto mt-20 p-5 mb-24">
         <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold mb-5">
           <span className="bg-gradient-to-r from-light-blue to-blue-800 bg-clip-text text-transparent">
             Property Listings
@@ -51,16 +158,27 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
           Own or rent a property from our collection of available listings.
         </p>
 
-        <div className="flex xs:flex-col md:flex-row items-center justify-center gap-4 mb-8">
-          <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-          />
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-sm mb-6 text-center">
+            <p>{error}</p>
+            <button
+              onClick={() => {
+                clearError();
+                fetchProperties({}, currentPage, 12);
+              }}
+              className="mt-2 text-red-600 hover:text-red-800 underline"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        <div className="flex xs:flex-col md:flex-row items-center justify-center gap-4 mb-4">
           <button
             onClick={toggleFilter}
-            className="xs:flex lg:hidden xs:w-full items-center justify-center gap-2 bg-white text-light-blue border-2 border-gray-300 px-4 py-3.5 rounded-sm font-medium hover:bg-blue-50 cursor-pointer transition"
+            className="xs:flex lg:hidden xs:w-full items-center justify-center gap-2 bg-neutral-100 text-blue-600 text-sm border-2 border-gray-400/70 px-4 py-3 rounded-sm font-medium hover:bg-neutral-200/50 cursor-pointer transition"
           >
-            <Filter className="w-5 h-5" />
+            <Filter className="w-4 h-4" />
             Filters
           </button>
         </div>
@@ -99,7 +217,7 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
           />
         </div>
 
-        <div className="rounded-sm">
+        <div className="mb-8 rounded-lg">
           <div className="flex xs:flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex xs:flex-col md:flex-row justify-center items-center gap-1">
               <div className="flex justify-center flex-wrap gap-2">
@@ -139,50 +257,110 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
                   activeFilters.maxArea !== 20000) && (
                   <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
                     Area: {activeFilters.minArea.toLocaleString()} -{" "}
-                    {activeFilters.maxArea.toLocaleString()} m<sup></sup>
+                    {activeFilters.maxArea.toLocaleString()} m²
                   </span>
                 )}
               </div>
             </div>
 
-            {(activeFilters.type !== "all" ||
-              activeFilters.category !== "all" ||
-              activeFilters.minPrice !== 100000 ||
-              activeFilters.maxPrice !== 200000000 ||
-              activeFilters.bedrooms !== 0 ||
-              activeFilters.bathrooms !== 0 ||
-              activeFilters.minArea !== 0 ||
-              activeFilters.maxArea !== 20000 ||
-              searchQuery.trim()) && (
+            {hasActiveFilters && (
               <button
                 onClick={clearAllFilters}
-                className="text-blue-900 hover:text-black text-sm font-medium  cursor-pointer"
+                className="text-blue-900 hover:text-black text-sm font-medium cursor-pointer"
               >
                 Clear all filters
               </button>
             )}
           </div>
         </div>
-        <div className=" m-4">
-          <p
-            className={`text-gray-600 text-sm ${
-              isLoading ? "animate-bounce" : ""
-            }`}
-          >
-            {isLoading
-              ? "Loading properties..."
-              : `${filteredProperties.length} properties found`}
-          </p>
-        </div>
 
-        {isLoading ? (
-          <div className="grid xs:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-start">
-            <div className="relative bg-neutral-300 w-full h-96 rounded-xl animate-pulse"></div>
-            <div className="relative bg-neutral-300 w-full h-96 rounded-xl animate-pulse"></div>
-            <div className="relative bg-neutral-300 w-full h-96 rounded-xl animate-pulse"></div>
+        {propertiesLoading ? (
+          <div className="grid xs:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-start">
+            {[...Array(6)].map((_, index) => (
+              <div
+                key={index}
+                className="relative bg-neutral-300 w-full h-96 rounded-xl animate-pulse"
+              ></div>
+            ))}
           </div>
+        ) : properties.length > 0 ? (
+          <>
+            <PropertyGrid properties={properties} />
+
+            {/* Pagination */}
+            {pagination.pages > 1 && (
+              <div className="flex justify-center items-center mt-12 space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1 || propertiesLoading}
+                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+
+                {[...Array(pagination.pages)].map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handlePageChange(index + 1)}
+                    disabled={propertiesLoading}
+                    className={`px-4 py-2 text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                      currentPage === index + 1
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={
+                    currentPage === pagination.pages || propertiesLoading
+                  }
+                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         ) : (
-          <PropertyGrid properties={filteredProperties} />
+          <div className="text-center py-16">
+            <div className="max-w-md mx-auto bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-gray-200 rounded-full">
+                <svg
+                  className="w-6 h-6 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">
+                No Properties Found
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {hasActiveFilters
+                  ? "Try adjusting your filters or search terms."
+                  : "No properties are currently available."}
+              </p>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearAllFilters}
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Clear all filters
+                </button>
+              )}
+            </div>
+          </div>
         )}
       </div>
       <Footer2 />

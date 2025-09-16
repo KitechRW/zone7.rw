@@ -18,7 +18,8 @@ const LoginPage = () => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
-  const [pageLoading, SetPageLoading] = useState<boolean>(true);
+  const [pageLoading, setPageLoading] = useState<boolean>(true);
+  const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -27,7 +28,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      SetPageLoading(false);
+      setPageLoading(false);
     }, 1000);
   }, []);
 
@@ -95,12 +96,10 @@ const LoginPage = () => {
       } else if (formData.password.length < 8) {
         errors.password = "Password must be at least 8 characters";
       } else if (
-        !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(
-          formData.password
-        )
+        !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]/.test(formData.password)
       ) {
         errors.password =
-          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+          "Password must contain at least one uppercase letter, one lowercase letter, and one number.";
       }
     }
 
@@ -119,7 +118,10 @@ const LoginPage = () => {
 
     setLoading(true);
     setError("");
-    if (!validateFields()) return;
+    if (!validateFields()) {
+      setLoading(false);
+      return;
+    }
 
     try {
       if (loginState === "register") {
@@ -138,30 +140,31 @@ const LoginPage = () => {
         const data = await response.json();
 
         if (data.success) {
-          // Auto-login after successful registration
-          setTimeout(async () => {
-            const result = await signIn("credentials", {
-              email: formData.email,
-              password: formData.password,
-              redirect: false,
-            });
+          setRedirecting(true);
 
-            if (result?.ok) {
-              await getSession();
-              router.push("/");
-            } else {
-              setLoginState("login");
-              setError("Registration successful! Please sign in.");
-            }
-          }, 2000);
+          // Auto-login after successful registration
+          const result = await signIn("credentials", {
+            email: formData.email,
+            password: formData.password,
+            redirect: false,
+          });
+
+          if (result?.ok) {
+            await getSession();
+            router.push("/");
+          } else {
+            setRedirecting(false);
+            setLoginState("login");
+            setError("Registration successful! Please sign in.");
+          }
         } else {
           if (data.errors && Array.isArray(data.errors)) {
-            setError(data.errors);
+            setError(data.errors.join(", "));
           } else if (data.details && Array.isArray(data.details)) {
             setError(
-              data.details.map(
-                (detail: { message: string }) => detail.message || detail
-              )
+              data.details
+                .map((detail: { message: string }) => detail.message || detail)
+                .join(", ")
             );
           } else {
             setError(data.message || "Registration failed");
@@ -177,24 +180,16 @@ const LoginPage = () => {
         if (result?.error) {
           setError("Invalid email or password");
         } else {
+          setRedirecting(true);
           await getSession();
           router.push("/");
         }
       }
-    } catch {
+    } catch (error) {
+      console.error("Auth error:", error);
       setError("Network error. Please try again.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const googleSignIn = async () => {
-    try {
-      await signIn("google", { callbackUrl: "/" });
-    } catch (error) {
-      setError(
-        (error instanceof Error && error.message) || "Google sign in failed"
-      );
     }
   };
 
@@ -202,10 +197,8 @@ const LoginPage = () => {
   const hasUppercase = /(?=.*[A-Z])/.test(formData.password);
   const hasLowercase = /(?=.*[a-z])/.test(formData.password);
   const hasNumber = /(?=.*\d)/.test(formData.password);
-  const hasSpecialChar = /[@$!%*?&]/.test(formData.password);
 
-  const allValid =
-    minLentgh && hasUppercase && hasLowercase && hasNumber && hasSpecialChar;
+  const allValid = minLentgh && hasUppercase && hasLowercase && hasNumber;
 
   const passwordStrength =
     formData.password.length > 0 && loginState === "register" ? (
@@ -228,11 +221,6 @@ const LoginPage = () => {
           ></div>
           <div
             className={`h-1 w-1/4 rounded ${
-              hasSpecialChar ? "bg-green-500" : "bg-gray-300"
-            }`}
-          ></div>
-          <div
-            className={`h-1 w-1/4 rounded ${
               hasNumber ? "bg-green-500" : "bg-gray-300"
             }`}
           ></div>
@@ -244,9 +232,26 @@ const LoginPage = () => {
       </div>
     ) : null;
 
-  return pageLoading ? (
-    <Loader className="h-screen" />
-  ) : (
+  if (redirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <Loader className="h-12 w-12 justify-self-center mr-16 mb-4" />
+          <p className="text-gray-600">
+            {loginState === "register"
+              ? "Registration successful..."
+              : "Login successful..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (pageLoading) {
+    return <Loader className="h-screen" />;
+  }
+
+  return (
     <div className="min-h-screen flex">
       <div className="hidden lg:flex lg:w-[60%] relative overflow-hidden">
         <div className="absolute inset-0">
@@ -255,6 +260,7 @@ const LoginPage = () => {
             alt="Background Image"
             fill
             className="object-cover"
+            priority
           />
         </div>
         <div className="absolute inset-0 bg-black/50" />
@@ -272,7 +278,13 @@ const LoginPage = () => {
           <div className="flex items-center justify-center mb-8">
             <div className="flex items-center space-x-3">
               <Link href="/">
-                <Image src={logo} alt="Logo" width={100} height={100} />
+                <Image
+                  src={logo}
+                  alt="Logo"
+                  width={100}
+                  height={100}
+                  priority
+                />
               </Link>
             </div>
           </div>
@@ -288,9 +300,7 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={submit} className="space-y-5">
-            {loginState === "login" ? (
-              <></>
-            ) : (
+            {loginState === "register" && (
               <div className="relative">
                 <div>
                   <input
@@ -306,6 +316,7 @@ const LoginPage = () => {
                     } transition-all duration-300`}
                     placeholder=""
                     required
+                    disabled={loading}
                   />
                   <label
                     htmlFor="username"
@@ -339,6 +350,7 @@ const LoginPage = () => {
                   } transition-all duration-300`}
                   placeholder=""
                   required
+                  disabled={loading}
                 />
                 <label
                   htmlFor="email"
@@ -368,11 +380,13 @@ const LoginPage = () => {
                   } transition-all duration-300`}
                   placeholder=""
                   required
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                  disabled={loading}
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -408,13 +422,6 @@ const LoginPage = () => {
             )}
 
             <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-light-blue border-gray-300 rounded focus:ring-light-blue cursor-pointer"
-                />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
               {loginState === "login" && error && (
                 <p className="text-sm text-light-blue hover:text-blue-800 transition-colors cursor-pointer">
                   Forgot password?
@@ -425,7 +432,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-light-blue to-blue-800 text-white py-4 rounded-sm font-medium  transition-all duration-300 transform cursor-pointer"
+              className="w-full bg-gradient-to-r from-light-blue to-blue-800 text-white py-4 rounded-sm font-medium transition-all duration-300 transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="w-6 h-6 border-4 border-t-transparent border-l-transparent border-white justify-self-center rounded-full animate-spin"></div>
@@ -443,6 +450,7 @@ const LoginPage = () => {
                 Don&#39;t have an account?{" "}
                 <span
                   onClick={() => {
+                    if (loading) return;
                     setLoginState("register");
                     setFieldErrors({});
                     clearError();
@@ -450,7 +458,7 @@ const LoginPage = () => {
                   }}
                   className="text-light-blue hover:text-blue-800 font-medium transition-colors cursor-pointer"
                 >
-                  Create one now
+                  Create one here
                 </span>
               </p>
             ) : (
@@ -458,6 +466,7 @@ const LoginPage = () => {
                 Already have an account?{" "}
                 <span
                   onClick={() => {
+                    if (loading) return;
                     setLoginState("login");
                     setFieldErrors({});
                     clearError();
@@ -470,44 +479,6 @@ const LoginPage = () => {
               </p>
             )}
           </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={googleSignIn}
-            disabled={loading}
-            className="w-full flex items-center justify-center p-4 border-2 border-gray-300 rounded-sm hover:bg-gray-200/60 transition-colors cursor-pointer"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path
-                fill="#4285f4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34a853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#fbbc05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="#ea4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
-            <span className="ml-2 font-medium text-gray-700">Google</span>
-          </button>
         </div>
       </div>
     </div>

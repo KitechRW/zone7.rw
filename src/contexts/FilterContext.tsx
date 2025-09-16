@@ -10,8 +10,8 @@ import React, {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Property } from "@/types/Properties";
-import { mockProperties } from "@/util/TempData";
 import { FilterState } from "@/components/misc/FilterBar";
+import { useProperty } from "./PropertyContext";
 
 interface FilterContextType {
   activeFilters: FilterState;
@@ -37,16 +37,19 @@ const defaultFilters: FilterState = {
   bathrooms: 0,
   minArea: 0,
   maxArea: 20000,
+  featured: false,
+  location: "",
 };
 
 export const FilterProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { properties } = useProperty();
 
   const [activeFilters, setActiveFilters] =
     useState<FilterState>(defaultFilters);
   const [filteredProperties, setFilteredProperties] =
-    useState<Property[]>(mockProperties);
+    useState<Property[]>(properties);
   const [searchQuery, setSearchQueryState] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +73,7 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
 
     // Set timeout for UI to update before heavy computation
     setTimeout(() => {
-      let result = [...mockProperties];
+      let result = [...properties];
 
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
@@ -126,7 +129,7 @@ export const FilterProvider = ({ children }: { children: ReactNode }) => {
       setFilteredProperties(result);
       setIsLoading(false);
     }, 0);
-  }, [searchQuery, activeFilters]);
+  }, [searchQuery, activeFilters, properties]);
 
   // Debounced filter application
   useEffect(() => {

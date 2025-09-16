@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import Dropdown from "./Dropdown";
+import SearchBar from "./SearchBar";
+import { useFilter } from "@/contexts/FilterContext";
+import { useProperty } from "@/contexts/PropertyContext";
 
 export interface FilterState {
   type: string;
@@ -10,6 +13,8 @@ export interface FilterState {
   bathrooms: number;
   minArea: number;
   maxArea: number;
+  featured: boolean;
+  location: string;
 }
 
 interface FilterBarProps {
@@ -26,6 +31,9 @@ const FilterBar = ({
   onClearFilters,
 }: FilterBarProps) => {
   const [localFilters, setLocalFilters] = useState(activeFilters);
+
+  const { searchQuery, setSearchQuery } = useFilter();
+  const { loading, pagination } = useProperty();
 
   useEffect(() => {
     setLocalFilters(activeFilters);
@@ -44,13 +52,13 @@ const FilterBar = ({
     manageFilterUpdate(newFilters);
   };
 
-  const managePriceRangeChange = (value: number) => {
-    const newFilters = { ...localFilters, maxPrice: value };
+  const managePriceRangeChange = (min: number, max: number) => {
+    const newFilters = { ...localFilters, minPrice: min, maxPrice: max };
     manageFilterUpdate(newFilters);
   };
 
-  const manageAreaRangeChange = (value: number) => {
-    const newFilters = { ...localFilters, maxArea: value };
+  const manageAreaRangeChange = (min: number, max: number) => {
+    const newFilters = { ...localFilters, minArea: min, maxArea: max };
     manageFilterUpdate(newFilters);
   };
 
@@ -69,6 +77,8 @@ const FilterBar = ({
       bathrooms: 0,
       minArea: 0,
       maxArea: 20000,
+      featured: false,
+      location: "",
     };
     setLocalFilters(resetFilters);
     onClearFilters();
@@ -109,125 +119,189 @@ const FilterBar = ({
 
   return (
     <div className="bg-white p-4 rounded-sm shadow-md mb-10 border border-gray-200">
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 items-end">
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Type
-          </label>
-          <Dropdown
-            options={typeOptions}
-            value={localFilters.type}
-            onChange={(value) => manageInputChange("type", value)}
-            className="text-sm"
-          />
-        </div>
+      <div className="flex xs:flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Category
-          </label>
-          <Dropdown
-            options={categoryOptions}
-            value={localFilters.category}
-            onChange={(value) => manageInputChange("category", value)}
-            className="text-sm"
-          />
-        </div>
+        <div className="flex xs:flex-col sm:flex-row gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Type
+            </label>
+            <Dropdown
+              options={typeOptions}
+              value={localFilters.type}
+              onChange={(value) => manageInputChange("type", value)}
+              className="text-sm"
+            />
+          </div>
 
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Max Price
-          </label>
-          <div className="space-y-1">
-            <div className="text-xs text-gray-600">
-              Up to Rwf {localFilters.maxPrice.toLocaleString()}
-            </div>
-            <input
-              type="range"
-              min="100000"
-              max="200000000"
-              step="1000000"
-              value={localFilters.maxPrice}
-              onChange={(e) => managePriceRangeChange(parseInt(e.target.value))}
-              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Category
+            </label>
+            <Dropdown
+              options={categoryOptions}
+              value={localFilters.category}
+              onChange={(value) => manageInputChange("category", value)}
+              className="text-sm"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Max Area
+          <label className="block text-xs font-medium text-gray-700 mb-2">
+            Price range
           </label>
-          <div className="space-y-1">
-            <div className="text-xs text-gray-600">
-              Up to {localFilters.maxArea.toLocaleString()} m²
+          <div className="xs:w-60 lg:w-44 space-y-1">
+            <div className="flex justify-between text-xs text-gray-600">
+              <span>Rwf {localFilters.minPrice.toLocaleString()}</span>{" "}
+              <span>Rwf{localFilters.maxPrice.toLocaleString()}</span>
             </div>
-            <input
-              type="range"
-              min="0"
-              max="20000"
-              step="100"
-              value={localFilters.maxArea}
-              onChange={(e) => manageAreaRangeChange(parseInt(e.target.value))}
-              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            />
+            <div className="flex gap-4">
+              <input
+                type="range"
+                min="100000"
+                max="200000000"
+                step="1000000"
+                value={localFilters.minPrice}
+                onChange={(e) =>
+                  managePriceRangeChange(
+                    parseInt(e.target.value),
+                    localFilters.maxPrice
+                  )
+                }
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              />
+              <input
+                type="range"
+                min="100000"
+                max="200000000"
+                step="1000000"
+                value={localFilters.maxPrice}
+                onChange={(e) =>
+                  managePriceRangeChange(
+                    localFilters.minPrice,
+                    parseInt(e.target.value)
+                  )
+                }
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              />
+            </div>
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Bedrooms
+          <label className="block text-xs font-medium text-gray-700 mb-2">
+            Area Range
           </label>
-          <Dropdown
-            options={bedroomOptions}
-            value={localFilters.bedrooms}
-            onChange={(value) => manageInputChange("bedrooms", value)}
-            className="text-sm"
-          />
+          <div className="xs:w-60 lg:w-36 space-y-1">
+            <div className="flex justify-between text-xs text-gray-600">
+              <span>{localFilters.minArea.toLocaleString()} m²</span>
+              <span>{localFilters.maxArea.toLocaleString()} m²</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="range"
+                min="0"
+                max="20000"
+                step="100"
+                value={localFilters.minArea}
+                onChange={(e) =>
+                  manageAreaRangeChange(
+                    parseInt(e.target.value),
+                    localFilters.maxArea
+                  )
+                }
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              />
+              <input
+                type="range"
+                min="0"
+                max="20000"
+                step="100"
+                value={localFilters.maxArea}
+                onChange={(e) =>
+                  manageAreaRangeChange(
+                    localFilters.minArea,
+                    parseInt(e.target.value)
+                  )
+                }
+                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              />
+            </div>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Bathrooms
-          </label>
-          <Dropdown
-            options={bathroomOptions}
-            value={localFilters.bathrooms}
-            onChange={(value) => manageInputChange("bathrooms", value)}
-            className="text-sm"
-          />
+        <div className="flex xs:flex-col sm:flex-row gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Bedrooms
+            </label>
+            <Dropdown
+              options={bedroomOptions}
+              value={localFilters.bedrooms}
+              onChange={(value) => manageInputChange("bedrooms", value)}
+              className="text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Bathrooms
+            </label>
+            <Dropdown
+              options={bathroomOptions}
+              value={localFilters.bathrooms}
+              onChange={(value) => manageInputChange("bathrooms", value)}
+              className="text-sm"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="flex justify-end mt-4 space-x-3 lg:hidden">
+      <div className="flex justify-end mt-4 gap-3 lg:hidden">
         <button
           onClick={manageClear}
-          className="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
+          className="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 border border-gray-300 transition-colors duration-200 cursor-pointer"
         >
           Clear All
         </button>
         <button
           onClick={manageApply}
-          className="px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-light-blue to-blue-800 rounded-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
+          className="px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-light-blue to-blue-800 rounded-md hover:shadow-lg transition-all duration-200 cursor-pointer"
         >
           Apply Filters
         </button>
       </div>
 
-      <div className="hidden lg:flex justify-end mt-3">
-        <button
-          onClick={manageClear}
-          className="px-4 py-1.5 text-xs font-medium text-gray-500 hover:text-black transition-colors duration-200 cursor-pointer"
-        >
-          Clear All
-        </button>
+      <div className="flex items-center justify-between lg:px-4 py-1.5 mt-3">
+        <div className="justify-self-end">
+          <p
+            className={`text-gray-600 text-xs ${
+              loading ? "animate-pulse" : ""
+            }`}
+          >
+            {loading
+              ? "Loading properties..."
+              : `${pagination.total} properties found`}
+          </p>
+        </div>
+
+        <div className="hidden lg:flex justify-end">
+          <button
+            onClick={manageClear}
+            className="text-xs font-medium text-gray-500 hover:text-black transition-colors duration-200 cursor-pointer"
+          >
+            Clear All
+          </button>
+        </div>
       </div>
 
       <style jsx>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
-          height: 14px;
-          width: 14px;
+          height: 10px;
+          width: 10px;
           border-radius: 50%;
           background: #3399ff;
           cursor: pointer;
@@ -235,8 +309,8 @@ const FilterBar = ({
         }
 
         .slider::-moz-range-thumb {
-          height: 14px;
-          width: 14px;
+          height: 10px;
+          width: 10px;
           border-radius: 50%;
           background: #3399ff;
           cursor: pointer;

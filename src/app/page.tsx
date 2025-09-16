@@ -39,9 +39,11 @@ const Home = () => {
     }
   };
 
-  return authLoading && isLoading ? (
-    <Loader className="h-screen" />
-  ) : (
+  if (authLoading || isLoading) {
+    return <Loader className="h-screen" />;
+  }
+
+  return (
     <main className="overflow-x-hidden">
       <Head>
         <title>Find Your Dream Property</title>

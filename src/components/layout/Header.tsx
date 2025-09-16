@@ -99,13 +99,13 @@ const Header: React.FC<HeaderProps> = ({
             <nav className="hidden md:flex items-center gap-8">
               <h2
                 onClick={scrollToHome}
-                className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
+                className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
               >
                 Home
               </h2>
               <h2
                 onClick={scrollToProperties}
-                className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
+                className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
               >
                 Properties
               </h2>
@@ -223,106 +223,56 @@ const Header: React.FC<HeaderProps> = ({
       )}
 
       <AnimatePresence>
-        {isMenuOpen &&
-          (scrolled ? (
-            <motion.nav
-              variants={menuVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="absolute right-0 md:hidden w-1/2 p-6 min-h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-md"
-            >
-              <div className="relative flex flex-col gap-5">
-                <h2
-                  onClick={() => menuItemClick(scrollToHome)}
-                  className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
-                >
-                  Home
-                </h2>
-                <h2
-                  onClick={() => menuItemClick(scrollToProperties)}
-                  className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
-                >
-                  Properties
-                </h2>
-                {user ? (
-                  <div className="flex flex-col gap-1">
-                    <Link href="/profile">
-                      <p className="font-medium hover:text-cyan-300 text-black truncate mb-3">
-                        My account
-                      </p>
-                    </Link>
-                    <button
-                      onClick={() => menuItemClick(logout)}
-                      className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 transition cursor-pointer"
-                    >
-                      {authLoading ? (
-                        <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
-                      ) : (
-                        "Logout"
-                      )}
-                    </button>
-                  </div>
-                ) : (
+        {isMenuOpen && (
+          <motion.nav
+            variants={menuVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="absolute right-0 md:hidden w-1/2 p-6 min-h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-md"
+          >
+            <div className="relative flex flex-col gap-5">
+              <h2
+                onClick={() => menuItemClick(scrollToHome)}
+                className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
+              >
+                Home
+              </h2>
+              <h2
+                onClick={() => menuItemClick(scrollToProperties)}
+                className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
+              >
+                Properties
+              </h2>
+              {user ? (
+                <div className="flex flex-col gap-1">
+                  <Link href="/profile">
+                    <p className="font-medium hover:text-cyan-300 text-black truncate mb-3">
+                      My account
+                    </p>
+                  </Link>
                   <button
-                    onClick={() => menuItemClick(login)}
-                    className="bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 pb-3 pt-2 rounded-sm hover:shadow-lg transition cursor-pointer"
+                    onClick={() => menuItemClick(logout)}
+                    className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 transition cursor-pointer"
                   >
-                    Login
+                    {authLoading ? (
+                      <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
+                    ) : (
+                      "Logout"
+                    )}
                   </button>
-                )}
-              </div>
-            </motion.nav>
-          ) : (
-            <motion.nav
-              variants={menuVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="absolute right-0 md:hidden w-1/2 p-6 min-h-screen bg-transparent backdrop-blur-sm shadow-xl rounded-bl-md"
-            >
-              <div className="relative flex flex-col gap-5">
-                <h2
-                  onClick={() => menuItemClick(scrollToHome)}
-                  className="text-white font-medium hover:text-cyan-300 transition cursor-pointer"
+                </div>
+              ) : (
+                <button
+                  onClick={() => menuItemClick(login)}
+                  className="bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 pb-3 pt-2 rounded-sm hover:shadow-lg transition cursor-pointer"
                 >
-                  Home
-                </h2>
-                <h2
-                  onClick={() => menuItemClick(scrollToProperties)}
-                  className="text-white font-medium hover:text-cyan-300 transition cursor-pointer"
-                >
-                  Properties
-                </h2>
-                {user ? (
-                  <div className="flex flex-col gap-1">
-                    <Link href="/profile">
-                      <p className="font-medium hover:text-cyan-300 text-white truncate mb-3">
-                        My account
-                      </p>
-                    </Link>
-                    <button
-                      onClick={() => menuItemClick(logout)}
-                      className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 transition cursor-pointer"
-                    >
-                      {authLoading ? (
-                        <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
-                      ) : (
-                        "Logout"
-                      )}
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => menuItemClick(login)}
-                    className="bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 pb-3 pt-2 rounded-sm hover:shadow-lg transition cursor-pointer"
-                  >
-                    Login
-                  </button>
-                )}
-              </div>
-            </motion.nav>
-          ))}
+                  Login
+                </button>
+              )}
+            </div>
+          </motion.nav>
+        )}
       </AnimatePresence>
     </header>
   );

@@ -5,14 +5,14 @@ export interface IUser extends Document {
   username: string;
   email: string;
   password?: string;
-  provider: "credentials" | "google";
-  googleId?: string;
+  provider: "credentials";
+  role: "admin" | "user";
   emailVerified?: Date;
   refreshTokens: Array<{
     token: string;
     expiresAt: Date;
-    device: string;
-    userAgent: string;
+    device?: string;
+    userAgent?: string;
     createdAt: Date;
   }>;
   lastLoginAt: Date;
@@ -23,8 +23,8 @@ export interface IUser extends Document {
 const RefreshTokenSchema = new Schema({
   token: { type: String, required: true },
   expiresAt: { type: Date, required: true },
-  device: { type: String, required: true },
-  userAgent: { type: String, required: true },
+  device: { type: String },
+  userAgent: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -50,12 +50,15 @@ const UserSchema = new Schema<IUser>(
     },
     provider: {
       type: String,
-      enum: ["credentials", "google"],
+      enum: ["credentials"],
       required: true,
       default: "credentials",
     },
-    googleId: {
+    role: {
       type: String,
+      enum: ["user", "admin"],
+      required: true,
+      default: "user",
     },
     emailVerified: {
       type: Date,
@@ -76,7 +79,7 @@ const UserSchema = new Schema<IUser>(
 // Indexes for performance
 UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ username: 1 }, { unique: true });
-UserSchema.index({ googleId: 1 }, { sparse: true });
+UserSchema.index({ role: 1 });
 UserSchema.index({ "refreshTokens.token": 1 });
 UserSchema.index({ "refreshTokens.expiresAt": 1 });
 

@@ -7,9 +7,9 @@ const authController = AuthController.getInstance();
 
 export const GET = async (request: NextRequest) => {
   try {
-    return await authController.getSessions(request);
+    return await authController.getAllUsers(request);
   } catch (error) {
-    logger.error("Sessions fetch error:", error);
+    logger.error("Get users error:", error);
 
     if (error instanceof ApiError) {
       return NextResponse.json(
@@ -25,7 +25,7 @@ export const GET = async (request: NextRequest) => {
       {
         success: false,
         message:
-          error instanceof Error ? error.message : "Failed to fetch sessions",
+          error instanceof Error ? error.message : "Failed to fetch users",
       },
       { status: 500 }
     );
