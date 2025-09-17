@@ -26,20 +26,6 @@ const AdminDashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [usersStats, setUsersStats] = useState({ total: 0, admins: 0 });
 
-  useEffect(() => {
-    if (authLoading) return;
-
-    if (!isAuthenticated) {
-      router.push("/auth/login");
-      return;
-    }
-
-    if (!isAdmin) {
-      router.push("/unauthorized");
-      return;
-    }
-  }, [isAuthenticated, isAdmin, authLoading, router]);
-
   // Initialize data
   useEffect(() => {
     if (!isAuthenticated || !isAdmin || authLoading) return;

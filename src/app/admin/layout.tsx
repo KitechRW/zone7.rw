@@ -3,9 +3,21 @@
 import Loader from "@/components/misc/Loader";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isAdmin, authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!isAuthenticated) {
+      router.push("/auth");
+      return;
+    }
+  }, [isAuthenticated, authLoading, router]);
 
   if (authLoading) {
     return (
@@ -14,8 +26,15 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader className="h-8 w-8" />
+      </div>
+    );
+  }
 
-  if (!isAuthenticated || !isAdmin) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <div className="text-center mb-8">
@@ -27,7 +46,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         <button>
           <Link
             href="/"
-            className="bg-gradient-to-r from-light-blue to-blue-800 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition inline-flex items-center gap-2"
+            className="bg-gradient-to-r from-light-blue to-blue-800 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition inline-flex items-center gap-2"
           >
             Go Home
           </Link>

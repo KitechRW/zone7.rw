@@ -18,21 +18,9 @@ export default withAuth(
     // Protect specific routes
     if (pathname.startsWith("/profile") || pathname.startsWith("/api/user/")) {
       if (!req.nextauth.token) {
-        const loginUrl = new URL("/auth/login", origin);
+        const loginUrl = new URL("/auth", origin);
         loginUrl.searchParams.set("callbackUrl", pathname);
         return NextResponse.redirect(loginUrl);
-      }
-    }
-
-    // Admin route protection
-    if (pathname.startsWith("/admin")) {
-      if (!req.nextauth.token) {
-        const loginUrl = new URL("/auth/login", origin);
-        loginUrl.searchParams.set("callbackUrl", pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-      if (req.nextauth.token?.user?.role !== UserRole.ADMIN) {
-        return NextResponse.redirect(new URL("/unauthorized", origin));
       }
     }
 
@@ -68,10 +56,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: [
-    "/auth/:path*",
-    "/profile/:path*",
-    "/admin/:path*",
-    "/api/user/:path*",
-  ],
+  matcher: ["/auth/:path*", "/profile/:path*", "/api/user/:path*"],
 };

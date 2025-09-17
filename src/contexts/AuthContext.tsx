@@ -14,7 +14,7 @@ export const useAuth = () => {
 
   const logout = async () => {
     await signOut({
-      callbackUrl: "/auth?mode=login",
+      callbackUrl: "/",
       redirect: true,
     });
   };
