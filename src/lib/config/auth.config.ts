@@ -9,7 +9,7 @@ import { Tokens } from "../utils/tokens";
 const authService = AuthService.getInstance();
 
 //In-memory lock to prevent concurrent token refresh attempts
-const refreshLocks = new Map<string, Promise<any>>();
+const refreshLocks = new Map<string, Promise<JWT>>();
 
 async function performTokenRefresh(refreshToken: string, currentToken: JWT) {
   try {
