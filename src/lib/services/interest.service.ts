@@ -342,6 +342,7 @@ export class InterestService {
 
       return {
         ...interest.toObject(),
+        id: interest._id.toString(),
         userName: user.username,
         userEmail: user.email,
         propertyTitle: "",

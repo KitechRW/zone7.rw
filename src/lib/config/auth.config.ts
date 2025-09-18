@@ -8,6 +8,51 @@ import { Tokens } from "../utils/tokens";
 
 const authService = AuthService.getInstance();
 
+//In-memory lock to prevent concurrent token refresh attempts
+const refreshLocks = new Map<string, Promise<any>>();
+
+async function performTokenRefresh(refreshToken: string, currentToken: JWT) {
+  try {
+    const newTokens = await authService.refreshTokens(refreshToken);
+
+    if (newTokens) {
+      logger.info("Token refresh successful");
+      return {
+        ...currentToken,
+        accessToken: newTokens.accessToken,
+        refreshToken: newTokens.refreshToken,
+        accessTokenExpires: newTokens.accessTokenExpires,
+        refreshTokenExpires: newTokens.refreshTokenExpires,
+      };
+    } else {
+      logger.warn("Token refresh returned null");
+      throw new Error("Token refresh returned null");
+    }
+  } catch (error) {
+    logger.error("Token refresh failed:", error);
+
+    //Checking if the error is specifically about invalid refresh token
+    const isInvalidToken =
+      error instanceof Error &&
+      (error.message.includes("Invalid refresh token") ||
+        error.message.includes("refresh token"));
+
+    if (isInvalidToken) {
+      logger.info("Invalid refresh token detected, clearing session tokens");
+    }
+
+    // Return token with cleared auth data
+    return {
+      ...currentToken,
+      accessToken: "",
+      refreshToken: "",
+      accessTokenExpires: 0,
+      refreshTokenExpires: 0,
+      user: currentToken.user,
+    };
+  }
+}
+
 export const authConfig: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -95,36 +140,69 @@ export const authConfig: NextAuthOptions = {
           );
         }
 
-        // Return previous token if access token has not expired yet
-        if (Date.now() < (token.accessTokenExpires as number)) {
+        const bufferTime = 30 * 1000; // 30 secs to prevent edge cases
+        const currentTime = Date.now();
+        const tokenExpiryTime =
+          (token.accessTokenExpires as number) - bufferTime;
+
+        //If tokens are already cleared, don't try to refresh
+        if (!token.accessToken || !token.refreshToken) {
           return token;
         }
 
-        // Access token has expired, trying to update it
-        try {
-          const newTokens = await authService.refreshTokens(
-            token.refreshToken as string
-          );
-          if (newTokens) {
-            token.accessToken = newTokens.accessToken;
-            token.refreshToken = newTokens.refreshToken;
-            token.accessTokenExpires = newTokens.accessTokenExpires;
-            token.refreshTokenExpires = newTokens.refreshTokenExpires;
-            return token;
-          }
-        } catch (error) {
-          logger.error("Token refresh failed:", error);
+        //Return previous token if access token has not expired yet (with buffer)
+        if (currentTime < tokenExpiryTime) {
+          return token;
         }
 
-        // Refresh token is invalid or expired
-        return {
-          ...token,
-          accessToken: "",
-          refreshToken: "",
-          accessTokenExpires: 0,
-          refreshTokenExpires: 0,
-          user: token.user,
-        };
+        //If Access token has expired or is about to, update it
+        const userId = user?.id || (user as UserData)?.id;
+        const currentRefreshToken = token.refreshToken as string;
+
+        if (!userId || !currentRefreshToken) {
+          logger.warn("Missing userId or refreshToken for token refresh", {
+            hasUserId: !!userId,
+            hasRefreshToken: !!currentRefreshToken,
+            hasUser: !!token.user,
+            userKeys: token.user ? Object.keys(token.user) : [],
+            tokenKeys: Object.keys(token).filter(
+              (key) => !["user"].includes(key)
+            ),
+          });
+          return {
+            ...token,
+            accessToken: "",
+            refreshToken: "",
+            accessTokenExpires: 0,
+            refreshTokenExpires: 0,
+            user: token.user,
+          };
+        }
+
+        const lockKey = `${userId}-${currentRefreshToken}`;
+
+        if (refreshLocks.has(lockKey)) {
+          try {
+            // Wait for the existing refresh to complete
+            const result = await refreshLocks.get(lockKey);
+            return result || token;
+          } catch (error) {
+            logger.error("Error waiting for token refresh lock:", error);
+            // Fall through to attempt refresh
+          }
+        }
+
+        // Create a new refresh promise and store it in the lock
+        const refreshPromise = performTokenRefresh(currentRefreshToken, token);
+        refreshLocks.set(lockKey, refreshPromise);
+
+        try {
+          const result = await refreshPromise;
+          return result;
+        } finally {
+          // Always clean up the lock
+          refreshLocks.delete(lockKey);
+        }
       } catch (error) {
         logger.error("JWT callback error:", error);
         return {

@@ -111,6 +111,10 @@ class InterestAPI {
     id: string,
     status: "new" | "contacted" | "closed"
   ): Promise<Interest> {
+    if (!id || id === "undefined") {
+      throw new Error("Invalid interest ID provided");
+    }
+
     const response = await fetch(`/api/interests/${id}`, {
       method: "PUT",
       headers: {

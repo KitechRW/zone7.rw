@@ -1,4 +1,3 @@
-// types/auth.ts
 import { User as NextAuthUser } from "next-auth";
 import { UserRole } from "@/lib/utils/permission";
 

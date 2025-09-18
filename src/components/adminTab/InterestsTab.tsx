@@ -484,9 +484,7 @@ const InterestsTab = () => {
                             interest.status
                           )}`}
                         >
-                          <option value="new" disabled>
-                            New
-                          </option>
+                          <option value="new">New</option>
                           <option value="contacted">Contacted</option>
                           <option value="closed">Closed</option>
                         </select>
