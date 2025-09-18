@@ -4,7 +4,7 @@ import {
   X,
   Image as ImageIcon,
   Camera,
-  Star,
+  Info,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
@@ -25,7 +25,6 @@ const ROOM_TYPES = [
   { value: "other", label: "Other" },
 ];
 
-// Interface for room image preview
 interface RoomTypeImagePreview {
   file: File;
   preview: string;
@@ -59,7 +58,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
     bathrooms: property?.type === "house" ? property?.bathrooms || 1 : 0,
     area: property?.area || 0,
     location: property?.location || "",
-    featured: property?.featured || false,
+    featured: property?.featured || true,
     description: property?.description || "",
     features: property?.features || [],
   }));
@@ -250,7 +249,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
           <button
@@ -274,7 +273,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, title: e.target.value }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
                 required
                 readOnly={isReadOnly}
                 disabled={loading}
@@ -291,7 +290,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, location: e.target.value }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
                 required
                 readOnly={isReadOnly}
                 disabled={loading}
@@ -314,7 +313,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                       e.target.value === "plot" ? 0 : prev.bathrooms || 1,
                   }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
                 disabled={isReadOnly || loading}
               >
                 <option value="house">House</option>
@@ -334,7 +333,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                     category: e.target.value as "sale" | "rent",
                   }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
                 disabled={isReadOnly || loading}
               >
                 <option value="sale">For Sale</option>
@@ -355,7 +354,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                     price: Number(e.target.value),
                   }))
                 }
-                className=" w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                className=" w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
                 required
                 readOnly={isReadOnly}
                 disabled={loading}
@@ -375,7 +374,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                     area: Number(e.target.value),
                   }))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
                 required
                 readOnly={isReadOnly}
                 disabled={loading}
@@ -397,7 +396,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                         bedrooms: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
                     min="1"
                     required
                     readOnly={isReadOnly}
@@ -418,7 +417,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                         bathrooms: Number(e.target.value),
                       }))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
                     min="1"
                     required
                     readOnly={isReadOnly}
@@ -430,6 +429,12 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
 
             <div className="md:col-span-2">
               <div className="flex items-center gap-3">
+                <label
+                  htmlFor="featured"
+                  className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer"
+                >
+                  Make this Property Featured?
+                </label>
                 <input
                   type="checkbox"
                   id="featured"
@@ -437,19 +442,12 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      featured: e.target.checked,
+                      featured: e.target.checked ? true : prev.featured,
                     }))
                   }
                   className="w-4 h-4 text-light-blue rounded focus:ring-blue-500"
                   disabled={isReadOnly || loading}
                 />
-                <label
-                  htmlFor="featured"
-                  className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer"
-                >
-                  <Star className="w-4 h-4" />
-                  Featured Property
-                </label>
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Featured properties appear on the homepage and get priority
@@ -471,7 +469,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 }))
               }
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
               required
               readOnly={isReadOnly}
               disabled={loading}
@@ -484,7 +482,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-2">
-              Features & Amenities
+              Why is Property Interesting?
             </label>
 
             {!isReadOnly && (
@@ -493,8 +491,8 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                   type="text"
                   value={newFeature}
                   onChange={(e) => setNewFeature(e.target.value)}
-                  placeholder="Add a feature..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                  placeholder="Access to road..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -507,7 +505,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                   type="button"
                   onClick={addFeature}
                   disabled={loading || !newFeature.trim()}
-                  className="px-4 py-2 bg-light-blue text-white rounded-lg hover:bg-blue-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-light-blue text-white rounded-sm hover:bg-blue-500 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -518,7 +516,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
               {formData.features.map((feature, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-lg"
+                  className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-sm"
                 >
                   <span className="text-gray-700">{feature}</span>
                   {!isReadOnly && (
@@ -526,7 +524,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                       type="button"
                       onClick={() => removeFeature(index)}
                       disabled={loading}
-                      className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+                      className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50 cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -536,7 +534,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
             </div>
 
             {formData.features.length === 0 && (
-              <p className="text-sm text-gray-500 italic">
+              <p className="text-xs ml-1 text-gray-500 italic">
                 No features added yet
               </p>
             )}
@@ -549,7 +547,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
 
             {mainImage && (
               <div className="mb-4">
-                <div className="relative w-48 h-48 border rounded-lg overflow-hidden">
+                <div className="relative w-48 h-48 border rounded-sm overflow-hidden">
                   <Image
                     src={mainImage.preview}
                     alt="Main property image"
@@ -583,14 +581,18 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                   type="button"
                   onClick={() => mainImageInputRef.current?.click()}
                   disabled={loading}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-800 text-white rounded-lg hover:shadow-lg transition-colors cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-black text-white text-sm rounded-sm hover:shadow-lg transition-colors cursor-pointer"
                 >
                   <Camera className="h-4 w-4" />
                   {mainImage ? "Change Main Image" : "Upload Main Image"}
                 </button>
-                <p className="text-sm text-gray-500 mt-1">
-                  This will be the primary image displayed for your property
-                </p>
+
+                <div className="flex items-center text-gray-500 mt-1 gap-1">
+                  <Info className="w-2.5 h-2.5 inline-block" />
+                  <p className="text-xs">
+                    This will be the primary image displayed for your property
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -615,14 +617,17 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                   type="button"
                   onClick={() => roomTypeImagesInputRef.current?.click()}
                   disabled={loading}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-700 to-green-900 text-white rounded-lg hover:shadow-lg transition-colors cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-neutral-700 text-white text-sm rounded-sm hover:shadow-lg transition-colors cursor-pointer"
                 >
                   <ImageIcon className="h-4 w-4" />
                   Add Room Images
                 </button>
-                <p className="text-sm text-gray-500 mt-1">
-                  Upload images of different rooms or areas
-                </p>
+                <div className="flex items-center text-gray-500 mt-1 gap-1">
+                  <Info className="w-2.5 h-2.5 inline-block" />
+                  <p className="text-xs">
+                    Upload images of rooms or surrounding areas
+                  </p>
+                </div>
               </div>
             )}
 
@@ -630,10 +635,10 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
               {roomTypeImages.map((roomImage, index) => (
                 <div
                   key={index}
-                  className="border border-gray-200 rounded-lg p-4"
+                  className="border border-gray-200 rounded-sm p-4"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                    <div className="relative w-24 h-24 rounded-sm overflow-hidden flex-shrink-0">
                       <Image
                         src={roomImage.preview}
                         alt="Room image"
@@ -665,7 +670,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                               e.target.value
                             )
                           }
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-500 outline-none"
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 focus:border-blue-500 outline-none"
                           disabled={isReadOnly || loading}
                         >
                           {ROOM_TYPES.map((type) => (
@@ -691,7 +696,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                             )
                           }
                           placeholder="Describe this room..."
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-500 outline-none"
+                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 focus:border-blue-500 outline-none"
                           readOnly={isReadOnly}
                           disabled={loading}
                           maxLength={200}
@@ -704,7 +709,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
             </div>
 
             {roomTypeImages.length === 0 && (
-              <p className="text-sm text-gray-500 italic">
+              <p className="text-xs text-gray-600 italic">
                 No room images added yet
               </p>
             )}
@@ -715,7 +720,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isReadOnly ? "Close" : "Cancel"}
             </button>
@@ -724,7 +729,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2 bg-gradient-to-r from-light-blue to-blue-800 text-white rounded-lg hover:shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+                className="px-6 py-2.5 bg-gradient-to-r from-light-blue to-blue-800 text-white font-medium rounded-sm hover:shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
               >
                 {loading && (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

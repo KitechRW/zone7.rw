@@ -53,7 +53,7 @@ const Header = () => {
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <div className="bg-white/85 backdrop-blur-md shadow-md">
-        <div className="relative max-w-7xl mx-auto flex items-center justify-between px-5 py-1 h-20">
+        <div className="relative max-w-7xl mx-auto flex items-center justify-between xs:px-10 lg:px-5 py-1 h-20">
           <div>
             <Link href="/">
               <Image
@@ -82,16 +82,16 @@ const Header = () => {
                 <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
                   <Avatar userName={user.email} />
                 </button>
-                <div className="absolute right-0 min-w-40 z-50 items-center hidden px-2 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
-                  <div className="flex flex-col items-center justify-center gap-2">
+                <div className="absolute right-0 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
+                  <div className="flex flex-col items-center justify-center gap-4">
                     <Link href="/profile">
-                      <p className="px-2 py-1 text-sm text-black font-medium truncate hover:text-cyan-600">
+                      <p className="px-2 py-1 text-sm text-black font-medium truncate hover:text-cyan-700">
                         My account
                       </p>
                     </Link>
                     <button
                       onClick={logout}
-                      className="w-20 px-2 pt-1 pb-2 text-sm text-white font-medium bg-red-600 rounded hover:bg-red-700 cursor-pointer"
+                      className="w-full px-2 pt-1 pb-2 text-sm text-white font-medium bg-black rounded cursor-pointer"
                     >
                       {authLoading ? (
                         <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
@@ -155,7 +155,7 @@ const Header = () => {
                   </Link>
                   <button
                     onClick={() => menuItemClick(logout)}
-                    className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 transition cursor-pointer"
+                    className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-black rounded transition cursor-pointer"
                   >
                     {authLoading ? (
                       <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />

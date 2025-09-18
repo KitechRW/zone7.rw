@@ -23,18 +23,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
         <Image
           src={property.mainImage}
           alt={property.title}
-          className="w-full h-full object-cover transition-transform duration-500 "
+          className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 "
           width={400}
           height={208}
         />
         <div className="absolute top-4 left-4">
-          <span
-            className={`px-3 py-1.5 text-xs font-semibold text-white rounded-full shadow-md ${
-              property.category === "rent"
-                ? "bg-gradient-to-b from-green-500 to-green-800"
-                : "bg-gradient-to-b from-blue-500 to-blue-900"
-            }`}
-          >
+          <span className="bg-gradient-to-br from-neutral-500 to-neutral-900 px-3 py-1.5 text-xs text-white font-semibold rounded-full shadow-md">
             {property.category === "rent" ? "For Rent" : "For Sale"}
           </span>
         </div>

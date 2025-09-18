@@ -119,10 +119,10 @@ const FilterBar = ({
 
   return (
     <div className="bg-white p-4 rounded-sm shadow-md mb-10 border border-gray-200">
-      <div className="flex xs:flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="flex xs:flex-col lg:flex-row lg:items-center justify-between gap-5">
         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
-        <div className="flex xs:flex-col sm:flex-row gap-4">
+        <div className="flex gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               Type
@@ -148,16 +148,16 @@ const FilterBar = ({
           </div>
         </div>
 
-        <div>
+        <div className="-mt-2">
           <label className="block text-xs font-medium text-gray-700 mb-2">
-            Price range
+            Price range (Rwf)
           </label>
-          <div className="xs:w-60 lg:w-44 space-y-1">
-            <div className="flex justify-between text-xs text-gray-600">
-              <span>Rwf {localFilters.minPrice.toLocaleString()}</span>{" "}
-              <span>Rwf{localFilters.maxPrice.toLocaleString()}</span>
+          <div className="max-w-36 space-y-1">
+            <div className="text-xs text-gray-600 mb-1">
+              {localFilters.minPrice.toLocaleString()} -{" "}
+              {localFilters.maxPrice.toLocaleString()}
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-2">
               <input
                 type="range"
                 min="100000"
@@ -170,7 +170,7 @@ const FilterBar = ({
                     localFilters.maxPrice
                   )
                 }
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                className="w-16 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               />
               <input
                 type="range"
@@ -184,20 +184,20 @@ const FilterBar = ({
                     parseInt(e.target.value)
                   )
                 }
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                className="w-16 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               />
             </div>
           </div>
         </div>
 
-        <div>
+        <div className="-mt-2">
           <label className="block text-xs font-medium text-gray-700 mb-2">
-            Area Range
+            Area Range (m²)
           </label>
-          <div className="xs:w-60 lg:w-36 space-y-1">
+          <div className="max-w-24 space-y-1">
             <div className="flex justify-between text-xs text-gray-600">
-              <span>{localFilters.minArea.toLocaleString()} m²</span>
-              <span>{localFilters.maxArea.toLocaleString()} m²</span>
+              {localFilters.minArea.toLocaleString()} -{" "}
+              {localFilters.maxArea.toLocaleString()}
             </div>
             <div className="flex items-center gap-2">
               <input
@@ -212,7 +212,7 @@ const FilterBar = ({
                     localFilters.maxArea
                   )
                 }
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                className="w-14 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               />
               <input
                 type="range"
@@ -226,13 +226,13 @@ const FilterBar = ({
                     parseInt(e.target.value)
                   )
                 }
-                className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                className="w-14 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               />
             </div>
           </div>
         </div>
 
-        <div className="flex xs:flex-col sm:flex-row gap-4">
+        <div className="flex gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               Bedrooms
@@ -262,13 +262,13 @@ const FilterBar = ({
       <div className="flex justify-end mt-4 gap-3 lg:hidden">
         <button
           onClick={manageClear}
-          className="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 border border-gray-300 transition-colors duration-200 cursor-pointer"
+          className="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-sm hover:bg-gray-200 border border-gray-300 transition-colors duration-200 cursor-pointer"
         >
           Clear All
         </button>
         <button
           onClick={manageApply}
-          className="px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-light-blue to-blue-800 rounded-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+          className="px-4 py-2 text-xs font-medium text-white bg-black rounded-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
         >
           Apply Filters
         </button>
@@ -300,8 +300,8 @@ const FilterBar = ({
       <style jsx>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
-          height: 10px;
-          width: 10px;
+          height: 8px;
+          width: 8px;
           border-radius: 50%;
           background: #3399ff;
           cursor: pointer;
@@ -309,8 +309,8 @@ const FilterBar = ({
         }
 
         .slider::-moz-range-thumb {
-          height: 10px;
-          width: 10px;
+          height: 8px;
+          width: 8px;
           border-radius: 50%;
           background: #3399ff;
           cursor: pointer;

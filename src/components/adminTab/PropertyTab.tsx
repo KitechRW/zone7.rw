@@ -12,7 +12,7 @@ import {
   LandPlot,
   Filter,
   Star,
-  Plus,
+  CheckCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { useFilter } from "@/contexts/FilterContext";
@@ -58,6 +58,7 @@ const PropertiesTab = () => {
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const createPropertyFilters = (
     activeFilters: FilterState,
@@ -165,6 +166,11 @@ const PropertiesTab = () => {
         await updateProperty(selectedProperty.id, propertyData);
       }
       closeModal();
+      setIsSuccess(true);
+
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 5000);
     } catch (error) {
       console.error("Failed to save property:", error);
     }
@@ -177,7 +183,24 @@ const PropertiesTab = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4">
+      {isSuccess &&
+        (modalMode === "create" ? (
+          <div className="fixed top-20 right-4 z-50 bg-green-50 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
+            <CheckCircle className="h-5 w-5" />
+            <span className="font-medium">
+              Property was created successfully.
+            </span>
+          </div>
+        ) : (
+          <div className="fixed top-20 right-4 z-50 bg-green-50 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
+            <CheckCircle className="h-5 w-5" />
+            <span className="font-medium">
+              Property was updated successfully.
+            </span>
+          </div>
+        ))}
+
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
           <div className="group bg-white hover:bg-blue-50 rounded-sm shadow-sm p-4 truncate transition-colors">
@@ -250,9 +273,9 @@ const PropertiesTab = () => {
       <div className="w-full">
         <button
           onClick={toggleFilter}
-          className="lg:hidden w-full flex items-center justify-center gap-2 bg-white text-blue-700 border-2 border-gray-300 px-4 py-3 rounded-sm font-medium hover:bg-blue-50 cursor-pointer transition"
+          className="lg:hidden w-full flex items-center justify-center gap-2 bg-white text-blue-900 border-2 border-gray-300 px-4 py-3 rounded-sm font-medium hover:bg-blue-50 cursor-pointer transition"
         >
-          <Filter className="w-5 h-5" />
+          <Filter className="w-4 h-4" />
           Filters
         </button>
       </div>
@@ -300,11 +323,10 @@ const PropertiesTab = () => {
 
         <button
           onClick={() => openModal("create")}
-          className="bg-gradient-to-r from-light-blue to-blue-900 text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:shadow-lg transition-colors flex items-center justify-center gap-1 justify-self-end truncate cursor-pointer"
+          className="bg-gradient-to-r from-light-blue to-blue-900 text-white text-sm font-medium px-4 py-3 mb-4 mr-2 rounded-sm hover:shadow-lg transition-colors flex items-center justify-center gap-1 justify-self-end truncate cursor-pointer"
           disabled={propertiesLoading}
         >
           Add Property
-          <Plus className="w-3 h-3 mt-0.5" />
         </button>
       </div>
 
@@ -319,11 +341,11 @@ const PropertiesTab = () => {
       ) : (
         <div className="bg-white rounded-sm shadow-sm">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="min-w-full divide-y divide-gray-300">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Properties
+                    Properties ({properties.length})
                   </th>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Type & Category
@@ -528,7 +550,7 @@ const PropertiesTab = () => {
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Previous
                     </button>
@@ -538,9 +560,9 @@ const PropertiesTab = () => {
                         onClick={() => handlePageChange(index + 1)}
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           currentPage === index + 1
-                            ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                            ? "z-10 bg-blue-50 border-light-blue text-light-blue"
                             : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
-                        }`}
+                        } cursor-pointer`}
                       >
                         {index + 1}
                       </button>
@@ -548,7 +570,7 @@ const PropertiesTab = () => {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === pagination.pages}
-                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Next
                     </button>

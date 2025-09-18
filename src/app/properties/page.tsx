@@ -150,7 +150,7 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
       <Header2 />
       <div ref={propertyRef} className="max-w-7xl mx-auto mt-20 p-5 mb-24">
         <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold mb-5">
-          <span className="bg-gradient-to-r from-light-blue to-blue-800 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-blue-800 to-blue-950 bg-clip-text text-transparent">
             Property Listings
           </span>
         </h2>

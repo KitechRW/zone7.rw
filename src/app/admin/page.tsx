@@ -1,27 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Home, Users, Heart, SidebarOpen } from "lucide-react";
+import { Users, Heart, SidebarOpen, House } from "lucide-react";
 import { useProperty } from "@/contexts/PropertyContext";
-import Header2 from "@/components/layout/Header2";
 import Loader from "@/components/misc/Loader";
+import logoblue from "../../../public/blue-logo.webp";
 import UsersTab from "@/components/adminTab/UsersTab";
 import InterestsTab from "@/components/adminTab/InterestsTab";
 import PropertiesTab from "@/components/adminTab/PropertyTab";
 import { useAuth } from "@/contexts/AuthContext";
+import { useInterest } from "@/contexts/InterestContext";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Avatar from "@/components/misc/Avatar";
 
 type AdminTab = "properties" | "users" | "interests";
 
-const mockInterestsCount = 12;
-
 const AdminDashboard = () => {
-  const { fetchProperties, fetchStats, stats } = useProperty();
-  const { isAuthenticated, isAdmin, authLoading } = useAuth();
+  const { fetchProperties, fetchStats, stats: PropertyStats } = useProperty();
+  const { isAuthenticated, isAdmin, authLoading, user, logout } = useAuth();
+  const { stats: interestStats } = useInterest();
 
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("properties");
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [usersStats, setUsersStats] = useState({ total: 0, admins: 0 });
+
+  const router = useRouter();
+
+  const login = () => {
+    router.push("/auth");
+  };
 
   // Initialize data
   useEffect(() => {
@@ -49,12 +59,17 @@ const AdminDashboard = () => {
 
   const Sidebar = () => (
     <div
-      className={`fixed top-20 left-0 ${
-        isCollapsed ? "w-16" : "w-72"
+      className={`fixed top-0 left-0 ${
+        isCollapsed ? "w-20" : "w-72"
       } bg-white/50 backdrop-blur-xl shadow-sm h-full transition-all duration-300 truncate z-50`}
     >
-      <div className="px-5 py-10">
-        <div className="flex items-center gap-3 mb-10">
+      <div className="relative px-5 py-10">
+        <div className="">
+          <Link href="/">
+            <Image src={logoblue} alt="Logo" className="w-16" priority />
+          </Link>
+        </div>
+        <div className="absolute top-20 left-7 flex items-center gap-3 mt-5 mb-10">
           <SidebarOpen
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={`w-6 h-6 text-gray-600 cursor-pointer ${
@@ -71,7 +86,7 @@ const AdminDashboard = () => {
           </h3>
         </div>
 
-        <nav className="my-5 space-y-5">
+        <nav className="absolute top-40 my-5 left-7 space-y-7">
           <button
             title="Properties"
             onClick={() => {
@@ -83,36 +98,14 @@ const AdminDashboard = () => {
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            <Home className="w-6 h-6" />
+            <House className="w-6 h-6" />
             <span className={`${isCollapsed ? "hidden" : ""}`}>Properties</span>
             <span
               className={`${
                 isCollapsed ? "hidden" : ""
               } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
             >
-              {stats?.totalProperties || 0}
-            </span>
-          </button>
-
-          <button
-            title="Users"
-            onClick={() => setActiveTab("users")}
-            className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
-              activeTab === "users"
-                ? "text-blue-700"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
-          >
-            <Users className="w-6 h-6" />
-            <span className={`${isCollapsed ? "hidden" : "inline-block"}`}>
-              Users
-            </span>
-            <span
-              className={`${
-                isCollapsed ? "hidden" : ""
-              } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
-            >
-              {usersStats.total || 0}
+              {PropertyStats?.totalProperties || 0}
             </span>
           </button>
 
@@ -136,10 +129,64 @@ const AdminDashboard = () => {
                 isCollapsed ? "hidden" : ""
               } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
             >
-              {mockInterestsCount}
+              {interestStats?.total || 0}
+            </span>
+          </button>
+
+          <button
+            title="Users"
+            onClick={() => setActiveTab("users")}
+            className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
+              activeTab === "users"
+                ? "text-blue-700"
+                : "text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            <Users className="w-6 h-6" />
+            <span className={`${isCollapsed ? "hidden" : "inline-block"}`}>
+              Users{" "}
+              <span
+                className={`${
+                  isCollapsed ? "hidden" : ""
+                } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
+              >
+                {usersStats.total || 0}
+              </span>
             </span>
           </button>
         </nav>
+      </div>
+      <div className="absolute left-7 bottom-10 w-3/4 mx-auto">
+        {user ? (
+          isCollapsed ? (
+            <Avatar userName={user.email} />
+          ) : (
+            <div className="flex flex-col gap-1">
+              <Link href="/profile">
+                <p className="font-medium hover:text-cyan-700 text-black text-center truncate mb-4">
+                  My account
+                </p>
+              </Link>
+              <button
+                onClick={() => logout}
+                className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-black rounded transition cursor-pointer"
+              >
+                {authLoading ? (
+                  <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin truncate" />
+                ) : (
+                  "Logout"
+                )}
+              </button>
+            </div>
+          )
+        ) : (
+          <button
+            onClick={() => login}
+            className="bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 pb-3 pt-2 rounded-sm hover:shadow-lg transition cursor-pointer"
+          >
+            Login
+          </button>
+        )}
       </div>
     </div>
   );
@@ -167,21 +214,14 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header2 />
-      <div className="flex max-w-7xl mx-auto px-5 my-20">
+      <div className="flex max-w-7xl mx-auto px-5 my-5">
         <div className="xs:min-w-16 lg:min-w-0">
           <Sidebar />
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="relative w-full">
-            <div className="mb-8">
-              <h2 className="text-center text-2xl mt-6 font-bold">
-                <span className="bg-blue-900 bg-clip-text text-transparent capitalize">
-                  {activeTab}
-                </span>
-              </h2>
-            </div>
+            <div className="mb-10"></div>
 
             <div className="w-full">{renderActiveTab()}</div>
           </div>

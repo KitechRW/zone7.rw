@@ -6,10 +6,10 @@ import {
   Bath,
   MapPin,
   Heart,
-  Calendar,
   LandPlot,
   ArrowLeft,
   CheckCircle,
+  Star,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -95,7 +95,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     router.push("/properties");
   };
 
-  const handlePlaceInterest = () => {
+  const placeInterest = () => {
     if (!isAuthenticated) {
       router.push("/auth");
       return;
@@ -103,7 +103,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     setShowInterestModal(true);
   };
 
-  const handleInterestSubmit = async (data: {
+  const interestSubmit = async (data: {
     userPhone: string;
     message?: string;
   }) => {
@@ -145,7 +145,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center mt-20">
           <div className="text-center max-w-md mx-auto p-6">
             <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4">
-              <h2 className="text-2xl font-bold text-red-800 mb-2">
+              <h2 className="text-xl font-bold text-red-800 mb-2">
                 Error Loading Property
               </h2>
               <p className="text-red-600 mb-4">{error}</p>
@@ -155,13 +155,13 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                     clearError();
                     fetchProperty(propertyId);
                   }}
-                  className="bg-red-600 text-white px-4 py-2 rounded-sm hover:bg-red-700 transition-colors mr-2"
+                  className="bg-red-600 text-white px-4 py-2 rounded-sm hover:bg-red-700 transition-colors mr-2 cursor-pointer"
                 >
                   Try Again
                 </button>
                 <button
                   onClick={handleBack}
-                  className="bg-gray-600 text-white px-4 py-2 rounded-sm hover:bg-gray-700 transition-colors"
+                  className="bg-neutral-200 text-black border border-gray-300 px-4 py-2 rounded-sm hover:bg-neutral-300 transition-colors cursor-pointer"
                 >
                   Go Back
                 </button>
@@ -189,7 +189,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
             </p>
             <button
               onClick={handleBack}
-              className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-2 rounded-sm hover:shadow-lg transition-colors flex items-center gap-2 mx-auto"
+              className="bg-gradient-to-r from-light-blue to-blue-800 text-white px-6 py-3 font-medium rounded-sm hover:shadow-lg transition-colors flex items-center gap-2 mx-auto cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Properties
@@ -235,7 +235,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
       <Header2 />
 
       {showSuccessMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
+        <div className="fixed top-4 right-4 z-50 bg-green-50 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
           <CheckCircle className="h-5 w-5" />
           <span className="font-medium">
             Interest placed successfully! We&#39;ll contact you soon.
@@ -243,10 +243,10 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto my-20 px-5 py-8">
+      <div className="relative max-w-7xl mx-auto my-20 xs:px-10 lg:px-5 py-8">
         <button
           onClick={handleBack}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6 transition-colors"
+          className="flex items-center gap-2 text-black hover:text-blue-800 mb-6 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Properties
@@ -265,21 +265,13 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 />
 
                 <div className="absolute top-4 left-4 flex gap-2">
-                  <span
-                    className={`px-3 pt-1 pb-1.5 text-sm font-semibold text-white rounded-full ${
-                      currentProperty.category === "rent"
-                        ? "bg-green-500"
-                        : "bg-blue-600"
-                    }`}
-                  >
+                  <span className="bg-gradient-to-br from-neutral-500 to-neutral-900 px-3 py-1.5 text-xs text-white font-semibold rounded-full shadow-md">
                     {currentProperty.category === "rent"
                       ? "For Rent"
                       : "For Sale"}
                   </span>
                   {currentProperty.featured && (
-                    <span className="px-3 pt-1 pb-1.5 text-sm font-semibold text-white bg-yellow-500 rounded-full">
-                      Featured
-                    </span>
+                    <Star className="w-6 h-6 text-neutral-600 fill-yellow-400 mt-0.5" />
                   )}
                 </div>
 
@@ -291,7 +283,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                           prev > 0 ? prev - 1 : allImages.length - 1
                         )
                       }
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 px-3.5 pt-2 pb-3 bg-black/50 text-white rounded-full hover:bg-black/70 transition-all cursor-pointer"
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 px-3.5 pt-2 pb-3 bg-black/70 text-white rounded-full hover:bg-black/90 transition-all cursor-pointer"
                       aria-label="Previous image"
                     >
                       ←
@@ -302,7 +294,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                           prev < allImages.length - 1 ? prev + 1 : 0
                         )
                       }
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white px-3.5 pt-2 pb-3 rounded-full hover:bg-black/70 transition-colors cursor-pointer"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/70 text-white px-3.5 pt-2 pb-3 rounded-full hover:bg-black/90 transition-colors cursor-pointer"
                       aria-label="Next image"
                     >
                       →
@@ -310,22 +302,22 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                   </>
                 )}
 
-                <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
                   {currentImageIndex + 1} / {allImages.length}
                 </div>
               </div>
 
               {allImages.length > 1 && (
                 <div className="p-4">
-                  <div className="flex gap-3 overflow-x-auto pb-2">
+                  <div className="flex gap-3 py-1 overflow-x-auto">
                     {allImages.map((image: string, index: number) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all transform ${
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border transition-all transform ${
                           index === currentImageIndex
                             ? "border-blue-500 scale-105"
-                            : "border-gray-200 hover:border-gray-300 hover:scale-102"
+                            : "border-gray-200 hover:border-gray-300 hover:scale-105"
                         } cursor-pointer`}
                       >
                         <Image
@@ -339,7 +331,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                     ))}
                   </div>
                   <div className="mt-2 text-center">
-                    <p className="text-sm text-gray-600 animate-in fade-in duration-200">
+                    <p className="text-sm text-gray-600">
                       {getCurrentImageInfo()}
                     </p>
                   </div>
@@ -349,15 +341,15 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
 
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <div className="mb-6">
-                <h1 className="text-3xl font-bold text-black mb-2">
+                <h1 className="text-2xl font-bold text-black mb-2">
                   {currentProperty.title}
                 </h1>
                 <div className="flex items-center text-gray-600 mb-4">
-                  <MapPin className="w-5 h-5 mr-2" />
+                  <MapPin className="w-4 h-4 mr-2" />
                   <span>{currentProperty.location}</span>
                 </div>
                 <div
-                  className={`text-3xl font-bold ${
+                  className={`text-2xl font-bold ${
                     currentProperty.category === "sale"
                       ? "text-blue-600"
                       : "text-green-500"
@@ -369,25 +361,25 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
+              <div className="flex flex-wrap gap-6 mb-6 py-4 rounded-lg">
                 {currentProperty.type === "house" && (
                   <>
-                    <div className="flex items-center">
-                      <Bed className="w-5 h-5 mr-2 text-gray-500" />
+                    <div className="flex items-center text-sm">
+                      <Bed className="w-4 h-4 mr-2 text-gray-500" />
                       <span className="text-gray-500">
                         {currentProperty.bedrooms} Bedrooms
                       </span>
                     </div>
-                    <div className="flex items-center">
-                      <Bath className="w-5 h-5 mr-2 text-gray-500" />
+                    <div className="flex items-center text-sm">
+                      <Bath className="w-4 h-4 mr-2 text-gray-500" />
                       <span className="text-gray-500">
                         {currentProperty.bathrooms} Bathrooms
                       </span>
                     </div>
                   </>
                 )}
-                <div className="flex items-center">
-                  <LandPlot className="w-5 h-5 mr-2 text-gray-500" />
+                <div className="flex items-center text-sm">
+                  <LandPlot className="w-4 h-4 mr-2 text-gray-500" />
                   <span className="text-gray-500">
                     {currentProperty.area.toLocaleString()} m²
                   </span>
@@ -398,7 +390,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-3">
                   Description
                 </h3>
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 text-sm leading-relaxed">
                   {currentProperty.description}
                 </p>
               </div>
@@ -409,7 +401,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                     <h3 className="text-xl font-semibold text-gray-900 mb-3">
                       Features & Amenities
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                       {currentProperty.features.map(
                         (feature: string, index: number) => (
                           <div key={index} className="flex items-center">
@@ -430,8 +422,8 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="sticky top-24 bg-white rounded-lg p-6 shadow-sm">
+          <div className="sticky top-24 space-y-5">
+            <div className="bg-white rounded-lg p-6 shadow-sm">
               <div className="space-y-3">
                 {userInterest?.hasInterest ? (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
@@ -445,51 +437,40 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                   </div>
                 ) : (
                   <button
-                    onClick={handlePlaceInterest}
+                    onClick={placeInterest}
                     className={`flex items-center justify-center w-full bg-gradient-to-r ${
                       currentProperty.category === "sale"
-                        ? "from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
-                        : "from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
-                    } text-white py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg transform hover:scale-105`}
+                        ? "from-light-blue to-blue-800 hover:from-blue-600"
+                        : "from-green-500 to-green-700 hover:from-green-500"
+                    } text-white p-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg`}
                   >
                     <Heart className="w-5 h-5 mr-2" />
                     Place Interest
                   </button>
                 )}
-
-                <button
-                  className={`flex items-center justify-center w-full border ${
-                    currentProperty.category === "sale"
-                      ? "border-blue-600 text-blue-800 bg-blue-50 hover:bg-blue-100"
-                      : "border-green-500 text-green-900 bg-green-50 hover:bg-green-100"
-                  } py-3 px-4 rounded-lg transition-colors cursor-pointer`}
-                >
-                  <Calendar className="w-5 h-5 mr-2" />
-                  Schedule Visit
-                </button>
               </div>
             </div>
 
-            <div className="sticky top-80 bg-white rounded-lg p-6 shadow-sm">
+            <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-xl font-semibold text-black mb-4">
                 Property Overview
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-700">Type:</span>
-                  <span className="capitalize text-gray-500">
+                  <span className="capitalize text-black">
                     {currentProperty.type}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-700">Category:</span>
-                  <span className="capitalize text-gray-500">
+                  <span className="capitalize text-black">
                     {currentProperty.category}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Area:</span>
-                  <span className="text-gray-500">
+                  <span className="text-black">
                     {currentProperty.area.toLocaleString()} m²
                   </span>
                 </div>
@@ -497,13 +478,13 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                   <>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Bedrooms:</span>
-                      <span className="text-gray-500">
+                      <span className="text-black">
                         {currentProperty.bedrooms}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Bathrooms:</span>
-                      <span className="text-gray-500">
+                      <span className="text-black">
                         {currentProperty.bathrooms}
                       </span>
                     </div>
@@ -511,19 +492,13 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 )}
                 <div className="flex justify-between">
                   <span className="text-gray-600">Featured:</span>
-                  <span
-                    className={`text-sm px-2 py-1 rounded-full ${
-                      currentProperty.featured
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
+                  <span className="text-black rounded-full">
                     {currentProperty.featured ? "Yes" : "No"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Listed:</span>
-                  <span className="text-gray-500">
+                  <span className="text-black">
                     {new Date(currentProperty.createdAt).toLocaleDateString()}
                   </span>
                 </div>
@@ -536,7 +511,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
       <InterestModal
         isOpen={showInterestModal}
         onClose={() => setShowInterestModal(false)}
-        onSubmit={handleInterestSubmit}
+        onSubmit={interestSubmit}
         loading={interestLoading}
         propertyTitle={currentProperty?.title || ""}
       />

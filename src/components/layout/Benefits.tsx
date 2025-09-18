@@ -24,7 +24,7 @@ const Benefits = () => {
 
   return (
     <section>
-      <div className="max-w-7xl mx-auto px-5 text-center mb-16">
+      <div className="max-w-7xl mx-auto xs:px-10 lg:px-5 text-center mb-16">
         <h2 className="xs:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
           With&nbsp;
           <span className="bg-gradient-to-r from-light-blue to-blue-800 bg-clip-text text-transparent">
@@ -38,7 +38,7 @@ const Benefits = () => {
         </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-5 flex xs:flex-col md:flex-row items-center justify-center gap-10 mb-20">
+      <div className="max-w-7xl mx-auto xs:px-10 lg:px-5 flex xs:flex-col md:flex-row items-center justify-center gap-10 mb-20">
         <motion.div
           initial={{ opacity: 0, x: -100 }}
           whileInView={{ opacity: 2, x: 0 }}
@@ -141,7 +141,7 @@ const Benefits = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-5 text-center py-10 mb-10 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto xs:px-10 lg:px-5 text-center py-10 mb-10 relative overflow-hidden">
         <div className="relative">
           <h3 className="xs:text-3xl md:text-5xl font-bold text-black mb-6">
             Ready to Find Your Perfect Home?

@@ -54,17 +54,17 @@ const PropertyListings: React.FC<ListingsProps> = ({ propertyRef }) => {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-5 py-10">
+    <section className="max-w-7xl mx-auto xs:px-10 lg:px-5 py-10">
       <div ref={propertyRef} className="mb-12">
         <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold">
-          <span className="bg-gradient-to-r from-blue-800 to-black bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-blue-600 to-blue-950 bg-clip-text text-transparent">
             Featured Properties
           </span>
         </h2>
 
         <p className="text-black md:text-lg lg:text-xl text-center mt-5 mb-16 font-medium">
-          Discover our handpicked selection of premium properties for sale and
-          rent.
+          Take a look at the latest and featured properties available for sale
+          and rent.
         </p>
 
         {isLoading && (

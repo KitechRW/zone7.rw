@@ -107,6 +107,7 @@ const UsersTab = () => {
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedUsers.length / ITEMS_PER_PAGE);
+
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
@@ -153,7 +154,7 @@ const UsersTab = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-sm shadow-sm p-6">
+      <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
           <SearchBar
             searchQuery={searchQuery}
@@ -161,7 +162,7 @@ const UsersTab = () => {
           />
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 whitespace-nowrap">
+            <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
               Sort by:
             </span>
             <div className="relative">
@@ -172,7 +173,7 @@ const UsersTab = () => {
                   setSortBy(column as "username" | "email" | "createdAt");
                   setSortOrder(order as "asc" | "desc");
                 }}
-                className="p-3 text-left text-gray-700 bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
+                className="w-24 py-2.5 px-3  text-left text-gray-500 text-xs bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
               >
                 <option value="createdAt-desc">Newest First</option>
                 <option value="createdAt-asc">Oldest First</option>
@@ -195,18 +196,6 @@ const UsersTab = () => {
       </div>
 
       <div className="bg-white rounded-sm shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Registered Users
-            </h3>
-            <span className="text-sm text-gray-500">
-              {filteredAndSortedUsers.length} total
-            </span>
-          </div>
-        </div>
-
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -216,7 +205,7 @@ const UsersTab = () => {
                   onClick={() => handleSort("username")}
                 >
                   <div className="flex items-center gap-1">
-                    User
+                    User ({filteredAndSortedUsers.length})
                     {sortBy === "username" && (
                       <span className="text-blue-600">
                         {sortOrder === "asc" ? "↑" : "↓"}
@@ -242,7 +231,7 @@ const UsersTab = () => {
                   onClick={() => handleSort("createdAt")}
                 >
                   <div className="flex items-center gap-1">
-                    Join Date
+                    Date Joined
                     {sortBy === "createdAt" && (
                       <span className="text-blue-600">
                         {sortOrder === "asc" ? "↑" : "↓"}

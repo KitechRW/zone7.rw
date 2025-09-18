@@ -15,8 +15,8 @@ const SearchBar = ({ searchQuery, setSearchQuery }: SearchBarProps) => {
         type="text"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="block w-full xs:h-12 lg:h-14 text-sm pl-10 border-2 border-gray-300 rounded-lg leading-5 focus:border-light-blue bg-white placeholder-neutral-400 focus:outline-none text-black"
-        placeholder="Search by location, property type..."
+        className="block w-full h-12 text-sm pl-10 border-2 border-gray-300 rounded-lg leading-5 focus:border-light-blue bg-white placeholder-neutral-400 focus:outline-none text-black"
+        placeholder="Search..."
       />
     </div>
   );
