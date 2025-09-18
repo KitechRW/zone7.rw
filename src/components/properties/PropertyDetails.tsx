@@ -9,6 +9,7 @@ import {
   Calendar,
   LandPlot,
   ArrowLeft,
+  CheckCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -16,6 +17,10 @@ import Header2 from "@/components/layout/Header2";
 import Loader from "@/components/misc/Loader";
 import Footer2 from "@/components/layout/Footer2";
 import { useProperty } from "@/contexts/PropertyContext";
+import { useInterest } from "@/contexts/InterestContext";
+import { useAuth } from "@/contexts/AuthContext";
+import InterestModal from "./InterestModal";
+import { Interest } from "@/types/Interests";
 
 interface PropertyDetailsProps {
   propertyId: string;
@@ -23,10 +28,20 @@ interface PropertyDetailsProps {
 
 const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
   const { fetchProperty, currentProperty, error, clearError } = useProperty();
+  const { createInterest, checkUserInterest } = useInterest();
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [allImages, setAllImages] = useState<string[]>([]);
+  const [showInterestModal, setShowInterestModal] = useState(false);
+  const [interestLoading, setInterestLoading] = useState(false);
+  const [userInterest, setUserInterest] = useState<{
+    hasInterest: boolean;
+    interest: Interest | null;
+  } | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     const loadProperty = async () => {
@@ -46,6 +61,24 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     }
   }, [propertyId, fetchProperty, clearError]);
 
+  // Check if user already has interest in this property
+  useEffect(() => {
+    const checkInterest = async () => {
+      if (isAuthenticated && currentProperty) {
+        try {
+          const result = await checkUserInterest(propertyId);
+          setUserInterest(result);
+        } catch (error) {
+          console.error("Failed to check user interest:", error);
+        }
+      }
+    };
+
+    if (currentProperty && isAuthenticated) {
+      checkInterest();
+    }
+  }, [currentProperty, isAuthenticated, propertyId, checkUserInterest]);
+
   // Combine main image with room images when property loads
   useEffect(() => {
     if (currentProperty) {
@@ -54,12 +87,51 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
         ...currentProperty.roomTypeImages.map((img) => img.url),
       ];
       setAllImages(images);
-      setCurrentImageIndex(0); // Reset to first image
+      setCurrentImageIndex(0);
     }
   }, [currentProperty]);
 
   const handleBack = () => {
     router.push("/properties");
+  };
+
+  const handlePlaceInterest = () => {
+    if (!isAuthenticated) {
+      router.push("/auth");
+      return;
+    }
+    setShowInterestModal(true);
+  };
+
+  const handleInterestSubmit = async (data: {
+    userPhone: string;
+    message?: string;
+  }) => {
+    if (!user || !currentProperty) return;
+
+    try {
+      setInterestLoading(true);
+
+      await createInterest({
+        userId: user.id,
+        propertyId: propertyId,
+        userPhone: data.userPhone,
+        message: data.message,
+      });
+
+      setShowInterestModal(false);
+      setShowSuccessMessage(true);
+
+      // Update user interest status
+      const result = await checkUserInterest(propertyId);
+      setUserInterest(result);
+
+      setTimeout(() => setShowSuccessMessage(false), 5000);
+    } catch (error) {
+      console.error("Failed to place interest:", error);
+    } finally {
+      setInterestLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -162,6 +234,15 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     <div className="overflow-x-hidden">
       <Header2 />
 
+      {showSuccessMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
+          <CheckCircle className="h-5 w-5" />
+          <span className="font-medium">
+            Interest placed successfully! We&#39;ll contact you soon.
+          </span>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto my-20 px-5 py-8">
         <button
           onClick={handleBack}
@@ -241,16 +322,16 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all transform ${
                           index === currentImageIndex
-                            ? "border-blue-500"
-                            : "border-gray-200 hover:border-gray-300"
+                            ? "border-blue-500 scale-105"
+                            : "border-gray-200 hover:border-gray-300 hover:scale-102"
                         } cursor-pointer`}
                       >
                         <Image
                           src={image}
                           alt="Property thumbnail"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-opacity hover:opacity-80"
                           width={80}
                           height={80}
                         />
@@ -258,7 +339,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                     ))}
                   </div>
                   <div className="mt-2 text-center">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 animate-in fade-in duration-200">
                       {getCurrentImageInfo()}
                     </p>
                   </div>
@@ -352,16 +433,30 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
           <div className="space-y-6">
             <div className="sticky top-24 bg-white rounded-lg p-6 shadow-sm">
               <div className="space-y-3">
-                <button
-                  className={`flex items-center justify-center w-full bg-gradient-to-r ${
-                    currentProperty.category === "sale"
-                      ? "from-blue-600 to-blue-800"
-                      : "from-green-500 to-green-700"
-                  } text-white py-3 px-4 rounded-lg transition-colors cursor-pointer hover:shadow-lg`}
-                >
-                  <Heart className="w-5 h-5 mr-2" />
-                  Place Interest
-                </button>
+                {userInterest?.hasInterest ? (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                    <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                    <p className="text-green-800 font-medium mb-1">
+                      Interest Placed!
+                    </p>
+                    <p className="text-green-600 text-sm">
+                      We&#39;ll contact you soon regarding this property.
+                    </p>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handlePlaceInterest}
+                    className={`flex items-center justify-center w-full bg-gradient-to-r ${
+                      currentProperty.category === "sale"
+                        ? "from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                        : "from-green-500 to-green-700 hover:from-green-600 hover:to-green-800"
+                    } text-white py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg transform hover:scale-105`}
+                  >
+                    <Heart className="w-5 h-5 mr-2" />
+                    Place Interest
+                  </button>
+                )}
+
                 <button
                   className={`flex items-center justify-center w-full border ${
                     currentProperty.category === "sale"
@@ -437,6 +532,15 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
           </div>
         </div>
       </div>
+
+      <InterestModal
+        isOpen={showInterestModal}
+        onClose={() => setShowInterestModal(false)}
+        onSubmit={handleInterestSubmit}
+        loading={interestLoading}
+        propertyTitle={currentProperty?.title || ""}
+      />
+
       <Footer2 />
     </div>
   );

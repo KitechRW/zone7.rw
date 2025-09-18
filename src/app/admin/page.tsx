@@ -9,7 +9,6 @@ import UsersTab from "@/components/adminTab/UsersTab";
 import InterestsTab from "@/components/adminTab/InterestsTab";
 import PropertiesTab from "@/components/adminTab/PropertyTab";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
 
 type AdminTab = "properties" | "users" | "interests";
 
@@ -18,8 +17,6 @@ const mockInterestsCount = 12;
 const AdminDashboard = () => {
   const { fetchProperties, fetchStats, stats } = useProperty();
   const { isAuthenticated, isAdmin, authLoading } = useAuth();
-
-  const router = useRouter();
 
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("properties");

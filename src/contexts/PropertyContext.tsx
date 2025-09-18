@@ -125,8 +125,6 @@ class PropertyAPI {
     const response = await fetch(`/api/properties?${params}`);
     const result = await this.handleResponse(response);
 
-    console.log("PropertyAPI: Raw API response:", result);
-
     return {
       properties: result.properties,
       total: result.total,
@@ -249,20 +247,9 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
         setLoading(true);
         clearError();
 
-        console.log(
-          "PropertyContext: Fetching properties with filters:",
-          filters
-        );
-
         const result = await PropertyAPI.getAll(filters, page, limit);
 
-        console.log("PropertyContext: API returned:", result);
-        console.log("PropertyContext: Properties array:", result.properties);
-        console.log("PropertyContext: Setting properties state...");
-
         setProperties(result.properties);
-
-        console.log("PropertyContext: Properties state should be updated");
 
         setPagination({
           total: result.total,

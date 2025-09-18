@@ -67,7 +67,6 @@ const PropertyListings: React.FC<ListingsProps> = ({ propertyRef }) => {
           rent.
         </p>
 
-        {/* Loading State */}
         {isLoading && (
           <div className="grid xs:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
             {[...Array(6)].map((_, index) => (
@@ -86,7 +85,6 @@ const PropertyListings: React.FC<ListingsProps> = ({ propertyRef }) => {
           </div>
         )}
 
-        {/* Error State */}
         {error && !isLoading && (
           <div className="text-center py-16">
             <div className="max-w-md mx-auto bg-red-50 border border-red-200 rounded-lg p-6">
@@ -119,12 +117,10 @@ const PropertyListings: React.FC<ListingsProps> = ({ propertyRef }) => {
           </div>
         )}
 
-        {/* Success State - Show Properties */}
         {!isLoading && !error && featuredProperties.length > 0 && (
           <PropertyGrid properties={featuredProperties} />
         )}
 
-        {/* Empty State */}
         {!isLoading && !error && featuredProperties.length === 0 && (
           <div className="text-center py-16">
             <div className="max-w-md mx-auto bg-gray-50 border border-gray-200 rounded-lg p-6">
@@ -154,7 +150,6 @@ const PropertyListings: React.FC<ListingsProps> = ({ propertyRef }) => {
           </div>
         )}
 
-        {/* View All Properties Link */}
         {!isLoading && featuredProperties.length > 0 && (
           <div className="flex justify-center self-center w-full my-8">
             <Link
