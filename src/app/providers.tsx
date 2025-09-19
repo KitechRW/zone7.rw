@@ -1,16 +1,19 @@
 "use client";
 
-import { AuthProvider } from "@/contexts/AuthContext";
 import { FilterProvider } from "@/contexts/FilterContext";
+import { InterestProvider } from "@/contexts/InterestContext";
+import { PropertyProvider } from "@/contexts/PropertyContext";
 import { SessionProvider } from "next-auth/react";
 import { ReactNode } from "react";
 
 export const Providers = ({ children }: { children: ReactNode }) => {
   return (
     <SessionProvider>
-      <AuthProvider>
-        <FilterProvider>{children}</FilterProvider>
-      </AuthProvider>
+      <PropertyProvider>
+        <InterestProvider>
+          <FilterProvider>{children}</FilterProvider>
+        </InterestProvider>
+      </PropertyProvider>
     </SessionProvider>
   );
 };

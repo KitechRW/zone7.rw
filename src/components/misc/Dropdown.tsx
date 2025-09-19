@@ -45,24 +45,24 @@ const Dropdown = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 text-left bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:ring focus:ring-gray-700 focus:border-transparent transition-all duration-200 flex items-center justify-between"
+        className="w-20 p-2 text-left bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
       >
         <span
-          className={`block truncate ${
+          className={`truncate text-xs ${
             !selectedOption ? "text-gray-500" : "text-gray-800"
           }`}
         >
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
-          className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${
+          className={`h-3 w-3 mt-0.5 text-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full bg-white border border-gray-300 rounded-b-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 w-20 bg-white border border-gray-300 rounded-b-lg max-h-60 overflow-auto">
           {options.map((option) => (
             <button
               key={option.value}
@@ -71,7 +71,7 @@ const Dropdown = ({
                 onChange(option.value);
                 setIsOpen(false);
               }}
-              className={`w-full px-4 py-3 text-left hover:bg-gray-100 transition-colors duration-150 cursor-pointer ${
+              className={`w-full p-2 text-left text-xs hover:bg-gray-100 transition-colors duration-150 cursor-pointer ${
                 option.value === value
                   ? "bg-blue-100/70 text-black font-medium"
                   : "text-gray-900"

@@ -9,8 +9,8 @@ interface FooterProps {
 const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
   return (
     <footer className="w-screen bg-gradient-to-r from-gray-800 to-black">
-      <div className="max-w-7xl mx-auto px-5 py-10">
-        <div className="flex xs:flex-col md:flex-row md:items-center justify-between gap-8">
+      <div className="max-w-7xl mx-auto xs:px-10 lg:px-5 py-10">
+        <div className="flex xs:flex-col md:flex-row justify-between gap-8">
           <div className="flex flex-col">
             <Image
               src={logoWhite}
@@ -24,7 +24,7 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
 
           <div className="w-52">
             <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2 cursor-pointer">
+            <ul className="flex flex-col gap-1 cursor-pointer">
               <li
                 onClick={scrollToHome}
                 className="text-gray-400 hover:text-white transition"
@@ -50,7 +50,7 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
             <address className="not-italic text-gray-400">
               <p>KG Ave 123</p>
               <p>Giporoso, Kigali</p>
-              <p className="mt-2">info@realestate.com</p>
+              <p>info@realestate.com</p>
               <p>+250 788 123 456</p>
             </address>
           </div>

@@ -18,14 +18,14 @@ const Welcome: React.FC<WelcomeProps> = ({ homeRef }) => {
     router.push("/properties");
     setTimeout(() => {
       updateFilters({ category: "sale", type: "all" });
-    }, 500);
+    }, 1000);
   };
 
   const rentHouse = () => {
     router.push("/properties");
     setTimeout(() => {
       updateFilters({ category: "rent", type: "house" });
-    }, 500);
+    }, 1000);
   };
 
   return (
@@ -45,14 +45,14 @@ const Welcome: React.FC<WelcomeProps> = ({ homeRef }) => {
 
       <div className="h-full flex flex-col items-center justify-center relative z-10">
         <div className="flex flex-col items-center text-white max-w-2xl text-center px-5 gap-10">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+          <h1 className="xs:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Live The Dream
             <br />
-            With Your Property
+            In Your Property
           </h1>
-          <p className=" lg:text-xl px-4">
+          <p className="text-lg lg:text-xl px-4">
             Find the perfect home, plot, or investment opportunity with our
-            available collection of real estate in Rwanda.
+            available collection of real estates in Rwanda.
           </p>
         </div>
 

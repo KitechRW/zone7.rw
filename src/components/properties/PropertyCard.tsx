@@ -21,28 +21,22 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     >
       <div className="relative h-full overflow-hidden">
         <Image
-          src={property.image}
+          src={property.mainImage}
           alt={property.title}
-          className="w-full h-full object-cover transition-transform duration-500 "
+          className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 "
           width={400}
           height={208}
         />
         <div className="absolute top-4 left-4">
-          <span
-            className={`px-3 py-1.5 text-xs font-semibold text-white rounded-full shadow-md ${
-              property.category === "rent"
-                ? "bg-gradient-to-b from-green-500 to-green-800"
-                : "bg-gradient-to-b from-blue-500 to-blue-900"
-            }`}
-          >
+          <span className="bg-gradient-to-br from-neutral-500 to-neutral-900 px-3 py-1.5 text-xs text-white font-semibold rounded-full shadow-md">
             {property.category === "rent" ? "For Rent" : "For Sale"}
           </span>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent transition-all duration-300 group-hover:from-black" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent transition-all duration-300" />
       </div>
 
       <div className="absolute bottom-1 w-full p-4 flex flex-col">
-        <div className="translate-y-[5.2rem] group-hover:translate-y-0 transition-transform duration-500">
+        <div>
           <h3 className="font-bold text-lg text-gray-200 mb-2 line-clamp-2">
             {property.title}
           </h3>

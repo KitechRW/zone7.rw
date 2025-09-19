@@ -1,10 +1,12 @@
 import { User as NextAuthUser } from "next-auth";
+import { UserRole } from "@/lib/utils/permission";
 
 export interface UserData extends NextAuthUser {
   id: string;
   username: string;
   email: string;
-  provider: "credentials" | "google";
+  role: UserRole;
+  provider: "credentials";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,7 +52,9 @@ declare module "next-auth" {
     accessTokenExpires: number;
     refreshTokenExpires: number;
   }
+}
 
+declare module "next-auth/jwt" {
   interface JWT {
     accessToken: string;
     refreshToken: string;

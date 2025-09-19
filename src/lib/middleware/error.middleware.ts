@@ -31,13 +31,10 @@ interface MongoError {
 }
 
 export class ErrorMiddleware {
-  static catchAsync(
-    handler: (request: NextRequest, ...args: unknown[]) => Promise<NextResponse>
+  static catchAsync<T extends unknown[]>(
+    handler: (request: NextRequest, ...args: T) => Promise<NextResponse>
   ) {
-    return async (
-      request: NextRequest,
-      ...args: unknown[]
-    ): Promise<NextResponse> => {
+    return async (request: NextRequest, ...args: T): Promise<NextResponse> => {
       const requestId =
         request.headers.get("x-request-id") ||
         `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
