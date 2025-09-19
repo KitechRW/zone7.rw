@@ -92,6 +92,37 @@ export class InterestController {
     }
   );
 
+  getUserInterests = ErrorMiddleware.catchAsync(
+    async (request: NextRequest): Promise<NextResponse> => {
+      const requestId =
+        request.headers.get("x-request-id") ||
+        `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const authError = await AuthMiddleware.requireAuth(request);
+      if (authError) return authError;
+
+      const userId = request.headers.get("x-user-id")!;
+      const url = new URL(request.url);
+      const page = parseInt(url.searchParams.get("page") || "1", 10);
+      const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+
+      const result = await this.interestService.getUserInterests(
+        userId,
+        page,
+        limit
+      );
+
+      return NextResponse.json(
+        {
+          success: true,
+          requestId,
+          data: result,
+        },
+        { status: 200 }
+      );
+    }
+  );
+
   updateStatus = ErrorMiddleware.catchAsync(
     async (
       request: NextRequest,
@@ -133,7 +164,7 @@ export class InterestController {
         request.headers.get("x-request-id") ||
         `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      const authError = await AuthMiddleware.requireAdmin(request);
+      const authError = await AuthMiddleware.requireAuth(request);
       if (authError) return authError;
 
       const { id } = await params;

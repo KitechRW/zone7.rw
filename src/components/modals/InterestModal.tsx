@@ -1,4 +1,4 @@
-import { Heart, Loader2, MessageCircle, Phone, X } from "lucide-react";
+import { Loader2, MessageCircle, Phone, X } from "lucide-react";
 import { useState } from "react";
 
 interface InterestModalProps {
@@ -64,8 +64,8 @@ const InterestModal: React.FC<InterestModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+      <div className="bg-white rounded-sm shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -80,7 +80,7 @@ const InterestModal: React.FC<InterestModalProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center gap-2 mb-4 py-2 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-2 mb-4 py-2 bg-gray-50 rounded-sm">
             <p className="text-gray-600">Property:</p>
             <p className="font-semibold text-black">{propertyTitle}</p>
           </div>
@@ -102,7 +102,7 @@ const InterestModal: React.FC<InterestModalProps> = ({
                   onChange={(e) => setUserPhone(e.target.value)}
                   placeholder="+250 788 123 456"
                   disabled={loading}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg text-neutral-700 focus:border-light-blue outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`w-full pl-10 pr-4 py-3 border rounded-sm text-neutral-700 focus:border-light-blue outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     errors.phone
                       ? "border-red-500 bg-red-50"
                       : "border-gray-300"
@@ -130,7 +130,7 @@ const InterestModal: React.FC<InterestModalProps> = ({
                   placeholder="Tell us more about your interest or any questions you have..."
                   rows={4}
                   disabled={loading}
-                  className={`w-full pl-10 pr-4 py-2 border-2 rounded-lg text-neutral-700 focus:border-blue-500 outline-none transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`w-full pl-10 pr-4 py-2 border-2 rounded-sm text-neutral-700 focus:border-blue-500 outline-none transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
                     errors.message
                       ? "border-red-500 bg-red-50"
                       : "border-gray-300"
@@ -152,14 +152,14 @@ const InterestModal: React.FC<InterestModalProps> = ({
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="flex-1 py-3 px-4 border border-gray-300 rounded-sm text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-light-blue to-blue-800 text-white rounded-sm font-medium hover:shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -167,17 +167,14 @@ const InterestModal: React.FC<InterestModalProps> = ({
                     Submitting...
                   </>
                 ) : (
-                  <>
-                    <Heart className="h-4 w-4" />
-                    Place Interest
-                  </>
+                  <>Place Interest</>
                 )}
               </button>
             </div>
           </form>
 
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-xs text-blue-800">
+          <div className="mt-10 p-3 bg-blue-50 rounded-sm">
+            <p className="text-xs text-blue-900">
               💡 By placing interest, you&#39;ll be contacted by our team to
               discuss this property. Your information will be shared with the
               property owner.

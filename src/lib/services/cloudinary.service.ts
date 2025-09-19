@@ -51,7 +51,7 @@ export class CloudinaryService {
             },
             (error, result) => {
               if (error) {
-                console.error("Cloudinary upload_stream error:", error);
+                logger.error("Cloudinary upload_stream error:", error);
                 reject(error);
               } else {
                 resolve(result);
@@ -75,7 +75,7 @@ export class CloudinaryService {
 
       return (result as { secure_url: string }).secure_url;
     } catch (error) {
-      console.error("Cloudinary upload error details:", error);
+      logger.error("Cloudinary upload error details:", error);
       logger.error("Cloudinary upload error:", error);
 
       onProgress?.({
@@ -133,7 +133,7 @@ export class CloudinaryService {
     try {
       await cloudinary.uploader.destroy(publicId);
     } catch (error) {
-      console.error("Cloudinary delete error:", error);
+      logger.error("Cloudinary delete error:", error);
       logger.error("Cloudinary delete error:", error);
       throw ApiError.internalServer("Failed to delete image");
     }
@@ -143,7 +143,7 @@ export class CloudinaryService {
     try {
       await cloudinary.api.delete_resources(publicIds);
     } catch (error) {
-      console.error("Cloudinary batch delete error:", error);
+      logger.error("Cloudinary batch delete error:", error);
       logger.error("Cloudinary batch delete error:", error);
       throw ApiError.internalServer("Failed to delete images");
     }
@@ -165,7 +165,7 @@ export class CloudinaryService {
 
       return publicIdWithExtension;
     } catch (error) {
-      console.error("Error extracting public ID from URL:", url, error);
+      logger.error("Error extracting public ID from URL:", url, error);
       return url; // Fallback to original URL
     }
   }
@@ -189,7 +189,7 @@ export class CloudinaryService {
 
       return url.replace("/upload/", `/upload/${transformString}/`);
     } catch (error) {
-      console.error("Error optimizing URL:", error);
+      logger.error("Error optimizing URL:", error);
       return url; // Return original URL if optimization fails
     }
   }

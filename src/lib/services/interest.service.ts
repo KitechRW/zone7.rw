@@ -299,6 +299,96 @@ export class InterestService {
     }
   }
 
+  async getUserInterests(
+    userId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{
+    interests: InterestWithDetails[];
+    total: number;
+    pages: number;
+  }> {
+    try {
+      await DBConnection.getInstance().connect();
+
+      // Get interests for specific user
+      const matchConditions = { userId };
+
+      const interests = await Interest.find(matchConditions)
+        .lean<LeanInterest[]>()
+        .sort({ createdAt: -1 });
+
+      if (interests.length === 0) {
+        return {
+          interests: [],
+          total: 0,
+          pages: 0,
+        };
+      }
+
+      const user = await User.findById(userId)
+        .select("username email")
+        .lean<LeanUser>();
+
+      if (!user) {
+        throw ApiError.notFound("User not found");
+      }
+
+      // Get property details
+      const propertyIds = [
+        ...new Set(interests.map((interest) => interest.propertyId)),
+      ];
+
+      const propertyTitles = await this.getPropertyTitles(propertyIds);
+
+      // Enrich interests with user and property data
+      const enrichedInterests: InterestWithDetails[] = interests.map(
+        (interest) =>
+          ({
+            _id: interest._id.toString(),
+            id: interest._id.toString(),
+            userId: interest.userId,
+            propertyId: interest.propertyId,
+            userPhone: interest.userPhone,
+            message: interest.message,
+            status: interest.status,
+            userName: user.username,
+            userEmail: user.email,
+            propertyTitle:
+              propertyTitles.get(interest.propertyId) || "Property not found",
+            createdAt: interest.createdAt,
+            updatedAt: interest.updatedAt,
+          } as InterestWithDetails)
+      );
+
+      // Apply pagination
+      const total = enrichedInterests.length;
+      const pages = Math.ceil(total / limit);
+      const startIndex = (page - 1) * limit;
+      const paginatedInterests = enrichedInterests.slice(
+        startIndex,
+        startIndex + limit
+      );
+
+      return {
+        interests: paginatedInterests,
+        total,
+        pages,
+      };
+    } catch (error: unknown) {
+      logger.error("Failed to fetch user interests", {
+        error: error instanceof Error && error.message,
+        userId,
+      });
+
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      throw ApiError.internalServer("Failed to fetch user interests");
+    }
+  }
+
   private async getPropertyTitles(
     propertyIds: string[]
   ): Promise<Map<string, string>> {

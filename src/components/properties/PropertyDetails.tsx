@@ -19,7 +19,7 @@ import Footer2 from "@/components/layout/Footer2";
 import { useProperty } from "@/contexts/PropertyContext";
 import { useInterest } from "@/contexts/InterestContext";
 import { useAuth } from "@/contexts/AuthContext";
-import InterestModal from "./InterestModal";
+import InterestModal from "../modals/InterestModal";
 import { Interest } from "@/types/Interests";
 
 interface PropertyDetailsProps {

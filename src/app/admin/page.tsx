@@ -17,15 +17,28 @@ import Avatar from "@/components/misc/Avatar";
 
 type AdminTab = "properties" | "users" | "interests";
 
+interface UserStats {
+  totalUsers: number;
+  totalAdmins: number;
+  recentRegistrations: number;
+  activeUsers: number;
+}
+
 const AdminDashboard = () => {
   const { fetchProperties, fetchStats, stats: PropertyStats } = useProperty();
   const { isAuthenticated, isAdmin, authLoading, user, logout } = useAuth();
-  const { stats: interestStats } = useInterest();
+  const { stats: interestStats, fetchStats: fetchInterestStats } =
+    useInterest();
 
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("properties");
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [usersStats, setUsersStats] = useState({ total: 0, admins: 0 });
+  const [usersStats, setUsersStats] = useState<UserStats>({
+    totalUsers: 0,
+    totalAdmins: 0,
+    recentRegistrations: 0,
+    activeUsers: 0,
+  });
 
   const router = useRouter();
 
@@ -39,10 +52,14 @@ const AdminDashboard = () => {
 
     const initializeData = async () => {
       try {
-        await Promise.all([fetchProperties({}, 1, 10), fetchStats()]);
+        await Promise.all([
+          fetchProperties({}, 1, 10),
+          fetchStats(),
+          fetchInterestStats(),
+        ]);
 
+        // Fetch user statistics
         const usersResponse = await fetch("/api/users/stats");
-
         if (usersResponse.ok) {
           const usersData = await usersResponse.json();
           setUsersStats(usersData.data);
@@ -55,7 +72,14 @@ const AdminDashboard = () => {
     };
 
     initializeData();
-  }, [fetchProperties, fetchStats, isAuthenticated, isAdmin, authLoading]);
+  }, [
+    fetchProperties,
+    fetchStats,
+    fetchInterestStats,
+    isAuthenticated,
+    isAdmin,
+    authLoading,
+  ]);
 
   const Sidebar = () => (
     <div
@@ -94,7 +118,7 @@ const AdminDashboard = () => {
             }}
             className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "properties"
-                ? "text-blue-700"
+                ? "text-light-blue"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
@@ -116,7 +140,7 @@ const AdminDashboard = () => {
             }}
             className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "interests"
-                ? "text-blue-700"
+                ? "text-light-blue"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
@@ -138,20 +162,20 @@ const AdminDashboard = () => {
             onClick={() => setActiveTab("users")}
             className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "users"
-                ? "text-blue-700"
+                ? "text-light-blue"
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
             <Users className="w-6 h-6" />
             <span className={`${isCollapsed ? "hidden" : "inline-block"}`}>
-              Users{" "}
-              <span
-                className={`${
-                  isCollapsed ? "hidden" : ""
-                } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
-              >
-                {usersStats.total || 0}
-              </span>
+              Users
+            </span>
+            <span
+              className={`${
+                isCollapsed ? "hidden" : ""
+              } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
+            >
+              {usersStats.totalUsers + usersStats.totalAdmins || 0}
             </span>
           </button>
         </nav>
@@ -168,7 +192,7 @@ const AdminDashboard = () => {
                 </p>
               </Link>
               <button
-                onClick={() => logout}
+                onClick={logout}
                 className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-black rounded transition cursor-pointer"
               >
                 {authLoading ? (
@@ -181,7 +205,7 @@ const AdminDashboard = () => {
           )
         ) : (
           <button
-            onClick={() => login}
+            onClick={login}
             className="bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 pb-3 pt-2 rounded-sm hover:shadow-lg transition cursor-pointer"
           >
             Login

@@ -35,11 +35,6 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
     clearError,
   } = useProperty();
 
-  console.log("PropertyPage - Properties from context:", properties);
-  console.log("PropertyPage - Properties length:", properties?.length);
-  console.log("PropertyPage - Loading state:", propertiesLoading);
-  console.log("PropertyPage - Error state:", error);
-
   const [pageLoading, setPageLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 

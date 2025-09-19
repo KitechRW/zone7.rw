@@ -24,7 +24,7 @@ import {
 } from "@/types/Properties";
 import { motion, AnimatePresence } from "framer-motion";
 import FilterBar, { FilterState } from "@/components/misc/FilterBar";
-import PropertyModal from "@/components/properties/PropertyModal";
+import PropertyModal from "@/components/modals/PropertyModal";
 
 const PropertiesTab = () => {
   const {

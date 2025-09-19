@@ -5,6 +5,7 @@ import {
   RoomTypeImageUpload,
 } from "../services/property.service";
 import { ErrorMiddleware } from "../middleware/error.middleware";
+import logger from "../utils/logger";
 
 export class PropertyController {
   static createProperty = ErrorMiddleware.catchAsync(
@@ -161,7 +162,7 @@ export class PropertyController {
           { status: 201 }
         );
       } catch (error: unknown) {
-        console.error("Detailed create property error:", {
+        logger.error("Detailed create property error:", {
           error: error instanceof Error ? error.message : String(error),
           stack: error instanceof Error ? error.stack : undefined,
           name: error instanceof Error ? error.name : undefined,

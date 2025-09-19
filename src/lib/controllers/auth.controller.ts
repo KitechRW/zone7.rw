@@ -380,11 +380,10 @@ export class AuthController {
       request: NextRequest,
       context: RouteContext
     ): Promise<NextResponse> => {
-      const authError = await AuthMiddleware.requireAdmin(request);
+      const authError = await AuthMiddleware.requireAuth(request);
       if (authError) return authError;
 
-      const requesterId = request.headers.get("x-user-id")!;
-      await this.authService.deleteUser(context.params.id, requesterId);
+      await this.authService.deleteUser(context.params.id);
 
       return NextResponse.json(
         {

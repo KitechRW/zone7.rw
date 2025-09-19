@@ -342,7 +342,7 @@ const InterestsTab = () => {
                       onClick={() => handleSort("userName")}
                     >
                       <div className="flex items-center gap-1">
-                        Users ({pagination.total})
+                        Users ({stats?.total || 0})
                         {sortBy === "userName" && (
                           <span className="text-blue-600">
                             {sortOrder === "asc" ? "↑" : "↓"}

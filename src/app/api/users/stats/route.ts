@@ -1,4 +1,3 @@
-// app/api/users/stats/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { ApiError } from "@/lib/utils/apiError";
 import logger from "@/lib/utils/logger";
