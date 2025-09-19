@@ -10,10 +10,6 @@ import { z } from "zod";
 import logger from "@/lib/utils/logger";
 
 const authController = AuthController.getInstance();
-const validationMiddleware = validate(registerSchema, {
-  passwordFields: true,
-  customNoSQLRules: { password: "lenient" },
-});
 
 export const POST = async (request: NextRequest) => {
   try {

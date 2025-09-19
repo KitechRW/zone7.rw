@@ -382,6 +382,41 @@ const ProfilePage = () => {
             </div>
           </div>
         </div>
+
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-sm max-w-sm w-full px-10 py-5">
+              <h3 className="text-center font-bold text-gray-900 mb-4">
+                Delete Account?
+              </h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Are you sure you want to delete your account? This action cannot
+                be undone and will:
+              </p>
+              <ul className="list-disc list-inside text-gray-600 text-sm mb-8 space-y-1">
+                <li>Permanently delete your account</li>
+                <li>Remove all your property interests</li>
+                <li>Delete your personal information</li>
+              </ul>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 bg-neutral-200 text-gray-900 py-2 px-4 rounded-sm hover:bg-neutral-300 transition-colors cursor-pointer"
+                  disabled={deleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={deleteAccount}
+                  disabled={deleting}
+                  className="flex-1 bg-red-700 text-white py-2 px-4 rounded-sm hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {deleting ? "Deleting..." : "Delete Account"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <Footer2 />
     </section>
