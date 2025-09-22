@@ -66,6 +66,7 @@ const InterestsTab = ({
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Load data whenever filters change
   useEffect(() => {
     const fetchUsers = async () => {
       try {
