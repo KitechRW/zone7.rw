@@ -10,8 +10,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Real Estate",
-  description: "Best property listing in Rwanda",
+  title: `${process.env.NEXT_PUBLIC_COMPANY_NAME}`,
+  description: "Best Property Listing in Rwanda",
 };
 
 if (typeof window === "undefined") {

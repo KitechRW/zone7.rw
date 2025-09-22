@@ -417,11 +417,11 @@ const ResetPasswordPage = () => {
             </div>
 
             <div className="text-center">
-              <Link
-                href="/auth/login"
-                className="text-sm text-light-blue hover:text-blue-500 transition-colors duration-200"
-              >
-                Remember your password? Sign in
+              <Link href="/auth">
+                Remember your password?{" "}
+                <span className="text-sm text-light-blue hover:text-blue-500 transition-colors duration-200">
+                  Sign in
+                </span>
               </Link>
             </div>
           </div>

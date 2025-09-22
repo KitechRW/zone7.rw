@@ -17,8 +17,8 @@ const Benefits = () => {
   }, [inView]);
 
   const stats = [
-    { number: 150, label: "Happy Clients", icon: Heart },
-    { number: 500, label: "Properties Sold", icon: Home },
+    { number: 1500, label: "Happy Clients", icon: Heart },
+    { number: 900, label: "Properties Sold", icon: Home },
     { number: 6, label: "Years Experience", icon: Award },
   ];
 
@@ -28,7 +28,7 @@ const Benefits = () => {
         <h2 className="xs:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
           With&nbsp;
           <span className="bg-gradient-to-r from-light-blue to-blue-800 bg-clip-text text-transparent">
-            Real Estate
+            {process.env.NEXT_PUBLIC_COMPANY_NAME}
           </span>{" "}
           Your Dream Home Awaits You
         </h2>
@@ -149,7 +149,8 @@ const Benefits = () => {
 
           <p className="text-black italic xs:text-lg md:text-xl mb-10 max-w-2xl mx-auto">
             Join hundreds of satisfied clients who found their dream properties
-            with Real Estate. Your journey starts with a single click.
+            with {process.env.NEXT_PUBLIC_COMPANY_NAME}. Your journey starts
+            with a single click.
           </p>
 
           <div className="flex justify-center">

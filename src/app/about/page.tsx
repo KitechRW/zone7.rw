@@ -9,10 +9,13 @@ const About = () => {
         <h1 className="text-4xl font-bold">About Us</h1>
 
         <p>
-          Welcome to <span className="font-semibold">Real Estate</span>, a
-          trusted real estate platform based in Rwanda. We specialize in helping
-          individuals and families find their perfect homes, investment
-          properties, and land across the country.
+          Welcome to{" "}
+          <span className="font-semibold">
+            {process.env.NEXT_PUBLIC_COMPANY_NAME}
+          </span>
+          , a trusted {process.env.NEXT_PUBLIC_COMPANY_NAME} platform based in
+          Rwanda. We specialize in helping individuals and families find their
+          perfect homes, investment properties, and land across the country.
         </p>
 
         <h2 className="text-2xl font-semibold">Our Services</h2>
@@ -36,13 +39,15 @@ const About = () => {
         <p>
           Our team is dedicated to offering personalized support, honest
           guidance, and up-to-date property listings. We pride ourselves on
-          being local experts who understand the Rwandan real estate market,
-          giving our clients confidence in every decision they make.
+          being local experts who understand the Rwandan{" "}
+          {process.env.NEXT_PUBLIC_COMPANY_NAME} market, giving our clients
+          confidence in every decision they make.
         </p>
 
         <h2 className="text-2xl font-semibold">Our Vision</h2>
         <p>
-          To become Rwanda’s most trusted real estate partner by making property
+          To become Rwanda&#39;s most trusted{" "}
+          {process.env.NEXT_PUBLIC_COMPANY_NAME} partner by making property
           ownership and renting easier, more transparent, and accessible for
           everyone.
         </p>

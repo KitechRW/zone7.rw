@@ -295,7 +295,9 @@ export class EmailService {
                 } to discuss their interest in this property.</p>
                 <p>This notification was sent automatically when someone expressed interest to ${actionText} your property.</p>
                 <p style="margin-top: 20px; font-size: 12px;">
-                    © ${new Date().getFullYear()} Real Estate Platform. All rights reserved.
+                    © ${new Date().getFullYear()} ${
+      process.env.NEXT_PUBLIC_COMPANY_NAME
+    }. All rights reserved.
                 </p>
             </div>
         </div>
@@ -328,7 +330,7 @@ Please contact ${data.userName} at ${data.userEmail} or ${
     } to discuss their interest.
 
 ---
-Real Estate Platform
+${process.env.NEXT_PUBLIC_COMPANY_NAME}
 Automated notification system
     `.trim();
   }
@@ -485,7 +487,9 @@ Automated notification system
               </div>
 
               <div class="message">
-                  You recently requested to reset your password for your Real Estate Platform account. 
+                  You recently requested to reset your password for your ${
+                    process.env.NEXT_PUBLIC_COMPANY_NAME
+                  } account. 
                   Click the button below to reset your password.
               </div>
 
@@ -509,7 +513,9 @@ Automated notification system
               <p><strong>Didn't request this?</strong></p>
               <p>If you didn't request a password reset, please ignore this email or contact support if you have concerns.</p>
               <p style="margin-top: 20px; font-size: 12px;">
-                  © ${new Date().getFullYear()} Real Estate Platform. All rights reserved.
+                  © ${new Date().getFullYear()} ${
+      process.env.NEXT_PUBLIC_COMPANY_NAME
+    }. All rights reserved.
               </p>
           </div>
       </div>
@@ -524,7 +530,7 @@ PASSWORD RESET REQUEST
 
 Hello ${data.userName},
 
-You recently requested to reset your password for your Real Estate Platform account.
+You recently requested to reset your password for your ${process.env.NEXT_PUBLIC_COMPANY_NAME} account.
 
 To reset your password, click on the following link:
 ${data.resetLink}
@@ -540,7 +546,7 @@ If the link doesn't work, copy and paste it into your browser address bar.
 If you didn't request a password reset, please ignore this email or contact support if you have concerns.
 
 ---
-Real Estate Platform
+${process.env.NEXT_PUBLIC_COMPANY_NAME}
 Automated security system
   `.trim();
   }

@@ -50,7 +50,8 @@ const Footer2 = () => {
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
           <p>
-            &copy; {new Date().getFullYear()} Real Estate. All rights reserved.
+            &copy; {new Date().getFullYear()}{" "}
+            {process.env.NEXT_PUBLIC_COMPANY_NAME}. All rights reserved.
           </p>
         </div>
       </div>
