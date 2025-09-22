@@ -114,12 +114,19 @@ const Header: React.FC<HeaderProps> = ({
                   <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
                     <Avatar userName={user.email} />
                   </button>
-                  <div className="absolute right-0 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
+                  <div className="absolute right-5 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
                     <div className="flex flex-col items-center justify-center gap-4">
-                      <Link href="/profile">
-                        <p className="px-2 py-1 text-sm text-black font-medium truncate hover:text-cyan-600">
-                          My account
-                        </p>
+                      <Link href="/profile" title="My account">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h1 className="font-semibold text-gray-900 text-sm capitalize">
+                              {user?.username?.split("_")[0] || "User"}
+                            </h1>
+                            <p className="text-gray-500 text-xs truncate">
+                              {user?.email}
+                            </p>
+                          </div>
+                        </div>
                       </Link>
                       <button
                         onClick={logout}
@@ -170,7 +177,7 @@ const Header: React.FC<HeaderProps> = ({
               </h2>
               <h2
                 onClick={scrollToProperties}
-                className="text-white font-medium hover:text-cyan-400 transition cursor-pointer"
+                className="text-white font-medium hover:text-cyan-300 transition cursor-pointer"
               >
                 Properties
               </h2>
@@ -179,12 +186,19 @@ const Header: React.FC<HeaderProps> = ({
                   <button className="relative flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
                     <Avatar userName={user.email} />
                   </button>
-                  <div className="absolute right-0 min-w-48 z-50 hidden px-5 py-4 bg-white/10 backdrop-blur-lg rounded-md shadow-lg group-hover:block">
+                  <div className="absolute right-5 min-w-48 z-50 hidden px-5 py-4 bg-black/50 backdrop-blur-lg rounded-md shadow-lg group-hover:block">
                     <div className="flex flex-col items-center justify-center gap-4">
-                      <Link href="/profile">
-                        <p className="px-2 py-1 text-sm text-white hover:text-cyan-300 truncate">
-                          My account
-                        </p>
+                      <Link href="/profile" title="My account">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h1 className="font-semibold text-gray-100 text-sm capitalize">
+                              {user?.username?.split("_")[0] || "User"}
+                            </h1>
+                            <p className="text-gray-300 text-xs truncate">
+                              {user?.email}
+                            </p>
+                          </div>
+                        </div>
                       </Link>
                       <button
                         onClick={logout}
@@ -229,19 +243,19 @@ const Header: React.FC<HeaderProps> = ({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute right-0 md:hidden w-1/2 p-6 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-md"
+            className="absolute right-0 md:hidden min-w-[40%] max-w-1/2 p-5 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-lg"
           >
             <div className="relative h-full py-5">
               <div className="space-y-4">
                 <h2
                   onClick={() => menuItemClick(scrollToHome)}
-                  className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
+                  className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
                 >
                   Home
                 </h2>
                 <h2
                   onClick={() => menuItemClick(scrollToProperties)}
-                  className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
+                  className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
                 >
                   Properties
                 </h2>
@@ -251,9 +265,17 @@ const Header: React.FC<HeaderProps> = ({
                 {user ? (
                   <div className="flex flex-col gap-1">
                     <Link href="/profile">
-                      <p className="font-medium hover:text-cyan-700 text-black text-center truncate mb-4">
-                        My account
-                      </p>
+                      <div className="flex items-center gap-4 mb-5">
+                        {user && <Avatar userName={user?.email} />}
+                        <div className="flex-1 min-w-0">
+                          <h1 className="font-semibold text-gray-900 text-sm capitalize">
+                            {user?.username?.split("_")[0] || "User"}
+                          </h1>
+                          <p className="text-gray-500 text-xs truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+                      </div>
                     </Link>
                     <button
                       onClick={() => menuItemClick(logout)}
@@ -268,14 +290,10 @@ const Header: React.FC<HeaderProps> = ({
                   </div>
                 ) : (
                   <button
-                    onClick={() => menuItemClick(logout)}
-                    className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-red-600 rounded hover:bg-red-700 transition cursor-pointer"
+                    onClick={() => menuItemClick(login)}
+                    className="w-full bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 py-2.5 rounded-sm hover:shadow-lg transition cursor-pointer"
                   >
-                    {authLoading ? (
-                      <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
-                    ) : (
-                      "Logout"
-                    )}
+                    Login
                   </button>
                 )}
               </div>

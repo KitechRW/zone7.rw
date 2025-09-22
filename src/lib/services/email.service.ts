@@ -12,6 +12,12 @@ export interface InterestNotificationData {
   interestDate: string;
 }
 
+export interface PasswordResetData {
+  userEmail: string;
+  userName: string;
+  resetLink: string;
+}
+
 export class EmailService {
   private static instance: EmailService;
   private apiKey: string;
@@ -139,7 +145,7 @@ export class EmailService {
                 padding: 20px;
                 border-radius: 8px;
                 margin: 20px 0;
-                border-left: 4px solid #3b82f6;
+                border-left: 4px solid #9e9e9e;
             }
             .property-title {
                 font-size: 20px;
@@ -220,13 +226,13 @@ export class EmailService {
     <body>
         <div class="container">
             <div class="header">
-                <h1>🏠 New Property Interest!</h1>
+                <h1>New Property Interest!</h1>
                 <p>Someone is interested in one of your properties</p>
             </div>
 
             <div class="property-info">
                 <div class="property-title">${data.propertyTitle}</div>
-                <div class="property-details">📍 ${data.propertyLocation}</div>
+                <div class="property-details">${data.propertyLocation}</div>
                 <div class="price"> ${data.propertyPrice} ${
       data.propertyCategory === "rent" ? "/month" : ""
     }</div>
@@ -325,5 +331,217 @@ Please contact ${data.userName} at ${data.userEmail} or ${
 Real Estate Platform
 Automated notification system
     `.trim();
+  }
+
+  async sendPasswordReset(data: PasswordResetData): Promise<void> {
+    try {
+      const emailData = {
+        from: {
+          email: this.fromEmail,
+          name: this.fromName,
+        },
+        to: [
+          {
+            email: data.userEmail,
+            name: data.userName,
+          },
+        ],
+        subject: "Password Reset Request",
+        html: this.generatePasswordResetTemplate(data),
+        text: this.generatePasswordResetText(data),
+      };
+
+      const response = await fetch("https://api.mailersend.com/v1/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify(emailData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `Email API error: ${response.status}`
+        );
+      }
+
+      logger.info("Password reset email sent successfully", {
+        userEmail: data.userEmail,
+      });
+    } catch (error) {
+      logger.error("Failed to send password reset email", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        data,
+      });
+      throw error;
+    }
+  }
+
+  private generatePasswordResetTemplate(data: PasswordResetData): string {
+    return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Password Reset Request</title>
+      <style>
+          body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: #f5f5f5;
+          }
+          .container {
+              background-color: white;
+              border-radius: 10px;
+              padding: 30px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          }
+          .header {
+              text-align: center;
+              margin-bottom: 30px;
+              padding-bottom: 20px;
+          }
+          .header h1 {
+              color: #1f2937;
+              margin: 0;
+              font-size: 28px;
+          }
+          .content {
+              margin: 20px 0;
+          }
+          .greeting {
+              font-size: 16px;
+              margin-bottom: 20px;
+              color: #374151;
+          }
+          .message {
+              font-size: 16px;
+              line-height: 1.6;
+              color: #4b5563;
+              margin-bottom: 30px;
+          }
+          .reset-button {
+              text-align: center;
+              margin: 30px 0;
+          }
+          .reset-button a {
+              display: inline-block;
+              background-color: #3399ff;
+              color: white;
+              padding: 15px 30px;
+              text-decoration: none;
+              border-radius: 4px;
+              font-size: 16px;
+              font-weight: 700;
+              transition: background-color 0.3s;
+          }
+          .reset-button a:hover {
+              background-color: #3b82f6;
+          }
+          .security-info p {
+              color:  #32325d;
+              margin: 20px 0;
+              font-size: 14px;
+              line-height: 1.5;
+          }
+          .alternative-link {
+              background-color: #f3f4f6;
+              padding: 15px;
+              border-radius: 8px;
+              margin: 20px 0;
+              word-break: break-all;
+              font-size: 12px;
+              color: #6b7280;
+          }
+          .footer {
+              text-align: center;
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 1px solid #e5e7eb;
+              color: #6b7280;
+              font-size: 14px;
+          }
+          .footer p {
+              margin: 5px 0;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Password Reset</h1>
+          </div>
+
+          <div class="content">
+              <div class="greeting">
+                  Hello ${data.userName},
+              </div>
+
+              <div class="message">
+                  You recently requested to reset your password for your Real Estate Platform account. 
+                  Click the button below to reset your password.
+              </div>
+
+              <div class="reset-button">
+                  <a href="${data.resetLink}">Reset My Password</a>
+              </div>
+
+              <div class="security-info">
+                  <p>This link will expire in 15 minutes for your security<br>
+                  </p>
+              </div>
+
+              <div class="alternative-link">
+                  <strong>Button not working?</strong><br>
+                  Copy and paste this link into your browser:<br>
+                  ${data.resetLink}
+              </div>
+          </div>
+
+          <div class="footer">
+              <p><strong>Didn't request this?</strong></p>
+              <p>If you didn't request a password reset, please ignore this email or contact support if you have concerns.</p>
+              <p style="margin-top: 20px; font-size: 12px;">
+                  © ${new Date().getFullYear()} Real Estate Platform. All rights reserved.
+              </p>
+          </div>
+      </div>
+  </body>
+  </html>
+  `;
+  }
+
+  private generatePasswordResetText(data: PasswordResetData): string {
+    return `
+PASSWORD RESET REQUEST
+
+Hello ${data.userName},
+
+You recently requested to reset your password for your Real Estate Platform account.
+
+To reset your password, click on the following link:
+${data.resetLink}
+
+IMPORTANT SECURITY INFORMATION:
+- This link will expire in 15 minutes
+- If you didn't request this reset, you can safely ignore this email
+- Your password will not be changed until you create a new one
+- For security, you'll be logged out of all devices after resetting
+
+If the link doesn't work, copy and paste it into your browser address bar.
+
+If you didn't request a password reset, please ignore this email or contact support if you have concerns.
+
+---
+Real Estate Platform
+Automated security system
+  `.trim();
   }
 }

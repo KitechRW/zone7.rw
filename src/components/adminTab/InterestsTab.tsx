@@ -14,9 +14,19 @@ import {
 import { useInterest } from "@/contexts/InterestContext";
 import SearchBar from "../misc/SearchBar";
 
+interface InterestsTabProps {
+  filterByUserId?: string | null;
+  filterByUserName?: string;
+  onClearUserFilter?: () => void;
+}
+
 const ITEMS_PER_PAGE = 10;
 
-const InterestsTab = () => {
+const InterestsTab = ({
+  filterByUserId,
+  filterByUserName,
+  onClearUserFilter,
+}: InterestsTabProps = {}) => {
   const {
     interests,
     loading,
@@ -24,9 +34,11 @@ const InterestsTab = () => {
     stats,
     pagination,
     fetchInterests,
+    fetchUserInterests,
     updateInterestStatus,
     deleteInterest,
     fetchStats,
+    clearInterests,
   } = useInterest();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,29 +54,41 @@ const InterestsTab = () => {
   const [updatingInterest, setUpdatingInterest] = useState<string | null>(null);
   const [detailsModal, setDetailsModal] = useState<string | null>(null);
 
+  // Load data whenever filters change
   useEffect(() => {
     const loadData = async () => {
       try {
-        await Promise.all([
-          fetchInterests({}, 1, ITEMS_PER_PAGE),
-          fetchStats(),
-        ]);
+        if (filterByUserId) {
+          // When filtering by specific user, clear existing data first
+          clearInterests();
+          await fetchUserInterests(filterByUserId);
+        } else {
+          // Load all interests with filters
+          const filters = {
+            status: statusFilter === "all" ? undefined : statusFilter,
+            search: searchQuery || undefined,
+          };
+          await Promise.all([
+            fetchInterests(filters, currentPage, ITEMS_PER_PAGE),
+            fetchStats(),
+          ]);
+        }
       } catch (error) {
         console.error("Failed to load interests data:", error);
       }
     };
 
     loadData();
-  }, [fetchInterests, fetchStats]);
-
-  useEffect(() => {
-    const filters = {
-      status: statusFilter === "all" ? undefined : statusFilter,
-      search: searchQuery || undefined,
-    };
-
-    fetchInterests(filters, currentPage, ITEMS_PER_PAGE);
-  }, [searchQuery, statusFilter, currentPage, fetchInterests]);
+  }, [
+    searchQuery,
+    statusFilter,
+    currentPage,
+    filterByUserId,
+    fetchInterests,
+    fetchUserInterests,
+    fetchStats,
+    clearInterests,
+  ]);
 
   const handleSort = (column: "createdAt" | "userName" | "status") => {
     if (sortBy === column) {
@@ -82,9 +106,9 @@ const InterestsTab = () => {
     try {
       setUpdatingInterest(interestId);
       await updateInterestStatus(interestId, newStatus);
-
-      // Refresh stats
-      await fetchStats();
+      if (!filterByUserId) {
+        await fetchStats();
+      }
     } catch (error) {
       console.error("Failed to update interest status:", error);
     } finally {
@@ -99,9 +123,10 @@ const InterestsTab = () => {
         await deleteInterest(interestId);
         setDeleteConfirm(null);
 
-        await fetchStats();
+        if (!filterByUserId) {
+          await fetchStats();
+        }
 
-        // If we're on the last page and it becomes empty, go to previous page
         if (interests.length === 1 && currentPage > 1) {
           setCurrentPage(currentPage - 1);
         }
@@ -160,17 +185,21 @@ const InterestsTab = () => {
 
   const handleRefresh = async () => {
     try {
-      await Promise.all([
-        fetchInterests(
-          {
-            status: statusFilter === "all" ? undefined : statusFilter,
-            search: searchQuery || undefined,
-          },
-          currentPage,
-          ITEMS_PER_PAGE
-        ),
-        fetchStats(),
-      ]);
+      if (filterByUserId) {
+        await fetchUserInterests(filterByUserId);
+      } else {
+        await Promise.all([
+          fetchInterests(
+            {
+              status: statusFilter === "all" ? undefined : statusFilter,
+              search: searchQuery || undefined,
+            },
+            currentPage,
+            ITEMS_PER_PAGE
+          ),
+          fetchStats(),
+        ]);
+      }
     } catch (error) {
       console.error("Failed to refresh data:", error);
     }
@@ -205,131 +234,155 @@ const InterestsTab = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-sm shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-800 truncate">
-                  Total Interests
-                </dt>
-                <dd className="font-medium text-gray-900">
-                  {stats?.total || 0}
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-sm shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-800 truncate">
-                  New
-                </dt>
-                <dd className="font-medium text-blue-600">{stats?.new || 0}</dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-sm shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Contacted
-                </dt>
-                <dd className="font-medium text-yellow-600">
-                  {loading ? (
-                    <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
-                  ) : (
-                    stats?.contacted || 0
-                  )}
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-sm shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Closed
-                </dt>
-                <dd className="font-medium text-gray-600">
-                  {stats?.closed || 0}
-                </dd>
-              </dl>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
-        <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
-          <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-          />
-
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
-                Sort by:
-              </span>
-              <div className="relative">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => {
-                    setStatusFilter(
-                      e.target.value as "all" | "new" | "contacted" | "closed"
-                    );
-                    setCurrentPage(1);
-                  }}
-                  className="w-24 py-3 px-3  text-left text-gray-500 text-xs bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
-                >
-                  <option value="all">All Status</option>
-                  <option value="new">New</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="closed">Closed</option>
-                </select>
+      {stats && !filterByUserId && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-sm shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-800 truncate">
+                    Total Interests
+                  </dt>
+                  <dd className="font-medium text-gray-900">
+                    {stats?.total || 0}
+                  </dd>
+                </dl>
               </div>
             </div>
+          </div>
 
+          <div className="bg-white rounded-sm shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-800 truncate">
+                    New
+                  </dt>
+                  <dd className="font-medium text-gray-900">
+                    {stats?.new || 0}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-sm shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Contacted
+                  </dt>
+                  <dd className="font-medium text-gray-900">
+                    {stats?.contacted || 0}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-sm shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Closed
+                  </dt>
+                  <dd className="font-medium text-gray-900">
+                    {stats?.closed || 0}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter by specific user */}
+      {filterByUserId ? (
+        <div className="bg-white shadow-sm text-xs rounded-sm p-4 mb-10">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-600 gap-2">
+              Showing interests for:{" "}
+              <span className="font-medium text-gray-800">
+                {filterByUserName}
+              </span>
+            </p>
             <button
-              onClick={handleRefresh}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 bg-neutral-200 text-gray-700 text-sm rounded-sm hover:bg-neutral-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              onClick={onClearUserFilter}
+              className="text-light-blue hover:underline font-medium cursor-pointer"
             >
-              {loading ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <RotateCcw className="h-3 w-3" />
-              )}
-              Refresh
+              Show All Interests
             </button>
           </div>
         </div>
+      ) : (
+        <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
+          <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
+            <SearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+            />
 
-        {(searchQuery || statusFilter !== "all") && (
-          <div className="mt-4 text-sm text-gray-600">
-            Found {pagination.total} interest
-            {pagination.total !== 1 ? "s" : ""}
-            {searchQuery && ` matching "${searchQuery}"`}
-            {statusFilter !== "all" && ` with status "${statusFilter}"`}
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
+                  Sort by:
+                </span>
+                <div className="relative">
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => {
+                      setStatusFilter(
+                        e.target.value as "all" | "new" | "contacted" | "closed"
+                      );
+                      setCurrentPage(1);
+                    }}
+                    className="w-24 py-3 px-3 text-left text-gray-500 text-xs bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                onClick={handleRefresh}
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 bg-neutral-200 text-gray-700 text-sm rounded-sm hover:bg-neutral-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {loading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <RotateCcw className="h-3.5 w-3.5 mt-0.5 rotate-90" />
+                )}
+                Refresh
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+
+          {(searchQuery || statusFilter !== "all") && (
+            <div className="mt-4 text-xs text-gray-600">
+              Found {pagination.total} interest
+              {pagination.total !== 1 ? "s" : ""}
+              {searchQuery && ` matching "${searchQuery}"`}
+              {statusFilter !== "all" && ` with status "${statusFilter}"`}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="bg-white rounded-sm shadow-sm overflow-hidden">
         {loading && interests.length === 0 ? (
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            <span className="ml-2 text-gray-600">Loading interests...</span>
+          <div className="bg-white rounded-sm shadow-sm p-4">
+            <div className="animate-pulse space-y-4">
+              <div className="h-10 bg-gray-200 mb-8" />
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
           </div>
         ) : (
           <>
@@ -342,7 +395,7 @@ const InterestsTab = () => {
                       onClick={() => handleSort("userName")}
                     >
                       <div className="flex items-center gap-1">
-                        Users ({stats?.total || 0})
+                        Users
                         {sortBy === "userName" && (
                           <span className="text-blue-600">
                             {sortOrder === "asc" ? "↑" : "↓"}
@@ -479,7 +532,7 @@ const InterestsTab = () => {
 
                         {detailsModal === interest.id && (
                           <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-40">
-                            <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-gray-700 min-w-sm  mx-4 rounded-sm">
+                            <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-gray-700 min-w-sm mx-4 rounded-sm">
                               <h4 className="text-xl text-center font-semibold">
                                 Full Message
                               </h4>
@@ -542,7 +595,9 @@ const InterestsTab = () => {
                   No interests found
                 </h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  {searchQuery || statusFilter !== "all"
+                  {filterByUserId
+                    ? `${filterByUserName} has not placed any interests yet`
+                    : searchQuery || statusFilter !== "all"
                     ? "No interests match your current filters"
                     : "No users have shown interest in properties yet"}
                 </p>

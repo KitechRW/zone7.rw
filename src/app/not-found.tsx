@@ -15,17 +15,17 @@ export default function NotFound() {
           </p>
         </div>
 
-        <div className="flex flex-col justify-center items-cent80 gap-4">
+        <div className="flex flex-col justify-center items-center gap-4">
           <Link
             href="/"
-            className="w-full max-w-80 mx-auto bg-gradient-to-r from-light-blue to-blue-800 text-white px-6 py-4 rounded-sm font-medium hover:shadow-lg transition flex items-center justify-center gap-2"
+            className="w-full max-w-80 mx-auto bg-gradient-to-r from-light-blue to-blue-800 text-white py-2.5 rounded-sm font-medium hover:shadow-lg transition flex items-center justify-center gap-2"
           >
             Return Home
           </Link>
 
           <button
             onClick={() => window.history.back()}
-            className="w-full max-w-80 mx-auto border border-gray-400 text-gray-700 px-6 py-4 rounded-sm font-medium hover:bg-gray-200 transition cursor-pointer"
+            className="w-full max-w-80 mx-auto border border-gray-400 text-gray-700 py-2.5 rounded-sm font-medium hover:bg-gray-200 transition cursor-pointer"
           >
             Go Back
           </button>

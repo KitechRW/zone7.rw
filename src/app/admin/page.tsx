@@ -33,6 +33,8 @@ const AdminDashboard = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("properties");
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string>("");
   const [usersStats, setUsersStats] = useState<UserStats>({
     totalUsers: 0,
     totalAdmins: 0,
@@ -183,13 +185,23 @@ const AdminDashboard = () => {
       <div className="absolute left-7 bottom-10 w-3/4 mx-auto">
         {user ? (
           isCollapsed ? (
-            <Avatar userName={user.email} />
+            <Link href="/profile" title="My account">
+              <Avatar userName={user.email} />
+            </Link>
           ) : (
             <div className="flex flex-col gap-1">
               <Link href="/profile">
-                <p className="font-medium hover:text-cyan-700 text-black text-center truncate mb-4">
-                  My account
-                </p>
+                <div className="flex items-center gap-4 mb-5">
+                  {user && <Avatar userName={user?.email} />}
+                  <div className="flex-1 min-w-0">
+                    <h1 className="font-semibold text-gray-900 text-sm capitalize">
+                      {user?.username?.split("_")[0] || "User"}
+                    </h1>
+                    <p className="text-gray-500 text-xs truncate">
+                      {user?.email}
+                    </p>
+                  </div>
+                </div>
               </Link>
               <button
                 onClick={logout}
@@ -220,9 +232,26 @@ const AdminDashboard = () => {
       case "properties":
         return <PropertiesTab />;
       case "users":
-        return <UsersTab />;
+        return (
+          <UsersTab
+            onViewUserInterests={(userId: string, userName: string) => {
+              setSelectedUserId(userId);
+              setSelectedUserName(userName);
+              setActiveTab("interests");
+            }}
+          />
+        );
       case "interests":
-        return <InterestsTab />;
+        return (
+          <InterestsTab
+            filterByUserId={selectedUserId}
+            filterByUserName={selectedUserName}
+            onClearUserFilter={() => {
+              setSelectedUserId(null);
+              setSelectedUserName("");
+            }}
+          />
+        );
       default:
         return <PropertiesTab />;
     }

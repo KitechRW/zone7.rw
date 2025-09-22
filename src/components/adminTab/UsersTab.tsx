@@ -1,18 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import {
-  Users,
-  Loader2,
-  Eye,
-  X,
-  Heart,
-  Calendar,
-  User,
-  Phone,
-  MessageCircle,
-  Trash2,
-} from "lucide-react";
+import { Users, Loader2, Eye, X, Calendar, Trash2 } from "lucide-react";
 import { UserRole } from "@/lib/utils/permission";
 import SearchBar from "../misc/SearchBar";
 
@@ -26,25 +15,17 @@ interface User {
   lastLoginAt?: string;
 }
 
-interface UserInterest {
-  id: string;
-  propertyId: string;
-  propertyTitle: string;
-  userPhone: string;
-  message?: string;
-  status: "new" | "contacted" | "closed";
-  createdAt: string;
-  updatedAt: string;
+interface UserDetails extends User {
+  totalInterests: number;
 }
 
-interface UserDetails extends User {
-  interests: UserInterest[];
-  totalInterests: number;
+interface UsersTabProps {
+  onViewUserInterests: (userId: string, userName: string) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-const UsersTab = () => {
+const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,10 +71,10 @@ const UsersTab = () => {
       setLoadingDetails(true);
       setError(null);
 
-      // Fetch user details and their interests in parallel
+      // Fetch user details and count their interests
       const [userResponse, interestsResponse] = await Promise.all([
         fetch(`/api/users/${userId}`),
-        fetch(`/api/interests?userId=${userId}`), // You might need to adjust this endpoint
+        fetch(`/api/interests/user?userId=${userId}`),
       ]);
 
       if (!userResponse.ok) {
@@ -102,18 +83,19 @@ const UsersTab = () => {
       }
 
       const userData = await userResponse.json();
-      let interests: UserInterest[] = [];
+      let totalInterests = 0;
 
-      // If interests endpoint exists and responds successfully
       if (interestsResponse.ok) {
         const interestsData = await interestsResponse.json();
-        interests = interestsData.data?.interests || [];
+        totalInterests =
+          interestsData.data?.total ||
+          interestsData.data?.interests?.length ||
+          0;
       }
 
       const details: UserDetails = {
         ...userData.data,
-        interests,
-        totalInterests: interests.length,
+        totalInterests,
       };
 
       setUserDetails(details);
@@ -151,26 +133,12 @@ const UsersTab = () => {
         throw new Error(errorData.message || "Failed to delete user");
       }
 
-      // Remove from local state
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
       setDeleteConfirm(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete user");
     } finally {
       setUpdatingUser(null);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "new":
-        return "bg-blue-100 text-blue-800";
-      case "contacted":
-        return "bg-yellow-100 text-yellow-800";
-      case "closed":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -184,7 +152,6 @@ const UsersTab = () => {
     });
   };
 
-  // Filter and sort users
   const filteredAndSortedUsers = useMemo(() => {
     const filtered = users.filter(
       (user) =>
@@ -192,7 +159,6 @@ const UsersTab = () => {
         user.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Sort users
     filtered.sort((a, b) => {
       let aValue: string | Date = a[sortBy];
       let bValue: string | Date = b[sortBy];
@@ -210,7 +176,6 @@ const UsersTab = () => {
     return filtered;
   }, [users, searchQuery, sortBy, sortOrder]);
 
-  // Pagination
   const totalPages = Math.ceil(filteredAndSortedUsers.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -280,7 +245,7 @@ const UsersTab = () => {
                     setSortBy(column as "username" | "email" | "createdAt");
                     setSortOrder(order as "asc" | "desc");
                   }}
-                  className="w-24 py-2.5 px-3  text-left text-gray-500 text-xs bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
+                  className="w-24 py-2.5 px-3 text-left text-gray-500 text-xs bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
                 >
                   <option value="createdAt-desc">Newest First</option>
                   <option value="createdAt-asc">Oldest First</option>
@@ -296,8 +261,8 @@ const UsersTab = () => {
           {searchQuery && (
             <div className="mt-4 text-sm text-gray-600">
               Found {filteredAndSortedUsers.length} user
-              {filteredAndSortedUsers.length !== 1 ? "s" : ""}
-              matching &#34;{searchQuery}&#34;
+              {filteredAndSortedUsers.length !== 1 ? "s" : ""} matching &quot;
+              {searchQuery}&quot;
             </div>
           )}
         </div>
@@ -312,7 +277,7 @@ const UsersTab = () => {
                     onClick={() => handleSort("username")}
                   >
                     <div className="flex items-center gap-1">
-                      User ({filteredAndSortedUsers.length})
+                      Users
                       {sortBy === "username" && (
                         <span className="text-blue-600">
                           {sortOrder === "asc" ? "↑" : "↓"}
@@ -454,22 +419,6 @@ const UsersTab = () => {
 
           {totalPages > 1 && (
             <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-              <div className="flex-1 flex justify-between sm:hidden">
-                <button
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <button
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700">
@@ -525,7 +474,7 @@ const UsersTab = () => {
       {viewingUser && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b">
+            <div className="flex items-center justify-between px-6 pt-6">
               <h3 className="text-xl font-bold text-gray-500 flex items-center">
                 User Details
               </h3>
@@ -545,11 +494,11 @@ const UsersTab = () => {
                 </div>
               ) : userDetails ? (
                 <div className="p-6">
-                  <div className="bg-neutral-50 text-black shadow-md rounded-sm p-4 mb-10">
+                  <div className="text-black shadow-md rounded-sm px-4">
                     <h4 className="text-lg font-semibold mb-4 flex items-center">
                       User Information
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700">
                           Username
@@ -591,70 +540,25 @@ const UsersTab = () => {
                           </p>
                         </div>
                       )}
+
+                      <div className="mb-3">
+                        <label className="block text-sm font-medium text-gray-700">
+                          Total Interests: {userDetails.totalInterests}
+                        </label>
+                        <button
+                          onClick={() => {
+                            onViewUserInterests(
+                              userDetails._id,
+                              userDetails.username
+                            );
+                            closeModal();
+                          }}
+                          className="text-sm text-light-blue hover:underline transition-colors cursor-pointer"
+                        >
+                          View {userDetails.username}&apos;s Interests
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-lg text-black font-semibold mb-4 flex items-center">
-                      Property Interests ({userDetails.totalInterests})
-                    </h4>
-
-                    {userDetails.interests.length === 0 ? (
-                      <div className="bg-gray-50 rounded-lg p-8 text-center">
-                        <Heart className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                        <h5 className="text-lg font-medium text-gray-500 mb-2">
-                          No Interests Yet
-                        </h5>
-                        <p className="text-gray-500">
-                          This user hasn&#39;t shown interest in any properties.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4 max-h-96 overflow-y-auto">
-                        {userDetails.interests.map((interest) => (
-                          <div
-                            key={interest.id}
-                            className="border border-gray-200 rounded-lg p-4"
-                          >
-                            <div className="flex justify-between items-start mb-3">
-                              <div className="flex-1">
-                                <h5 className="font-medium text-gray-500 mb-1">
-                                  {interest.propertyTitle}
-                                </h5>
-                                <div className="flex items-center text-sm text-gray-600 space-x-4">
-                                  <span className="flex items-center">
-                                    <Phone className="w-4 h-4 mr-1" />
-                                    {interest.userPhone}
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Calendar className="w-4 h-4 mr-1" />
-                                    {formatDate(interest.createdAt)}
-                                  </span>
-                                </div>
-                              </div>
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                  interest.status
-                                )}`}
-                              >
-                                {interest.status}
-                              </span>
-                            </div>
-
-                            {interest.message && (
-                              <div className="mt-3 p-3 bg-gray-50 rounded">
-                                <div className="flex items-start">
-                                  <MessageCircle className="w-4 h-4 mr-2 mt-0.5 text-gray-400" />
-                                  <p className="text-sm text-gray-700 italic">
-                                    &#34;{interest.message}&#34;
-                                  </p>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
               ) : (
@@ -664,7 +568,7 @@ const UsersTab = () => {
               )}
             </div>
 
-            <div className="flex justify-center border-t py-5 w-full mx-auto">
+            <div className="flex justify-center pb-5 w-full mx-auto">
               <button
                 onClick={closeModal}
                 className="px-8 py-2.5 bg-neutral-200 text-black rounded-sm hover:bg-neutral-300 transition-colors cursor-pointer"

@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import Avatar from "@/components/misc/Avatar";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProperty } from "../../contexts/PropertyContext";
-import logoblue from "../../../public/blue-logo.webp";
+import { useInterest } from "../../contexts/InterestContext";
 import { Interest } from "@/types/Interests";
 import { Property } from "@/types/Properties";
 import {
-  Trash2,
   MapPin,
   Home,
   Calendar,
@@ -20,8 +19,8 @@ import {
   Bath,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import Footer2 from "@/components/layout/Footer2";
+import Header from "@/components/layout/Header2";
 
 interface InterestedProperty {
   interest: Interest;
@@ -29,34 +28,28 @@ interface InterestedProperty {
 }
 
 const ProfilePage = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { fetchProperty } = useProperty();
+  const { fetchUserInterests, deleteInterest } = useInterest();
   const router = useRouter();
 
   const [interestedProperties, setInterestedProperties] = useState<
     InterestedProperty[]
   >([]);
   const [loading, setLoading] = useState(true);
-  const [deleting, setDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUserInterests = async () => {
+    const loadUserInterests = async () => {
       if (!user?.id) return;
 
       try {
         setLoading(true);
         setError(null);
 
-        const response = await fetch("/api/interests/user");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch interests");
-        }
-
-        const result = await response.json();
-        const interests: Interest[] = result.data?.interests || [];
+        // Use the consistent interest context method
+        const result = await fetchUserInterests(user.id);
+        const interests = result.interests || [];
 
         // Fetch property details for each interest
         const interestedPropsData = await Promise.all(
@@ -86,46 +79,15 @@ const ProfilePage = () => {
     };
 
     if (isAuthenticated) {
-      fetchUserInterests();
+      loadUserInterests();
     }
-  }, [user?.id, isAuthenticated, fetchProperty]);
-
-  const deleteAccount = async () => {
-    if (!user?.id) return;
-
-    try {
-      setDeleting(true);
-
-      const response = await fetch(`/api/users/${user.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to delete account");
-      }
-
-      await logout();
-      router.push("/");
-    } catch (err) {
-      console.error("Error deleting account:", err);
-      setError(err instanceof Error ? err.message : "Failed to delete account");
-    } finally {
-      setDeleting(false);
-      setShowDeleteConfirm(false);
-    }
-  };
+  }, [user?.id, isAuthenticated, fetchProperty, fetchUserInterests]);
 
   const removeInterest = async (interestId: string) => {
     try {
-      const response = await fetch(`/api/interests/${interestId}`, {
-        method: "DELETE",
-      });
+      await deleteInterest(interestId);
 
-      if (!response.ok) {
-        throw new Error("Failed to remove interest");
-      }
-
+      // Remove from local state
       setInterestedProperties((prev) =>
         prev.filter((item) => item.interest.id !== interestId)
       );
@@ -163,16 +125,9 @@ const ProfilePage = () => {
   }
 
   return (
-    <section className="h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto xs:px-10 lg:px-5 mb-20">
-        <div className="shadow rounded-sm mb-8">
-          <div className="p-5">
-            <Link href="/">
-              <Image src={logoblue} alt="Logo" className="w-20" priority />
-            </Link>
-          </div>
-        </div>
-
+    <section className="h-screen bg-platinum py-8">
+      <Header />
+      <div className="max-w-7xl mx-auto xs:px-10 lg:px-5 my-20">
         {error && (
           <div className="w-full bg-red-50 border border-red-200 rounded-sm p-4 mb-6">
             <div className="flex">
@@ -187,6 +142,35 @@ const ProfilePage = () => {
           </div>
         )}
 
+        <div className="space-y-6 mb-10">
+          <div className="bg-white shadow rounded-sm">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Account Information
+              </h3>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="flex items-center space-x-4">
+                <div className="flex-shrink-0">
+                  {user && <Avatar userName={user?.email} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h1 className="font-bold text-gray-900 capitalize">
+                    {user?.username?.split("_")[0] || "User"}
+                  </h1>
+                  <p className="text-gray-600 text-sm">{user?.email}</p>
+                </div>
+              </div>
+              <div className="ml-12">
+                <label className="block font-bold text-gray-900 mb-1">
+                  Account Type
+                </label>
+                <p className="text-gray-600 text-sm capitalize">{user?.role}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white shadow rounded-sm">
@@ -199,18 +183,14 @@ const ProfilePage = () => {
               <div className="p-5">
                 {loading ? (
                   <div className="space-y-4">
-                    {[1, 2, 3].map((n) => (
-                      <div key={n} className="animate-pulse">
-                        <div className="flex space-x-4">
-                          <div className="bg-gray-300 rounded-sm w-24 h-20"></div>
-                          <div className="flex-1 space-y-2">
-                            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                            <div className="h-3 bg-gray-300 rounded w-1/2"></div>
-                            <div className="h-3 bg-gray-300 rounded w-1/4"></div>
-                          </div>
+                    <div className="animate-pulse">
+                      <div className="flex space-x-4">
+                        <div className="bg-gray-300 rounded-sm w-24 h-20"></div>
+                        <div className="flex-1 space-y-2">
+                          <div className="h-80 bg-gray-200 rounded w-1/2"></div>
                         </div>
                       </div>
-                    ))}
+                    </div>
                   </div>
                 ) : interestedProperties.length === 0 ? (
                   <div className="text-center py-12">
@@ -228,7 +208,7 @@ const ProfilePage = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-4 max-h-[100vh] overflow-y-auto">
                     {interestedProperties.map(({ interest, property }) => (
                       <div
                         key={interest.id}
@@ -339,96 +319,7 @@ const ProfilePage = () => {
               </div>
             </div>
           </div>
-
-          <div className="space-y-6">
-            <div className="bg-white shadow rounded-sm">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Account Information
-                </h3>
-              </div>
-              <div className="p-6 space-y-6">
-                <div className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    {user && <Avatar userName={user?.email} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h1 className="font-bold text-gray-900 capitalize">
-                      {user?.username?.split("_")[0] || "User"}
-                    </h1>
-                    <p className="text-gray-600 text-sm">{user?.email}</p>
-                  </div>
-                </div>
-                <div className="ml-12">
-                  <label className="block font-bold text-gray-900 mb-1">
-                    Account Type
-                  </label>
-                  <p className="text-gray-600 text-sm capitalize">
-                    {user?.role}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white shadow rounded-sm">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Account Actions
-                </h3>
-              </div>
-              <div className="p-6 space-y-3">
-                <button
-                  onClick={() => logout}
-                  className="w-full bg-black text-white py-2.5 px-4 rounded-sm transition-colors cursor-pointer"
-                >
-                  Logout
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="w-full bg-red-700 text-white py-2.5 px-4 rounded-sm hover:bg-red-800 transition-colors flex items-center justify-center cursor-pointer"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Account
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
-
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-sm max-w-sm w-full px-10 py-5">
-              <h3 className="text-center font-bold text-gray-900 mb-4">
-                Delete Account?
-              </h3>
-              <p className="text-gray-600 text-sm mb-6">
-                Are you sure you want to delete your account? This action cannot
-                be undone and will:
-              </p>
-              <ul className="list-disc list-inside text-gray-600 text-sm mb-8 space-y-1">
-                <li>Permanently delete your account</li>
-                <li>Remove all your property interests</li>
-                <li>Delete your personal information</li>
-              </ul>
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 bg-neutral-200 text-gray-900 py-2 px-4 rounded-sm hover:bg-neutral-300 transition-colors cursor-pointer"
-                  disabled={deleting}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={deleteAccount}
-                  disabled={deleting}
-                  className="flex-1 bg-red-700 text-white py-2 px-4 rounded-sm hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  {deleting ? "Deleting..." : "Delete Account"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
       <Footer2 />
     </section>

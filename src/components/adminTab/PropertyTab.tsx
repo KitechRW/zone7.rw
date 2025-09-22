@@ -203,65 +203,53 @@ const PropertiesTab = () => {
 
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
-          <div className="group bg-white hover:bg-blue-50 rounded-sm shadow-sm p-4 truncate transition-colors">
-            <div className="flex items-center justify-between group-hover:-translate-x-2 transition-all duration-500">
+          <div className="bg-white rounded-sm shadow-sm p-4 truncate transition-colors">
+            <div className="flex items-center justify-between transition-all duration-500">
               <div>
-                <p className="text-sm font-medium text-gray-600 group-hover:text-blue-800">
+                <p className="text-sm font-medium text-gray-600">
                   Total Properties
                 </p>
-                <p className="font-bold text-gray-900 group-hover:text-blue-900">
+                <p className="font-bold text-gray-900">
                   {stats.totalProperties}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="group bg-white hover:bg-green-50 rounded-sm shadow-sm p-4 transition-colors">
-            <div className="flex items-center justify-between group-hover:-translate-x-2 transition-all duration-500">
+          <div className="bg-white rounded-sm shadow-sm p-4 transition-colors">
+            <div className="flex items-center justify-between transition-all duration-500">
               <div>
-                <p className="text-sm font-medium text-gray-600 group-hover:text-green-800">
-                  For Sale
-                </p>
-                <p className="font-bold text-gray-900 group-hover:text-green-900">
-                  {stats.totalSales}
-                </p>
+                <p className="text-sm font-medium text-gray-600">For Sale</p>
+                <p className="font-bold text-gray-900">{stats.totalSales}</p>
               </div>
             </div>
           </div>
 
-          <div className="group bg-white hover:bg-blue-50 rounded-sm shadow-sm p-4 transition-colors">
-            <div className="flex items-center justify-between group-hover:-translate-x-2 transition-all duration-500">
+          <div className="bg-white rounded-sm shadow-sm p-4 transition-colors">
+            <div className="flex items-center justify-between  transition-all duration-500">
               <div>
-                <p className="text-sm font-medium text-gray-600 group-hover:text-blue-800">
-                  For Rent
-                </p>
-                <p className="font-bold text-gray-900 group-hover:text-blue-900">
-                  {stats.totalRentals}
-                </p>
+                <p className="text-sm font-medium text-gray-600">For Rent</p>
+                <p className="font-bold text-gray-900 ">{stats.totalRentals}</p>
               </div>
             </div>
           </div>
 
-          <div className="group bg-white hover:bg-yellow-50 rounded-sm shadow-sm p-4 transition-colors">
-            <div className="flex items-center justify-between group-hover:-translate-x-2 transition-all duration-500">
+          <div className="bg-white  rounded-sm shadow-sm p-4 transition-colors">
+            <div className="flex items-center justify-between  transition-all duration-500">
               <div>
-                <p className="text-sm font-medium text-gray-600 group-hover:text-yellow-800">
-                  Featured
-                </p>
-                <p className="font-bold text-gray-900 group-hover:text-yellow-900">
+                <p className="text-sm font-medium text-gray-600">Featured</p>
+                <p className="font-bold text-gray-900 ">
                   {stats.featuredProperties}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="col-span-2 sm:col-span-1 group min-w-40 bg-white hover:bg-green-50 rounded-sm shadow-sm p-4 transition-colors">
-            <div className="flex items-center justify-between group-hover:-translate-x-2 transition-all duration-500">
+          <div className="col-span-2 sm:col-span-1 min-w-40 bg-white rounded-sm shadow-sm p-4 transition-colors">
+            <div className="flex items-center justify-between transition-all duration-500">
               <div>
-                <p className="text-sm font-medium text-gray-600 group-hover:text-green-800">
-                  Total Value
-                </p>
-                <p className="font-bold text-gray-900 group-hover:text-green-900">
+                <p className="text-sm font-medium text-gray-600">Total Value</p>
+                <p className="font-bold text-gray-900">
                   {formatPrice(stats.totalValue)}
                 </p>
               </div>
@@ -273,7 +261,7 @@ const PropertiesTab = () => {
       <div className="w-full">
         <button
           onClick={toggleFilter}
-          className="lg:hidden w-full flex items-center justify-center gap-2 bg-white text-blue-900 border-2 border-gray-300 px-4 py-3 rounded-sm font-medium hover:bg-blue-50 cursor-pointer transition"
+          className="lg:hidden w-full flex items-center justify-center gap-2 bg-white text-blue-600 border-2 border-gray-200 px-4 py-3 rounded-sm font-medium hover:bg-blue-50 cursor-pointer transition"
         >
           <Filter className="w-4 h-4" />
           Filters
@@ -345,7 +333,7 @@ const PropertiesTab = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Properties ({properties.length})
+                    Properties
                   </th>
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Type & Category
@@ -366,7 +354,7 @@ const PropertiesTab = () => {
                   <tr key={property.id} className="hover:bg-gray-50">
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-sm overflow-hidden flex-shrink-0">
+                        <div className="relative h-12 w-12 rounded-sm overflow-hidden">
                           <Image
                             src={property.mainImage}
                             alt={property.title}
@@ -408,23 +396,23 @@ const PropertiesTab = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-blue-950">
-                      <div className="flex flex-col gap-1 rounded-sm p-1 sm:p-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-950">
+                      <div className="flex flex-col gap-1 rounded-sm p-1">
                         <div className="flex items-center gap-1 sm:gap-2">
-                          <LandPlot className="h-2 w-2 sm:h-3 sm:w-3 flex-shrink-0" />
-                          <span className="text-sm">
+                          <LandPlot className="h-3 w-3" />
+                          <span className="text-xs">
                             {property.area.toLocaleString()} m²
                           </span>
                         </div>
                         {property.type === "house" && (
                           <div className="flex items-center gap-1 sm:gap-2">
-                            <Bed className="h-2 w-2 sm:h-3 sm:w-3 flex-shrink-0" />
-                            <span className="text-sm">
-                              {property.bedrooms} bed
+                            <Bed className="h-3 w-3" />
+                            <span className="text-xs">
+                              {property.bedrooms} bedrooms
                             </span>
-                            <Bath className="h-2 w-2 sm:h-3 sm:w-3 ml-1 sm:ml-2 flex-shrink-0" />
-                            <span className="text-sm">
-                              {property.bathrooms} bath
+                            <Bath className="h-3 w-3 ml-2" />
+                            <span className="text-xs">
+                              {property.bathrooms} bathrooms
                             </span>
                           </div>
                         )}
@@ -461,14 +449,18 @@ const PropertiesTab = () => {
                       </div>
                       {deleteConfirm === property.id && (
                         <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
-                          <div className="flex flex-col items-center justify-center gap-4 sm:gap-6 bg-white p-4 text-black w-full max-w-sm rounded-md">
-                            <h4 className="text-base sm:text-lg text-center font-bold">
-                              Confirm Delete?
+                          <div className="flex flex-col items-center justify-center gap-6 bg-white p-4 text-gray-800 w-full max-w-sm rounded-sm">
+                            <h4 className="text-lg text-center font-bold">
+                              Confirm Delete
                             </h4>
-                            <div className="flex items-center gap-3 sm:gap-5 text-sm">
+                            <p>
+                              Are you sure you want to delete &#34;
+                              {property.title}&#34;
+                            </p>
+                            <div className="flex items-center gap-5 text-sm">
                               <button
                                 onClick={() => handleDelete(property.id)}
-                                className="bg-red-600 text-white font-semibold px-3 sm:px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer flex-1"
+                                className="bg-red-600 text-white font-semibold px-3 sm:px-4 py-2 rounded-sm hover:bg-red-700 cursor-pointer flex-1"
                               >
                                 {propertiesLoading ? (
                                   <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin mx-auto" />
@@ -478,7 +470,7 @@ const PropertiesTab = () => {
                               </button>
                               <button
                                 onClick={() => setDeleteConfirm(null)}
-                                className="bg-neutral-200 text-black font-semibold px-3 sm:px-4 py-2 rounded-md hover:bg-neutral-300 transition cursor-pointer flex-1"
+                                className="bg-neutral-200 text-black font-semibold px-3 sm:px-4 py-2 rounded-sm hover:bg-neutral-300 transition cursor-pointer flex-1"
                               >
                                 Cancel
                               </button>
@@ -510,29 +502,10 @@ const PropertiesTab = () => {
           )}
 
           {pagination.pages > 1 && (
-            <div className="bg-white px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200">
-              <div className="flex-1 flex justify-between sm:hidden">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <span className="text-xs text-gray-700 flex items-center">
-                  {currentPage} of {pagination.pages}
-                </span>
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === pagination.pages}
-                  className="relative inline-flex items-center px-3 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
-              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
+            <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200">
+              <div className="flex-1 flex items-center justify-between">
+                <div className="xs:opacity-0 md:opacity-100">
+                  <p className="text-xs text-gray-500">
                     Showing{" "}
                     <span className="font-medium">
                       {(currentPage - 1) * 10 + 1}
@@ -546,11 +519,11 @@ const PropertiesTab = () => {
                   </p>
                 </div>
                 <div>
-                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                  <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px">
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                      className="relative inline-flex items-center px-2 rounded-l-sm border border-gray-300 bg-white text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Previous
                     </button>
@@ -558,7 +531,7 @@ const PropertiesTab = () => {
                       <button
                         key={index}
                         onClick={() => handlePageChange(index + 1)}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        className={`relative inline-flex items-center px-4  border text-xs font-medium ${
                           currentPage === index + 1
                             ? "z-10 bg-blue-50 border-light-blue text-light-blue"
                             : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
@@ -570,7 +543,7 @@ const PropertiesTab = () => {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === pagination.pages}
-                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Next
                     </button>

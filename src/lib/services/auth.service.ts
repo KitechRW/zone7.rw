@@ -228,7 +228,7 @@ export class AuthService {
             $each: [
               { token, expiresAt, userAgent, device, createdAt: new Date() },
             ],
-            $slice: -10,
+            $slice: -2,
           },
         },
       }
@@ -347,18 +347,18 @@ export class AuthService {
     }
   }
 
-  async deleteUser(userId: string): Promise<boolean> {
+  async deleteUser(userId: string, adminId: string): Promise<boolean> {
     try {
       await DBConnection.getInstance().connect();
 
-      // const isAdmin = await this.isUserAdmin(adminId);
-      // if (!isAdmin) {
-      //   throw ApiError.forbidden("Admin access required");
-      // }
+      const isAdmin = await this.isUserAdmin(adminId);
+      if (!isAdmin) {
+        throw ApiError.forbidden("Admin access required");
+      }
 
-      // if (userId === adminId) {
-      //   throw ApiError.badRequest("Cannot delete your own account");
-      // }
+      if (userId === adminId) {
+        throw ApiError.badRequest("Cannot delete your own account");
+      }
 
       const user = await User.findById(userId);
       if (!user) {

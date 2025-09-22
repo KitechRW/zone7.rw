@@ -41,10 +41,6 @@ const FilterBar = ({
 
   const manageFilterUpdate = (newFilters: FilterState) => {
     setLocalFilters(newFilters);
-
-    if (window.innerWidth >= 1024) {
-      onFilterChange(newFilters);
-    }
   };
 
   const manageInputChange = (name: string, value: string | number) => {
@@ -119,7 +115,7 @@ const FilterBar = ({
 
   return (
     <div className="bg-white p-4 rounded-sm shadow-md mb-10 border border-gray-200">
-      <div className="flex xs:flex-col lg:flex-row lg:items-center justify-between gap-5">
+      <div className="flex xs:flex-col lg:flex-row items-center justify-between gap-5">
         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
         <div className="flex gap-4">
@@ -148,86 +144,88 @@ const FilterBar = ({
           </div>
         </div>
 
-        <div className="-mt-2">
-          <label className="block text-xs font-medium text-gray-700 mb-2">
-            Price range (Rwf)
-          </label>
-          <div className="max-w-36 space-y-1">
-            <div className="text-xs text-gray-600 mb-1">
-              {localFilters.minPrice.toLocaleString()} -{" "}
-              {localFilters.maxPrice.toLocaleString()}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="range"
-                min="100000"
-                max="200000000"
-                step="1000000"
-                value={localFilters.minPrice}
-                onChange={(e) =>
-                  managePriceRangeChange(
-                    parseInt(e.target.value),
-                    localFilters.maxPrice
-                  )
-                }
-                className="w-16 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-              />
-              <input
-                type="range"
-                min="100000"
-                max="200000000"
-                step="1000000"
-                value={localFilters.maxPrice}
-                onChange={(e) =>
-                  managePriceRangeChange(
-                    localFilters.minPrice,
-                    parseInt(e.target.value)
-                  )
-                }
-                className="w-16 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-              />
+        <div className="flex gap-4">
+          <div className="-mt-2">
+            <label className="block text-xs font-medium text-gray-700 mb-2">
+              Price range (Rwf)
+            </label>
+            <div className="max-w-36">
+              <div className="text-xs text-gray-600 mb-1">
+                {localFilters.minPrice.toLocaleString()} -{" "}
+                {localFilters.maxPrice.toLocaleString()}
+              </div>
+              <div className="flex">
+                <input
+                  type="range"
+                  min="100000"
+                  max="200000000"
+                  step="1000000"
+                  value={localFilters.minPrice}
+                  onChange={(e) =>
+                    managePriceRangeChange(
+                      parseInt(e.target.value),
+                      localFilters.maxPrice
+                    )
+                  }
+                  className="w-16 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                />
+                <input
+                  type="range"
+                  min="100000"
+                  max="200000000"
+                  step="1000000"
+                  value={localFilters.maxPrice}
+                  onChange={(e) =>
+                    managePriceRangeChange(
+                      localFilters.minPrice,
+                      parseInt(e.target.value)
+                    )
+                  }
+                  className="w-16 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="-mt-2">
-          <label className="block text-xs font-medium text-gray-700 mb-2">
-            Area Range (m²)
-          </label>
-          <div className="max-w-24 space-y-1">
-            <div className="flex justify-between text-xs text-gray-600">
-              {localFilters.minArea.toLocaleString()} -{" "}
-              {localFilters.maxArea.toLocaleString()}
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min="0"
-                max="20000"
-                step="100"
-                value={localFilters.minArea}
-                onChange={(e) =>
-                  manageAreaRangeChange(
-                    parseInt(e.target.value),
-                    localFilters.maxArea
-                  )
-                }
-                className="w-14 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-              />
-              <input
-                type="range"
-                min="0"
-                max="20000"
-                step="100"
-                value={localFilters.maxArea}
-                onChange={(e) =>
-                  manageAreaRangeChange(
-                    localFilters.minArea,
-                    parseInt(e.target.value)
-                  )
-                }
-                className="w-14 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-              />
+          <div className="-mt-2">
+            <label className="block text-xs font-medium text-gray-700 mb-2">
+              Area Range (m²)
+            </label>
+            <div className="max-w-24 space-y-1">
+              <div className="flex justify-between text-xs text-gray-600">
+                {localFilters.minArea.toLocaleString()} -{" "}
+                {localFilters.maxArea.toLocaleString()}
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="range"
+                  min="0"
+                  max="20000"
+                  step="100"
+                  value={localFilters.minArea}
+                  onChange={(e) =>
+                    manageAreaRangeChange(
+                      parseInt(e.target.value),
+                      localFilters.maxArea
+                    )
+                  }
+                  className="w-14 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="20000"
+                  step="100"
+                  value={localFilters.maxArea}
+                  onChange={(e) =>
+                    manageAreaRangeChange(
+                      localFilters.minArea,
+                      parseInt(e.target.value)
+                    )
+                  }
+                  className="w-14 h-0.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -259,40 +257,29 @@ const FilterBar = ({
         </div>
       </div>
 
-      <div className="flex justify-end mt-4 gap-3 lg:hidden">
-        <button
-          onClick={manageClear}
-          className="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-sm hover:bg-gray-200 border border-gray-300 transition-colors duration-200 cursor-pointer"
+      <div className="flex items-center justify-between py-1.5 mt-4">
+        <p
+          className={`pl-2 text-gray-600 text-xs ${
+            loading ? "animate-pulse" : ""
+          }`}
         >
-          Clear All
-        </button>
-        <button
-          onClick={manageApply}
-          className="px-4 py-2 text-xs font-medium text-white bg-black rounded-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
-        >
-          Apply Filters
-        </button>
-      </div>
+          {loading
+            ? "Loading properties..."
+            : `${pagination.total} properties found`}
+        </p>
 
-      <div className="flex items-center justify-between lg:px-4 py-1.5 mt-3">
-        <div className="justify-self-end">
-          <p
-            className={`text-gray-600 text-xs ${
-              loading ? "animate-pulse" : ""
-            }`}
-          >
-            {loading
-              ? "Loading properties..."
-              : `${pagination.total} properties found`}
-          </p>
-        </div>
-
-        <div className="hidden lg:flex justify-end">
+        <div className="flex justify-end gap-4">
           <button
             onClick={manageClear}
-            className="text-xs font-medium text-gray-500 hover:text-black transition-colors duration-200 cursor-pointer"
+            className="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-sm hover:bg-gray-200 border border-gray-300 transition-colors duration-200 cursor-pointer"
           >
             Clear All
+          </button>
+          <button
+            onClick={manageApply}
+            className="px-4 py-2 text-xs font-medium text-white bg-black rounded-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
+          >
+            Apply Filters
           </button>
         </div>
       </div>
