@@ -12,11 +12,11 @@ import Header2 from "@/components/layout/Header2";
 import Footer2 from "@/components/layout/Footer2";
 import { PropertyFilters } from "@/types/Properties";
 
-interface ListingsProps {
+interface FeaturedProps {
   propertyRef: RefObject<HTMLDivElement | null>;
 }
 
-const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
+const PropertyPage: React.FC<FeaturedProps> = ({ propertyRef }) => {
   const {
     activeFilters,
     searchQuery,
@@ -147,7 +147,7 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
         ref={propertyRef}
         className="max-w-7xl mx-auto mt-20 xs:px-10 lg:px-5 mb-24"
       >
-        <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold mb-5">
+        <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold py-5 mb-5">
           <span className="bg-blue-900 bg-clip-text text-transparent">
             Property Listings
           </span>

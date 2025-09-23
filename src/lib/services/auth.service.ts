@@ -153,6 +153,58 @@ export class AuthService {
     }
   }
 
+  async createAdmin(credentials: RegisterCredentials): Promise<IUser> {
+    try {
+      await DBConnection.getInstance().connect();
+
+      const existingUser = await User.findOne({
+        $or: [
+          { email: credentials.email.toLowerCase() },
+          { username: credentials.username },
+        ],
+      });
+
+      if (existingUser) {
+        if (existingUser.email === credentials.email.toLowerCase()) {
+          throw ApiError.conflict("This email is already registered");
+        }
+        throw ApiError.conflict("Username already taken");
+      }
+
+      const validatePassword = Password.validate(credentials.password);
+
+      if (!validatePassword.isValid)
+        throw ApiError.validationError(validatePassword.errors.join(", "));
+
+      const hashedPassword = await Password.hash(credentials.password);
+
+      const user = new User({
+        username: credentials.username.trim(),
+        email: credentials.email.toLowerCase().trim(),
+        password: hashedPassword,
+        provider: "credentials",
+        role: "admin",
+      });
+
+      return await user.save();
+    } catch (error: unknown) {
+      logger.error(
+        "Admin creation failed",
+        error instanceof Error && error.message
+      );
+
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      if (error instanceof Error && error.name?.includes("Mongo")) {
+        throw ApiError.internalServer("Database error during admin creation");
+      }
+
+      throw ApiError.internalServer("Admin creation failed");
+    }
+  }
+
   private async generateTokens(userId: string): Promise<AuthTokens> {
     const accessToken = await Tokens.createAccessToken(
       { userId, type: "access" },
@@ -334,23 +386,83 @@ export class AuthService {
       }
 
       const skip = (page - 1) * limit;
-      const sort: Record<string, 1 | -1> = {};
-      sort[sortBy] = sortOrder === "desc" ? -1 : 1;
 
-      const [users, total] = await Promise.all([
-        User.find(query)
-          .select("-password -refreshTokens")
-          .sort(sort)
-          .skip(skip)
-          .limit(limit),
-        User.countDocuments(query),
-      ]);
-
-      return {
-        users,
-        total,
-        pages: Math.ceil(total / limit),
+      const rolePriority: Record<string, number> = {
+        owner: 0,
+        admin: 1,
+        user: 2,
       };
+
+      // For default sorting
+      if (
+        (!filters.search && sortBy === "createdAt" && sortOrder === "desc") ||
+        sortBy === "role"
+      ) {
+        const allUsers = await User.find(query).select(
+          "-password -refreshTokens"
+        );
+
+        // Custom sort function
+        allUsers.sort((a: IUser, b: IUser) => {
+          if (
+            sortBy === "role" ||
+            (!filters.search && sortBy === "createdAt" && sortOrder === "desc")
+          ) {
+            const roleA = rolePriority[a.role] ?? 3;
+            const roleB = rolePriority[b.role] ?? 3;
+
+            if (sortBy === "role") {
+              if (sortOrder === "asc") {
+                if (roleA !== roleB) return roleA - roleB;
+              } else {
+                if (roleA !== roleB) return roleB - roleA;
+              }
+              // Secondary sort by username for same roles
+              return a.username.localeCompare(b.username);
+            } else {
+              if (roleA !== roleB) {
+                return roleA - roleB; // Always owner first for default
+              }
+              return (
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+              );
+            }
+          }
+
+          // Fallback (shouldn't reach here in this branch)
+          return 0;
+        });
+
+        // Apply pagination
+        const users = allUsers.slice(skip, skip + limit);
+        const total = allUsers.length;
+
+        return {
+          users,
+          total,
+          pages: Math.ceil(total / limit),
+        };
+      } else {
+        // For other sorts, use MongoDB sorting
+        const sort: Record<string, 1 | -1> = {};
+        sort[sortBy] = sortOrder === "desc" ? -1 : 1;
+
+        const [users, total] = await Promise.all([
+          User.find(query)
+            .select("-password -refreshTokens")
+            .sort(sort)
+            .skip(skip)
+            .limit(limit),
+          User.countDocuments(query),
+        ]);
+
+        return {
+          users,
+          total,
+          pages: Math.ceil(total / limit),
+        };
+      }
     } catch (error) {
       logger.error("Get all users failed:", error);
       throw ApiError.internalServer("Failed to fetch users");

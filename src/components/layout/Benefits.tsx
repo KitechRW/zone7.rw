@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Home, Shield, Award, Heart, MapPinHouse, Phone } from "lucide-react";
+import { Home, Shield, Award, Heart, MapPinHouse } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import CountUp from "react-countup";
+import Link from "next/link";
 
 const Benefits = () => {
   const [count, setCount] = useState(false);
@@ -98,8 +99,8 @@ const Benefits = () => {
 
       <div className="bg-gradient-to-r from-light-blue/20 to-green-300/20 p-10 mb-10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="relative z-10">
-            <h3 className="text-3xl font-bold text-black text-center mb-12">
+          <div className="relative py-5 z-10">
+            <h3 className="xs:text-4xl md:text-5xl font-bold text-black text-center mb-16">
               Trusted by Hundreds of Satisfied Clients
             </h3>
 
@@ -154,10 +155,11 @@ const Benefits = () => {
           </p>
 
           <div className="flex justify-center">
-            <button className="bg-gradient-to-br from-gray-600 to-gray-800 text-white px-10 py-5 rounded-sm font-semibold flex items-center justify-center hover:shadow-lg transition cursor-pointer">
-              <Phone className="w-5 h-5 mr-3" />
-              Contact The Agent
-            </button>
+            <Link href={"/properties"}>
+              <button className="bg-gradient-to-br from-gray-600 to-gray-800 text-white px-10 py-5 rounded-sm font-semibold flex items-center justify-center hover:shadow-lg transition cursor-pointer">
+                Get Started
+              </button>
+            </Link>
           </div>
         </div>
       </div>

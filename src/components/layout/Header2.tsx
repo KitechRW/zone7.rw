@@ -87,7 +87,7 @@ const Header = () => {
                     <Link
                       href="/profile"
                       title="My account"
-                      className="hover:bg-black/5 rounded-md p-2"
+                      className="hover:bg-black/5 rounded-md p-2 w-full"
                     >
                       <div className="flex items-center gap-4">
                         <div className="flex-1 min-w-0">
@@ -165,7 +165,7 @@ const Header = () => {
                     <Link
                       href="/profile"
                       title="My account"
-                      className="hover:bg-black/5 rounded-md p-2"
+                      className="hover:bg-black/5 rounded-md p-2 w-full"
                     >
                       <div className="flex items-center gap-4 mb-2">
                         {user && <Avatar userName={user?.email} />}

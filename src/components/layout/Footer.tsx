@@ -39,15 +39,18 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
                   About Us
                 </li>
               </Link>
-              <li className="text-gray-400 hover:text-white transition">
-                Contact
-              </li>
+
+              <Link href="/contact">
+                <li className="text-gray-400 hover:text-white transition">
+                  Contact
+                </li>
+              </Link>
             </ul>
           </div>
 
           <div className="w-52">
-            <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
-            <address className="not-italic text-gray-400">
+            <h3 className="text-xl font-semibold mb-4">Address</h3>
+            <address className="not-italic text-gray-400 space-y-1">
               <p>KG Ave 123</p>
               <p>Giporoso, Kigali</p>
               <p>info@realestate.com</p>

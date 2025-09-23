@@ -171,7 +171,7 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white shadow rounded-sm">
               <div className="px-6 py-4 border-b border-gray-200">
@@ -214,38 +214,36 @@ const ProfilePage = () => {
                         key={interest.id}
                         className="border border-gray-200 rounded-sm p-4 hover:shadow-md transition-shadow"
                       >
-                        <div className="flex xs:flex-col md:flex-row gap-8">
-                          <div className="flex-shrink-0">
+                        <div className="flex xs:flex-col md:flex-row justify-between gap-5">
+                          <div className="flex xs:flex-col md:flex-row items-start gap-4">
                             {property?.mainImage ? (
                               <Image
                                 src={property.mainImage}
                                 alt={property.title}
                                 width={96}
                                 height={64}
-                                className="rounded-sm object-cover"
+                                className="rounded-sm object-cover mt-1"
                               />
                             ) : (
                               <div className="w-24 h-20 bg-gray-200 rounded-sm flex items-center justify-center">
                                 <Home className="w-8 h-8 text-gray-400" />
                               </div>
                             )}
-                          </div>
 
-                          <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                <h3 className="font-semibold text-gray-900 mb-1">
                                   {property?.title || "Property Unavailable"}
                                 </h3>
                                 {property && (
                                   <>
-                                    <div className="flex items-center text-gray-600 mb-3">
+                                    <div className="flex items-center text-gray-600 mb-2">
                                       <MapPin className="w-4 h-4 mr-1" />
                                       <span className="text-sm">
                                         {property.location}
                                       </span>
                                     </div>
-                                    <p className="flex text-blue-900 font-medium mb-1">
+                                    <p className="flex text-blue-600 font-medium mb-1">
                                       {formatPrice(property.price)}
                                     </p>
                                     <div className="flex items-center space-x-4 text-sm text-gray-600">
@@ -267,32 +265,34 @@ const ProfilePage = () => {
                                 )}
                               </div>
                             </div>
+                          </div>
 
-                            <div className="mt-3 pt-3 border-t border-gray-100">
-                              <div className="flex items-center justify-between text-sm text-gray-500">
-                                <div className="flex flex-col items-center gap-4">
-                                  <span className="flex items-center">
-                                    <Phone className="w-4 h-4 mr-1" />
-                                    {interest.userPhone}
-                                  </span>
-                                  <span className="flex items-center -ml-4">
-                                    <Calendar className="w-4 h-4 mr-2" />
-                                    {formatDate(interest.createdAt)}
-                                  </span>
-                                </div>
+                          <div>
+                            <div className="flex items-center justify-between text-sm text-gray-500">
+                              <div className="flex flex-col items-center gap-4">
+                                <span className="flex items-center">
+                                  <Phone className="w-4 h-4 mr-1" />
+                                  {interest.userPhone}
+                                </span>
+                                <span className="flex items-center -ml-4">
+                                  <Calendar className="w-4 h-4 mr-2" />
+                                  {formatDate(interest.createdAt)}
+                                </span>
                               </div>
-                              {interest.message && (
-                                <div className="mt-3 flex items-start">
-                                  <MessageCircle className="w-4 h-4 mr-1 mt-0.5 text-gray-400" />
-                                  <p className="text-sm text-gray-600 italic">
-                                    &#34;{interest.message}&#34;
-                                  </p>
-                                </div>
-                              )}
                             </div>
+                            {interest.message && (
+                              <div className="mt-3 flex items-start">
+                                <MessageCircle className="w-4 h-4 mr-1 mt-0.5 text-gray-400" />
+                                <p className="text-sm text-gray-600 italic">
+                                  &#34;{interest.message}&#34;
+                                </p>
+                              </div>
+                            )}
+                          </div>
 
+                          <div className="flex xs:flex-row md:flex-col items-center gap-2">
                             {property && (
-                              <div className="mt-3">
+                              <div>
                                 <button
                                   onClick={() =>
                                     router.push(`/properties/${property.id}`)

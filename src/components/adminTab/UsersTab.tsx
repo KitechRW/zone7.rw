@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Users,
   Loader2,
@@ -8,6 +8,8 @@ import {
   Calendar,
   Trash2,
   ChevronDown,
+  X,
+  EyeOff,
 } from "lucide-react";
 import { UserRole } from "@/lib/utils/permission";
 import { useAuth } from "@/contexts/AuthContext";
@@ -27,8 +29,25 @@ interface UserDetails extends User {
   totalInterests: number;
 }
 
+interface UsersResponse {
+  success: boolean;
+  data: User[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
 interface UsersTabProps {
   onViewUserInterests: (userId: string, userName: string) => void;
+}
+
+interface CreateAdminForm {
+  username: string;
+  email: string;
+  password: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -39,9 +58,9 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"username" | "email" | "createdAt">(
-    "createdAt"
-  );
+  const [sortBy, setSortBy] = useState<
+    "username" | "email" | "createdAt" | "role"
+  >("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
@@ -50,35 +69,124 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [roleOpen, setRoleOpen] = useState<string | null>(null);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [createAdminModal, setCreateAdminModal] = useState(false);
+  const [creatingAdmin, setCreatingAdmin] = useState(false);
+  const [createAdminForm, setCreateAdminForm] = useState<CreateAdminForm>({
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [formErrors, setFormErrors] = useState<{
+    username?: string;
+    email?: string;
+    password?: string;
+  }>({});
+  const [showPassword, setShowPassword] = useState(false);
+
+  // New state for pagination info
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: ITEMS_PER_PAGE,
+    total: 0,
+    pages: 0,
+  });
 
   const { user } = useAuth();
   const currentUserRole = user?.role as UserRole;
   const currentUserId = user?.id;
 
+  // Debounced search function
+  const debounce = useCallback(
+    (func: (query: string) => void, delay: number) => {
+      let timeoutId: NodeJS.Timeout;
+      return (query: string): void => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          func(query);
+        }, delay);
+      };
+    },
+    []
+  );
+
+  const fetchUsers = useCallback(
+    async (
+      page = 1,
+      search = "",
+      sortField = sortBy,
+      sortDirection = sortOrder
+    ) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: ITEMS_PER_PAGE.toString(),
+          sortBy: sortField,
+          sortOrder: sortDirection,
+        });
+
+        if (search.trim()) {
+          params.append("search", search.trim());
+        }
+
+        const response = await fetch(`/api/users?${params.toString()}`);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch users");
+        }
+
+        const data: UsersResponse = await response.json();
+        setUsers(data.data);
+        setPagination(data.pagination);
+        setCurrentPage(page);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch users");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [sortBy, sortOrder]
+  );
+
+  // Debounced search handler
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((query: string) => {
+        fetchUsers(1, query, sortBy, sortOrder);
+      }, 500),
+    [debounce, fetchUsers, sortBy, sortOrder]
+  );
+
+  // Handle search input change
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    debouncedSearch(query);
+  };
+
+  // Handle sort change
+  const handleSort = (column: "username" | "email" | "createdAt" | "role") => {
+    let newSortOrder: "asc" | "desc" = "asc";
+
+    if (sortBy === column) {
+      newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+    }
+
+    setSortBy(column);
+    setSortOrder(newSortOrder);
+    fetchUsers(1, searchQuery, column, newSortOrder);
+  };
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    fetchUsers(page, searchQuery, sortBy, sortOrder);
+  };
+
   useEffect(() => {
     fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch("/api/users");
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to fetch users");
-      }
-
-      const data = await response.json();
-      setUsers(data.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch users");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchUsers]);
 
   const fetchUserDetails = async (userId: string) => {
     try {
@@ -122,6 +230,80 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     }
   };
 
+  const validateCreateAdminForm = (): boolean => {
+    const errors: typeof formErrors = {};
+    let isValid = true;
+
+    if (!createAdminForm.username.trim()) {
+      errors.username = "Username is required";
+      isValid = false;
+    } else if (createAdminForm.username.trim().length < 3) {
+      errors.username = "Username must be at least 3 characters";
+      isValid = false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!createAdminForm.email.trim()) {
+      errors.email = "Email is required";
+      isValid = false;
+    } else if (!emailRegex.test(createAdminForm.email)) {
+      errors.email = "Please enter a valid email";
+      isValid = false;
+    }
+
+    if (!createAdminForm.password) {
+      errors.password = "Password is required";
+      isValid = false;
+    } else if (createAdminForm.password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
+  };
+
+  const createAdmin = async () => {
+    if (!validateCreateAdminForm()) return;
+
+    try {
+      setCreatingAdmin(true);
+      setError(null);
+
+      const response = await fetch("/api/auth/create-admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: createAdminForm.username.trim(),
+          email: createAdminForm.email.trim(),
+          password: createAdminForm.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create admin user");
+      }
+
+      await response.json();
+
+      // Refresh the user list to include the new admin
+      await fetchUsers(currentPage, searchQuery, sortBy, sortOrder);
+
+      setCreateAdminForm({ username: "", email: "", password: "" });
+      setFormErrors({});
+      setCreateAdminModal(false);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create admin user"
+      );
+    } finally {
+      setCreatingAdmin(false);
+    }
+  };
+
   const updateUserRole = async (userId: string, newRole: UserRole) => {
     try {
       setUpdatingRole(userId);
@@ -140,7 +322,6 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
         throw new Error(errorData.message || "Failed to update user role");
       }
 
-      //Update the user in the local state
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user._id === userId ? { ...user, role: newRole } : user
@@ -168,6 +349,13 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     setLoadingDetails(false);
   };
 
+  const closeCreateAdminModal = () => {
+    setCreateAdminModal(false);
+    setCreateAdminForm({ username: "", email: "", password: "" });
+    setFormErrors({});
+    setError(null);
+  };
+
   const deleteUser = async (userId: string) => {
     try {
       setUpdatingUser(userId);
@@ -182,7 +370,8 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
         throw new Error(errorData.message || "Failed to delete user");
       }
 
-      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
+      // Refresh the user list after deletion
+      await fetchUsers(currentPage, searchQuery, sortBy, sortOrder);
       setDeleteConfirm(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete user");
@@ -210,6 +399,10 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     return false;
   };
 
+  const canCreateAdmin = () => {
+    return currentUserRole === UserRole.OWNER;
+  };
+
   const getAvailableRoles = (targetUser: User): UserRole[] => {
     const roles: UserRole[] = [];
 
@@ -234,44 +427,6 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
         return "text-gray-600 bg-gray-100";
       default:
         return "text-gray-600 bg-gray-100";
-    }
-  };
-
-  const filteredAndSortedUsers = useMemo(() => {
-    const filtered = users.filter(
-      (user) =>
-        user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    filtered.sort((a, b) => {
-      let aValue: string | Date = a[sortBy];
-      let bValue: string | Date = b[sortBy];
-
-      if (sortBy === "createdAt") {
-        aValue = new Date(aValue as string);
-        bValue = new Date(bValue as string);
-      }
-
-      if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    return filtered;
-  }, [users, searchQuery, sortBy, sortOrder]);
-
-  const totalPages = Math.ceil(filteredAndSortedUsers.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
-
-  const handleSort = (column: "username" | "email" | "createdAt") => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(column);
-      setSortOrder("asc");
     }
   };
 
@@ -306,13 +461,13 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     );
   }
 
-  if (error) {
+  if (error && !createAdminModal) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-sm p-6">
         <div className="text-red-800 font-medium">Error: {error}</div>
         <button
-          onClick={fetchUsers}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-sm hover:bg-red-700 transition-colors"
+          onClick={() => fetchUsers()}
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-sm hover:bg-red-700 transition-colors cursor-pointer"
         >
           Try Again
         </button>
@@ -327,38 +482,59 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
           <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center">
             <SearchBar
               searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
+              setSearchQuery={handleSearchChange}
             />
 
-            <div className="flex items-center gap-2">
-              <span className="text-sm ml-2 text-gray-600 font-medium whitespace-nowrap">
-                Sort by:
-              </span>
-              <div className="relative">
-                <select
-                  value={`${sortBy}-${sortOrder}`}
-                  onChange={(e) => {
-                    const [column, order] = e.target.value.split("-");
-                    setSortBy(column as "username" | "email" | "createdAt");
-                    setSortOrder(order as "asc" | "desc");
-                  }}
-                  className="w-24 py-2.5 px-3 text-left text-gray-500 text-xs bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
-                >
-                  <option value="createdAt-desc">Newest First</option>
-                  <option value="createdAt-asc">Oldest First</option>
-                  <option value="username-asc">Username A-Z</option>
-                  <option value="username-desc">Username Z-A</option>
-                  <option value="email-asc">Email A-Z</option>
-                  <option value="email-desc">Email Z-A</option>
-                </select>
+            <div className="flex xs:flex-col md:flex-row xs:items-end md:items-center justify-end gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm ml-2 text-gray-600 font-medium whitespace-nowrap">
+                  Sort by:
+                </span>
+                <div className="relative">
+                  <select
+                    value={`${sortBy}-${sortOrder}`}
+                    onChange={(e) => {
+                      const [column, order] = e.target.value.split("-");
+                      setSortBy(
+                        column as "username" | "email" | "createdAt" | "role"
+                      );
+                      setSortOrder(order as "asc" | "desc");
+                      fetchUsers(
+                        1,
+                        searchQuery,
+                        column as "username" | "email" | "createdAt" | "role",
+                        order as "asc" | "desc"
+                      );
+                    }}
+                    className="py-3 px-1 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
+                  >
+                    <option value="createdAt-desc">Default</option>
+                    <option value="createdAt-asc">Oldest First</option>
+                    <option value="username-asc">Username A-Z</option>
+                    <option value="username-desc">Username Z-A</option>
+                    <option value="email-asc">Email A-Z</option>
+                    <option value="email-desc">Email Z-A</option>
+                    <option value="role-asc">Role (Owner First)</option>
+                    <option value="role-desc">Role (User First)</option>
+                  </select>
+                </div>
               </div>
+
+              {canCreateAdmin() && (
+                <button
+                  onClick={() => setCreateAdminModal(true)}
+                  className="px-4 py-2.5 bg-gradient-to-r from-light-blue to-blue-800 text-white rounded-sm font-medium hover:shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                >
+                  Create Admin
+                </button>
+              )}
             </div>
           </div>
 
           {searchQuery && (
             <div className="mt-4 text-sm text-gray-600">
-              Found {filteredAndSortedUsers.length} user
-              {filteredAndSortedUsers.length !== 1 ? "s" : ""} matching &quot;
+              Found {pagination.total} user
+              {pagination.total !== 1 ? "s" : ""} matching &quot;
               {searchQuery}&quot;
             </div>
           )}
@@ -395,8 +571,18 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       )}
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort("role")}
+                  >
+                    <div className="flex items-center gap-1">
+                      Role
+                      {sortBy === "role" && (
+                        <span className="text-gray-600">
+                          {sortOrder === "asc" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
                   </th>
                   <th
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
@@ -417,7 +603,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {currentUsers.map((user) => (
+                {users.map((user) => (
                   <tr key={user._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -442,7 +628,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500">{user.email}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       {canManageUser(user) &&
                       getAvailableRoles(user).length > 0 ? (
                         <div className="relative">
@@ -469,14 +655,14 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
 
                           {roleOpen === user._id && (
                             <div
-                              className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-sm shadow z-50 max-w-24"
+                              className="absolute top-full left-0 mt-1 border border-gray-200 rounded-sm shadow z-50 max-w-24"
                               onClick={(e) => e.stopPropagation()}
                             >
                               {getAvailableRoles(user).map((role) => (
                                 <button
                                   key={role}
                                   onClick={() => updateUserRole(user._id, role)}
-                                  className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 capitalize first:rounded-t-sm last:rounded-b-md cursor-pointer"
+                                  className="block w-full bg-white text-left px-3 py-1 text-xs text-gray-700 hover:bg-gray-100 capitalize first:rounded-t-sm last:rounded-b-md cursor-pointer"
                                 >
                                   {role}
                                 </button>
@@ -529,7 +715,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
             </table>
           </div>
 
-          {currentUsers.length === 0 && (
+          {users.length === 0 && (
             <div className="text-center py-12">
               <Users className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-500">
@@ -568,39 +754,42 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
             </div>
           )}
 
-          {totalPages > 1 && (
+          {pagination.pages > 1 && (
             <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700">
                     Showing{" "}
-                    <span className="font-medium">{startIndex + 1}</span> to{" "}
                     <span className="font-medium">
-                      {Math.min(endIndex, filteredAndSortedUsers.length)}
+                      {(pagination.page - 1) * pagination.limit + 1}
                     </span>{" "}
-                    of{" "}
+                    to{" "}
                     <span className="font-medium">
-                      {filteredAndSortedUsers.length}
+                      {Math.min(
+                        pagination.page * pagination.limit,
+                        pagination.total
+                      )}
                     </span>{" "}
+                    of <span className="font-medium">{pagination.total}</span>{" "}
                     results
                   </p>
                 </div>
                 <div>
                   <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px">
                     <button
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      disabled={currentPage === 1}
+                      onClick={() => handlePageChange(pagination.page - 1)}
+                      disabled={pagination.page === 1}
                       className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
-                    {[...Array(totalPages)].map((_, index) => (
+                    {[...Array(pagination.pages)].map((_, index) => (
                       <button
                         key={index}
-                        onClick={() => setCurrentPage(index + 1)}
+                        onClick={() => handlePageChange(index + 1)}
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                          currentPage === index + 1
-                            ? "z-10 bg-blue-50 border-blue-500 text-light-blue"
+                          pagination.page === index + 1
+                            ? "z-10 bg-blue-50 border-light-blue text-light-blue"
                             : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                         }`}
                       >
@@ -608,8 +797,8 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       </button>
                     ))}
                     <button
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      disabled={currentPage === totalPages}
+                      onClick={() => handlePageChange(pagination.page + 1)}
+                      disabled={pagination.page === pagination.pages}
                       className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
@@ -715,6 +904,173 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {createAdminModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Create an Admin
+              </h3>
+              <button
+                onClick={closeCreateAdminModal}
+                className="text-gray-400 hover:text-red-600 transition-colors"
+                disabled={creatingAdmin}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-sm">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                createAdmin();
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Username *
+                </label>
+                <input
+                  type="text"
+                  value={createAdminForm.username}
+                  onChange={(e) => {
+                    setCreateAdminForm({
+                      ...createAdminForm,
+                      username: e.target.value,
+                    });
+                    if (formErrors.username) {
+                      setFormErrors({ ...formErrors, username: undefined });
+                    }
+                  }}
+                  className={`w-full p-3 border rounded-sm focus:outline-none focus:border transition-colors text-gray-600 text-sm ${
+                    formErrors.username
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:border-light-blue"
+                  }`}
+                  placeholder="Enter username"
+                  disabled={creatingAdmin}
+                />
+                {formErrors.username && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {formErrors.username}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={createAdminForm.email}
+                  onChange={(e) => {
+                    setCreateAdminForm({
+                      ...createAdminForm,
+                      email: e.target.value,
+                    });
+                    if (formErrors.email) {
+                      setFormErrors({ ...formErrors, email: undefined });
+                    }
+                  }}
+                  className={`w-full p-3 border rounded-sm focus:outline-none focus:border transition-colors text-gray-600 text-sm ${
+                    formErrors.email
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:border-light-blue"
+                  }`}
+                  placeholder="Enter email address"
+                  disabled={creatingAdmin}
+                />
+                {formErrors.email && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {formErrors.email}
+                  </p>
+                )}
+              </div>
+
+              <div className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Password *
+                </label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={createAdminForm.password}
+                  onChange={(e) => {
+                    setCreateAdminForm({
+                      ...createAdminForm,
+                      password: e.target.value,
+                    });
+                    if (formErrors.password) {
+                      setFormErrors({ ...formErrors, password: undefined });
+                    }
+                  }}
+                  className={`w-full p-3 border rounded-sm focus:outline-none focus:border transition-colors text-gray-600 text-sm ${
+                    formErrors.password
+                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                      : "border-gray-300 focus:border-light-blue"
+                  }`}
+                  placeholder="Enter password"
+                  disabled={creatingAdmin}
+                />
+                {formErrors.password && (
+                  <p className="mt-1 text-xs text-red-600">
+                    {formErrors.password}
+                  </p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-12 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                  disabled={creatingAdmin}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+
+              <div className="bg-blue-50/70 border border-blue-200 rounded-sm p-3 mt-4">
+                <p className="text-xs text-blue-800">
+                  <strong>Note:</strong> This user will be created with admin
+                  rights and can access the admin dashboard.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeCreateAdminModal}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
+                  disabled={creatingAdmin}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-light-blue to-blue-800 text-white rounded-sm hover:shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                  disabled={creatingAdmin}
+                >
+                  {creatingAdmin && (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  )}
+                  {creatingAdmin ? "Creating..." : "Create Admin"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

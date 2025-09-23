@@ -636,7 +636,6 @@ Automated security system
           .header {
               margin-bottom: 30px;
               padding-bottom: 20px;
-              border-bottom: 2px solid #e5e7eb;
           }
           .header h1 {
               color: #1f2937;
@@ -644,20 +643,20 @@ Automated security system
               font-size: 28px;
           }
           .subject-badge {
-              background-color: #3b82f6;
-              color: white;
-              padding: 6px 12px;
+              background-color: #fff;
+              color: #3399ff;
+              padding: 5px 10px;
               border-radius: 15px;
-              font-size: 14px;
+              font-size: 20px;
               display: inline-block;
-              margin-top: 10px;
+              margin-top: 5px;
+              text-transform: capitalize;
           }
           .contact-info {
               background-color: #f8fafc;
               padding: 20px;
               border-radius: 8px;
               margin: 20px 0;
-              border-left: 4px solid #3b82f6;
           }
           .contact-detail {
               margin: 8px 0;
@@ -678,7 +677,6 @@ Automated security system
               padding: 20px;
               border-radius: 8px;
               margin: 20px 0;
-              border-left: 4px solid #0ea5e9;
           }
           .message-text {
               font-size: 16px;
@@ -702,10 +700,10 @@ Automated security system
               display: inline-block;
               margin: 0 8px;
               padding: 10px 20px;
-              background-color: #3b82f6;
-              color: white;
+              border: 2px solid #2c5282;
+              color: #2c5282;
               text-decoration: none;
-              border-radius: 5px;
+              border-radius: 4px;
               font-size: 14px;
               font-weight: 500;
           }
@@ -714,7 +712,7 @@ Automated security system
   <body>
       <div class="container">
           <div class="header">
-              <h1>New Contact Form Submission</h1>
+              <h1>New Contact Notice</h1>
               <div class="subject-badge">${data.subject}</div>
           </div>
 

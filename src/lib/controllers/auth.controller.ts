@@ -118,6 +118,35 @@ export class AuthController {
     }
   );
 
+  createAdmin = ErrorMiddleware.catchAsync(
+    async (request: NextRequest): Promise<NextResponse> => {
+      const requestId =
+        request.headers.get("x-request-id") ||
+        `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const credentials = getValidatedData<RegisterCredentials>(request);
+
+      const user = await this.authService.createAdmin(credentials);
+
+      return NextResponse.json(
+        {
+          success: true,
+          requestId,
+          message: "Admin user created successfully",
+          data: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            provider: user.provider,
+            role: user.role,
+            createdAt: user.createdAt,
+          },
+        },
+        { status: 201 }
+      );
+    }
+  );
+
   refreshToken = ErrorMiddleware.catchAsync(
     async (request: NextRequest): Promise<NextResponse> => {
       const requestId = request.headers.get("x-request-id")!;

@@ -4,11 +4,11 @@ import { Property } from "@/types/Properties";
 import PropertyGrid from "@/components/properties/PropertyGrid";
 import Link from "next/link";
 
-interface ListingsProps {
+interface FeaturedProps {
   propertyRef: RefObject<HTMLDivElement | null>;
 }
 
-const PropertyListings: React.FC<ListingsProps> = ({ propertyRef }) => {
+const FeaturedProperties: React.FC<FeaturedProps> = ({ propertyRef }) => {
   const { fetchFeaturedProperties } = useProperty();
 
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
@@ -152,4 +152,4 @@ const PropertyListings: React.FC<ListingsProps> = ({ propertyRef }) => {
   );
 };
 
-export default PropertyListings;
+export default FeaturedProperties;

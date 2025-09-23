@@ -12,7 +12,7 @@ interface ContactFormData {
   message: string;
 }
 
-export async function POST(request: NextRequest) {
+export const POST = async (request: NextRequest) => {
   try {
     const body: ContactFormData = await request.json();
 
@@ -56,4 +56,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+};

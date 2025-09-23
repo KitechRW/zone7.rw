@@ -111,7 +111,7 @@ const AdminDashboard = () => {
         isCollapsed ? "w-20" : "w-72"
       } bg-white/50 backdrop-blur-xl shadow-sm h-full transition-all duration-300 truncate z-50`}
     >
-      <div className="relative px-5 py-10">
+      <div className="relative px-6 py-10">
         <div className="">
           <Link href="/">
             <Image src={logoblue} alt="Logo" className="w-16" priority />
@@ -138,7 +138,7 @@ const AdminDashboard = () => {
           <button
             title="Properties"
             onClick={() => changeTab("properties")}
-            className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
+            className={`relative w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "properties"
                 ? "text-light-blue"
                 : "text-gray-600 hover:bg-gray-100"
@@ -149,7 +149,7 @@ const AdminDashboard = () => {
             <span
               className={`${
                 isCollapsed ? "hidden" : ""
-              } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
+              } absolute -right-5 bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-[10px]`}
             >
               {PropertyStats?.totalProperties || 0}
             </span>
@@ -171,7 +171,7 @@ const AdminDashboard = () => {
             <span
               className={`${
                 isCollapsed ? "hidden" : ""
-              } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
+              } bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-[10px]`}
             >
               {interestStats?.total || 0}
             </span>
@@ -193,7 +193,7 @@ const AdminDashboard = () => {
             <span
               className={`${
                 isCollapsed ? "hidden" : ""
-              } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
+              } bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-[10px]`}
             >
               {usersStats.totalUsers + usersStats.totalAdmins || 0}
             </span>

@@ -8,7 +8,7 @@ import Header from "@/components/layout/Header";
 import Welcome from "@/components/layout/Welcome";
 import Benefits from "@/components/layout/Benefits";
 import Footer from "@/components/layout/Footer";
-import PropertyListings from "@/components/layout/PropertyListings";
+import PropertyListings from "@/components/layout/FeaturedProperties";
 
 const Home = () => {
   const [isLoading, SetIsLoading] = useState<boolean>(true);

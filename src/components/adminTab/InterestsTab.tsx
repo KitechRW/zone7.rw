@@ -211,13 +211,13 @@ const InterestsTab = ({
   const getStatusColor = (status: "new" | "contacted" | "closed") => {
     switch (status) {
       case "new":
-        return "bg-blue-50 text-blue-800";
+        return "text-blue-600";
       case "contacted":
-        return "bg-yellow-50 text-yellow-800";
+        return "text-green-600";
       case "closed":
-        return "bg-gray-50 text-gray-800";
+        return "text-gray-600";
       default:
-        return "bg-gray-50 text-gray-800";
+        return "bg-gray-50 text-gray-600";
     }
   };
 
@@ -402,7 +402,7 @@ const InterestsTab = ({
                 value={selectedUserId || filterByUserId || ""}
                 onChange={(e) => handleUserFilter(e.target.value)}
                 disabled={loadingUsers}
-                className="w-full py-2.5 px-3 text-left text-gray-500 text-xs bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
+                className="w-full py-3 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
               >
                 <option value="">All Users</option>
                 {users.map((user) => (
@@ -411,7 +411,7 @@ const InterestsTab = ({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-2 top-3 h-3 w-3 text-gray-400 pointer-events-none" />
+              <ChevronDown className="absolute right-2 top-4 h-3 w-3 text-gray-400 pointer-events-none" />
               {loadingUsers && (
                 <Loader2 className="absolute right-8 top-3.5 h-4 w-4 animate-spin text-gray-400" />
               )}
@@ -433,14 +433,14 @@ const InterestsTab = ({
                       );
                       setCurrentPage(1);
                     }}
-                    className="min-w-24 py-2.5 px-3 text-left text-gray-500 text-xs bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
+                    className="min-w-24 py-2.5 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
                   >
                     <option value="all">All Status</option>
                     <option value="new">New</option>
                     <option value="contacted">Contacted</option>
                     <option value="closed">Closed</option>
                   </select>
-                  <ChevronDown className="absolute right-2 top-3 h-3 w-3 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-2 top-3.5 h-3 w-3 text-gray-400 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -564,7 +564,7 @@ const InterestsTab = ({
                             )
                           }
                           disabled={updatingInterest === interest.id}
-                          className={`max-w-24 text-xs font-medium px-2 py-1.5 rounded-sm outline-none border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${getStatusColor(
+                          className={`max-w-24 text-xs font-medium px-2 py-1.5 rounded-sm outline-none border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${getStatusColor(
                             interest.status
                           )}`}
                         >
