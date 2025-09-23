@@ -718,14 +718,14 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
 
                           {roleOpen === user._id && (
                             <div
-                              className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-sm shadow z-50 max-w-24"
+                              className="absolute top-full left-0 mt-1 border border-gray-200 rounded-sm shadow z-50 max-w-24"
                               onClick={(e) => e.stopPropagation()}
                             >
                               {getAvailableRoles(user).map((role) => (
                                 <button
                                   key={role}
                                   onClick={() => updateUserRole(user._id, role)}
-                                  className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 capitalize first:rounded-t-sm last:rounded-b-md cursor-pointer"
+                                  className="block w-full bg-white text-left px-3 py-1 text-xs text-gray-700 hover:bg-gray-100 capitalize first:rounded-t-sm last:rounded-b-md cursor-pointer"
                                 >
                                   {role}
                                 </button>
