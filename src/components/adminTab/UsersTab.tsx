@@ -619,6 +619,9 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       )}
                     </div>
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Role
+                  </th>
                   <th
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort("createdAt")}
@@ -716,6 +719,58 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       )}
                     </td>
 
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {canManageUser(user) &&
+                      getAvailableRoles(user).length > 0 ? (
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setRoleOpen(
+                                roleOpen === user._id ? null : user._id
+                              );
+                            }}
+                            disabled={updatingRole === user._id}
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize cursor-pointer hover:opacity-80 transition-opacity ${getRoleColor(
+                              user.role
+                            )} ${
+                              updatingRole === user._id ? "opacity-50" : ""
+                            }`}
+                          >
+                            {updatingRole === user._id && (
+                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                            )}
+                            {user.role}
+                            <ChevronDown className="h-3 w-3 ml-1" />
+                          </button>
+
+                          {roleOpen === user._id && (
+                            <div
+                              className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-sm shadow z-50 max-w-24"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {getAvailableRoles(user).map((role) => (
+                                <button
+                                  key={role}
+                                  onClick={() => updateUserRole(user._id, role)}
+                                  className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 capitalize first:rounded-t-sm last:rounded-b-md cursor-pointer"
+                                >
+                                  {role}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize ${getRoleColor(
+                            user.role
+                          )}`}
+                        >
+                          {user.role}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500">
                         {formatDate(user.createdAt)}
