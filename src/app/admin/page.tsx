@@ -222,9 +222,7 @@ const AdminDashboard = () => {
       <div className="absolute left-7 bottom-10 w-3/4 mx-auto">
         {user ? (
           isCollapsed ? (
-            <Link href="/profile" title="My account">
-              <Avatar userName={user.email} />
-            </Link>
+            <Avatar userName={user.email} />
           ) : (
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-4 mb-5">
