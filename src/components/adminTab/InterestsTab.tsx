@@ -66,7 +66,33 @@ const InterestsTab = ({
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Load data whenever filters change
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoadingUsers(true);
+        const response = await fetch("/api/users");
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data.data || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  //Set selected user from users tab
+  useEffect(() => {
+    if (filterByUserId) {
+      setSelectedUserId(filterByUserId);
+    }
+  }, [filterByUserId]);
+
+  //Load data when filters change
   useEffect(() => {
     const fetchUsers = async () => {
       try {
