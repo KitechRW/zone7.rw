@@ -12,7 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useInterest } from "@/contexts/InterestContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Avatar from "@/components/misc/Avatar";
 
 type AdminTab = "properties" | "users" | "interests";
@@ -30,6 +30,9 @@ const AdminDashboard = () => {
   const { stats: interestStats, fetchStats: fetchInterestStats } =
     useInterest();
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("properties");
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -42,10 +45,29 @@ const AdminDashboard = () => {
     activeUsers: 0,
   });
 
-  const router = useRouter();
-
   const login = () => {
     router.push("/auth");
+  };
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["properties", "users", "interests"].includes(tab)) {
+      setActiveTab(tab as AdminTab);
+    } else {
+      setActiveTab("properties");
+
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set("tab", "properties");
+      window.history.replaceState({}, "", newUrl.toString());
+    }
+  }, [searchParams]);
+
+  const changeTab = (tab: AdminTab) => {
+    setActiveTab(tab);
+
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set("tab", tab);
+    window.history.pushState({}, "", newUrl.toString());
   };
 
   // Initialize data
@@ -115,9 +137,7 @@ const AdminDashboard = () => {
         <nav className="absolute top-40 my-5 left-7 space-y-7">
           <button
             title="Properties"
-            onClick={() => {
-              setActiveTab("properties");
-            }}
+            onClick={() => changeTab("properties")}
             className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "properties"
                 ? "text-light-blue"
@@ -137,9 +157,7 @@ const AdminDashboard = () => {
 
           <button
             title="Interests"
-            onClick={() => {
-              setActiveTab("interests");
-            }}
+            onClick={() => changeTab("interests")}
             className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "interests"
                 ? "text-light-blue"
@@ -161,7 +179,7 @@ const AdminDashboard = () => {
 
           <button
             title="Users"
-            onClick={() => setActiveTab("users")}
+            onClick={() => changeTab("users")}
             className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "users"
                 ? "text-light-blue"
@@ -185,24 +203,20 @@ const AdminDashboard = () => {
       <div className="absolute left-7 bottom-10 w-3/4 mx-auto">
         {user ? (
           isCollapsed ? (
-            <Link href="/profile" title="My account">
-              <Avatar userName={user.email} />
-            </Link>
+            <Avatar userName={user.email} />
           ) : (
             <div className="flex flex-col gap-1">
-              <Link href="/profile">
-                <div className="flex items-center gap-4 mb-5">
-                  {user && <Avatar userName={user?.email} />}
-                  <div className="flex-1 min-w-0">
-                    <h1 className="font-semibold text-gray-900 text-sm capitalize">
-                      {user?.username?.split("_")[0] || "User"}
-                    </h1>
-                    <p className="text-gray-500 text-xs truncate">
-                      {user?.email}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-4 mb-5">
+                {user && <Avatar userName={user?.email} />}
+                <div className="flex-1 min-w-0">
+                  <h1 className="font-semibold text-gray-900 text-sm capitalize">
+                    {user?.username?.split("_")[0] || "User"}
+                  </h1>
+                  <p className="text-gray-500 text-xs truncate">
+                    {user?.email}
+                  </p>
                 </div>
-              </Link>
+              </div>
               <button
                 onClick={logout}
                 className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-black rounded transition cursor-pointer"
@@ -237,7 +251,7 @@ const AdminDashboard = () => {
             onViewUserInterests={(userId: string, userName: string) => {
               setSelectedUserId(userId);
               setSelectedUserName(userName);
-              setActiveTab("interests");
+              changeTab("interests");
             }}
           />
         );

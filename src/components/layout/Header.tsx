@@ -103,20 +103,27 @@ const Header: React.FC<HeaderProps> = ({
               >
                 Home
               </h2>
-              <h2
-                onClick={scrollToProperties}
-                className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
-              >
-                Properties
-              </h2>
+              <Link href="/properties">
+                <h2
+                  onClick={scrollToProperties}
+                  className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
+                >
+                  Properties
+                </h2>
+              </Link>
+
               {user ? (
                 <div className="group">
                   <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
                     <Avatar userName={user.email} />
                   </button>
                   <div className="absolute right-5 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
-                    <div className="flex flex-col items-center justify-center gap-4">
-                      <Link href="/profile" title="My account">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Link
+                        href="/profile"
+                        title="My account"
+                        className="hover:bg-black/5 rounded-md p-2"
+                      >
                         <div className="flex items-center gap-4">
                           <div className="flex-1 min-w-0">
                             <h1 className="font-semibold text-gray-900 text-sm capitalize">
@@ -175,12 +182,11 @@ const Header: React.FC<HeaderProps> = ({
               <h2 className="text-white font-medium hover:text-cyan-300 transition cursor-pointer">
                 Home
               </h2>
-              <h2
-                onClick={scrollToProperties}
-                className="text-white font-medium hover:text-cyan-300 transition cursor-pointer"
-              >
-                Properties
-              </h2>
+              <Link href="/properties">
+                <h2 className="text-white font-medium hover:text-cyan-300 transition cursor-pointer">
+                  Properties
+                </h2>
+              </Link>
               {user ? (
                 <div className="group">
                   <button className="relative flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
@@ -188,7 +194,11 @@ const Header: React.FC<HeaderProps> = ({
                   </button>
                   <div className="absolute right-5 min-w-48 z-50 hidden px-5 py-4 bg-black/50 backdrop-blur-lg rounded-md shadow-lg group-hover:block">
                     <div className="flex flex-col items-center justify-center gap-4">
-                      <Link href="/profile" title="My account">
+                      <Link
+                        href="/profile"
+                        title="My account"
+                        className="hover:bg-white/15 rounded-md p-2"
+                      >
                         <div className="flex items-center gap-4">
                           <div className="flex-1 min-w-0">
                             <h1 className="font-semibold text-gray-100 text-sm capitalize">
@@ -253,19 +263,22 @@ const Header: React.FC<HeaderProps> = ({
                 >
                   Home
                 </h2>
-                <h2
-                  onClick={() => menuItemClick(scrollToProperties)}
-                  className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
-                >
-                  Properties
-                </h2>
+                <Link href="/properties">
+                  <h2 className="text-black font-medium hover:text-cyan-700 transition cursor-pointer">
+                    Properties
+                  </h2>
+                </Link>
               </div>
 
               <div className="absolute bottom-24 w-full">
                 {user ? (
                   <div className="flex flex-col gap-1">
-                    <Link href="/profile">
-                      <div className="flex items-center gap-4 mb-5">
+                    <Link
+                      href="/profile"
+                      title="My account"
+                      className="hover:bg-black/5 rounded-md p-2"
+                    >
+                      <div className="flex items-center gap-4 mb-2">
                         {user && <Avatar userName={user?.email} />}
                         <div className="flex-1 min-w-0">
                           <h1 className="font-semibold text-gray-900 text-sm capitalize">

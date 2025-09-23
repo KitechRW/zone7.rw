@@ -148,7 +148,7 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
         className="max-w-7xl mx-auto mt-20 xs:px-10 lg:px-5 mb-24"
       >
         <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold mb-5">
-          <span className="bg-gradient-to-r from-blue-800 to-blue-950 bg-clip-text text-transparent">
+          <span className="bg-blue-900 bg-clip-text text-transparent">
             Property Listings
           </span>
         </h2>
@@ -290,7 +290,7 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1 || propertiesLoading}
-                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Previous
                 </button>
@@ -300,10 +300,10 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
                     key={index}
                     onClick={() => handlePageChange(index + 1)}
                     disabled={propertiesLoading}
-                    className={`px-4 py-2 text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`px-4 py-2 text-sm font-medium rounded-md disabled:opacity-50 border  disabled:cursor-not-allowed cursor-pointer ${
                       currentPage === index + 1
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                        ? "bg-blue-50 border-light-blue text-light-blue"
+                        : "text-gray-700 bg-white  border-gray-300 hover:bg-gray-100"
                     }`}
                   >
                     {index + 1}
@@ -315,7 +315,7 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
                   disabled={
                     currentPage === pagination.pages || propertiesLoading
                   }
-                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Next
                 </button>

@@ -27,7 +27,7 @@ const Benefits = () => {
       <div className="max-w-7xl mx-auto xs:px-10 lg:px-5 text-center mb-16">
         <h2 className="xs:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
           With&nbsp;
-          <span className="bg-gradient-to-r from-light-blue to-blue-800 bg-clip-text text-transparent">
+          <span className="bg-blue-800 bg-clip-text text-transparent">
             {process.env.NEXT_PUBLIC_COMPANY_NAME}
           </span>{" "}
           Your Dream Home Awaits You

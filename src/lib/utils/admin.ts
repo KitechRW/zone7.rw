@@ -1,23 +1,23 @@
 import { ApiError } from "./apiError";
 import { UserRole } from "./permission";
 
-export const isAdminEmail = (email: string): boolean => {
-  return email === process.env.ADMIN_EMAIL;
+export const isOwnerEmail = (email: string): boolean => {
+  return email === process.env.OWNER_EMAIL;
 };
 
 export const getEmailRole = (email: string): UserRole => {
-  return isAdminEmail(email) ? UserRole.ADMIN : UserRole.USER;
+  return isOwnerEmail(email) ? UserRole.OWNER : UserRole.USER;
 };
 
-export const requireAdminEmail = (email: string): UserRole => {
-  if (isAdminEmail(email)) {
-    return UserRole.ADMIN;
+export const requireOwnerEmail = (email: string): UserRole => {
+  if (isOwnerEmail(email)) {
+    return UserRole.OWNER;
   }
-  throw ApiError.forbidden("Admin access only");
+  throw ApiError.forbidden("Owner access only");
 };
 
-export const requireAdminRole = (role: string): void => {
-  if (role !== UserRole.ADMIN) {
-    throw ApiError.forbidden("Admin access required");
+export const requireOwnerRole = (role: string): void => {
+  if (role !== UserRole.OWNER) {
+    throw ApiError.forbidden("Owner access required");
   }
 };

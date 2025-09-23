@@ -84,7 +84,11 @@ const Header = () => {
                 </button>
                 <div className="absolute right-5 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
                   <div className="flex flex-col items-center justify-center gap-4">
-                    <Link href="/profile" title="My account">
+                    <Link
+                      href="/profile"
+                      title="My account"
+                      className="hover:bg-black/5 rounded-md p-2"
+                    >
                       <div className="flex items-center gap-4">
                         <div className="flex-1 min-w-0">
                           <h1 className="font-semibold text-gray-900 text-sm capitalize">
@@ -158,8 +162,12 @@ const Header = () => {
               <div className="absolute bottom-28 max-w-full">
                 {user ? (
                   <div className="flex flex-col gap-1">
-                    <Link href="/profile">
-                      <div className="flex items-center gap-4 mb-5">
+                    <Link
+                      href="/profile"
+                      title="My account"
+                      className="hover:bg-black/5 rounded-md p-2"
+                    >
+                      <div className="flex items-center gap-4 mb-2">
                         {user && <Avatar userName={user?.email} />}
                         <div className="flex-1 min-w-0">
                           <h1 className="font-semibold text-gray-900 text-sm capitalize">

@@ -11,7 +11,7 @@ export const useAuth = () => {
 
   const user = session?.user as UserData | undefined;
   const isAuthenticated = !!user;
-  const isAdmin = user?.role === UserRole.ADMIN;
+  const isAdmin = user?.role === UserRole.OWNER || UserRole.ADMIN;
   const authLoading = status === "loading";
 
   const logout = async () => {

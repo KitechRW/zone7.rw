@@ -153,7 +153,7 @@ const LoginPage = () => {
           if (result?.ok) {
             const session = await getSession();
 
-            if (session?.user.role === UserRole.ADMIN) {
+            if (session?.user.role === UserRole.OWNER || UserRole.ADMIN) {
               router.push("/admin");
             } else {
               router.push("/");
@@ -189,7 +189,7 @@ const LoginPage = () => {
           setRedirecting(true);
 
           const session = await getSession();
-          if (session?.user.role === UserRole.ADMIN) {
+          if (session?.user.role === UserRole.OWNER || UserRole.ADMIN) {
             router.push("/admin");
           } else {
             router.push("/");

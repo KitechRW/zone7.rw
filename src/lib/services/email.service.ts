@@ -18,6 +18,15 @@ export interface PasswordResetData {
   resetLink: string;
 }
 
+export interface ContactNotificationData {
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  subject: string;
+  message: string;
+  submissionDate: string;
+}
+
 export class EmailService {
   private static instance: EmailService;
   private apiKey: string;
@@ -29,7 +38,7 @@ export class EmailService {
     this.apiKey = process.env.MAILERSEND_API_TOKEN!;
     this.fromEmail = process.env.MAILERSEND_FROM_EMAIL!;
     this.fromName = process.env.MAILERSEND_FROM_NAME!;
-    this.adminEmail = process.env.ADMIN_EMAIL!;
+    this.adminEmail = process.env.OWNER_EMAIL!;
 
     if (!this.apiKey) {
       throw new Error("MAILERSEND_API_KEY environment variable is required");
@@ -548,6 +557,272 @@ If you didn't request a password reset, please ignore this email or contact supp
 ---
 ${process.env.NEXT_PUBLIC_COMPANY_NAME}
 Automated security system
+  `.trim();
+  }
+
+  async sendContactNotification(data: ContactNotificationData): Promise<void> {
+    try {
+      const emailData = {
+        from: {
+          email: this.fromEmail,
+          name: this.fromName,
+        },
+        to: [
+          {
+            email: this.adminEmail,
+            name: "Contact Form Admin",
+          },
+        ],
+        subject: `Contact Form: ${data.subject}`,
+        html: this.generateContactEmailTemplate(data),
+        text: this.generateContactEmailText(data),
+      };
+
+      const response = await fetch("https://api.mailersend.com/v1/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify(emailData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `Email API error: ${response.status}`
+        );
+      }
+
+      logger.info("Contact form email sent successfully", {
+        subject: data.subject,
+        userEmail: data.userEmail,
+      });
+    } catch (error) {
+      logger.error("Failed to send contact form email", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        data,
+      });
+
+      // Re-throw error for contact forms (unlike interest notifications)
+      throw error;
+    }
+  }
+
+  private generateContactEmailTemplate(data: ContactNotificationData): string {
+    return `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>New Contact Form Submission</title>
+      <style>
+          body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: #f5f5f5;
+          }
+          .container {
+              background-color: white;
+              border-radius: 10px;
+              padding: 30px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          }
+          .header {
+              margin-bottom: 30px;
+              padding-bottom: 20px;
+              border-bottom: 2px solid #e5e7eb;
+          }
+          .header h1 {
+              color: #1f2937;
+              margin: 0;
+              font-size: 28px;
+          }
+          .subject-badge {
+              background-color: #3b82f6;
+              color: white;
+              padding: 6px 12px;
+              border-radius: 15px;
+              font-size: 14px;
+              display: inline-block;
+              margin-top: 10px;
+          }
+          .contact-info {
+              background-color: #f8fafc;
+              padding: 20px;
+              border-radius: 8px;
+              margin: 20px 0;
+              border-left: 4px solid #3b82f6;
+          }
+          .contact-detail {
+              margin: 8px 0;
+              display: flex;
+              align-items: center;
+          }
+          .label {
+              font-weight: bold;
+              color: #374151;
+              width: 100px;
+              display: inline-block;
+          }
+          .value {
+              color: #1f2937;
+          }
+          .message-section {
+              background-color: #f0f9ff;
+              padding: 20px;
+              border-radius: 8px;
+              margin: 20px 0;
+              border-left: 4px solid #0ea5e9;
+          }
+          .message-text {
+              font-size: 16px;
+              color: #374151;
+              line-height: 1.6;
+              white-space: pre-wrap;
+          }
+          .footer {
+              text-align: center;
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 1px solid #e5e7eb;
+              color: #6b7280;
+              font-size: 14px;
+          }
+          .action-buttons {
+              text-align: center;
+              margin: 25px 0;
+          }
+          .action-button {
+              display: inline-block;
+              margin: 0 8px;
+              padding: 10px 20px;
+              background-color: #3b82f6;
+              color: white;
+              text-decoration: none;
+              border-radius: 5px;
+              font-size: 14px;
+              font-weight: 500;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>New Contact Form Submission</h1>
+              <div class="subject-badge">${data.subject}</div>
+          </div>
+
+          <div class="contact-info">
+              <h3 style="margin-top: 0; color: #1f2937; font-size: 18px;">Contact Details</h3>
+              <div class="contact-detail">
+                  <span class="label">Name:</span>
+                  <span class="value">${data.userName}</span>
+              </div>
+              <div class="contact-detail">
+                  <span class="label">Email:</span>
+                  <span class="value">
+                      <a href="mailto:${
+                        data.userEmail
+                      }" style="color: #3b82f6; text-decoration: none;">
+                          ${data.userEmail}
+                      </a>
+                  </span>
+              </div>
+              <div class="contact-detail">
+                  <span class="label">Phone:</span>
+                  <span class="value">
+                      <a href="tel:${
+                        data.userPhone
+                      }" style="color: #3b82f6; text-decoration: none;">
+                          ${data.userPhone}
+                      </a>
+                  </span>
+              </div>
+              <div class="contact-detail">
+                  <span class="label">Date:</span>
+                  <span class="value">${new Date(
+                    data.submissionDate
+                  ).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}</span>
+              </div>
+          </div>
+
+          <div class="message-section">
+              <h3 style="margin-top: 0; color: #0369a1; font-size: 18px;">Message</h3>
+              <div class="message-text">${data.message}</div>
+          </div>
+
+          <div class="action-buttons">
+              <a href="mailto:${data.userEmail}?subject=Re: ${
+      data.subject
+    }" class="action-button">
+                  Reply via Email
+              </a>
+              <a href="tel:${data.userPhone}" class="action-button">
+                  Call Now
+              </a>
+          </div>
+
+          <div class="footer">
+              <p><strong>Action Required:</strong> Please respond to ${
+                data.userName
+              } within 24 hours.</p>
+              <p>This email was automatically generated from your website's contact form.</p>
+              <p style="margin-top: 20px; font-size: 12px;">
+                  © ${new Date().getFullYear()} ${
+      process.env.NEXT_PUBLIC_COMPANY_NAME
+    }. All rights reserved.
+              </p>
+          </div>
+      </div>
+  </body>
+  </html>
+  `;
+  }
+
+  private generateContactEmailText(data: ContactNotificationData): string {
+    return `
+NEW CONTACT FORM SUBMISSION
+
+Subject: ${data.subject}
+
+Contact Details:
+Name: ${data.userName}
+Email: ${data.userEmail}
+Phone: ${data.userPhone}
+Date: ${new Date(data.submissionDate).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })}
+
+Message:
+${data.message}
+
+Action Required: Please respond to ${data.userName} within 24 hours.
+
+Quick Actions:
+- Reply: ${data.userEmail}
+- Call: ${data.userPhone}
+
+---
+${process.env.NEXT_PUBLIC_COMPANY_NAME}
+Website Contact Form
   `.trim();
   }
 }

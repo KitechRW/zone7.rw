@@ -65,7 +65,7 @@ const Welcome: React.FC<WelcomeProps> = ({ homeRef }) => {
           </button>
           <button
             onClick={rentHouse}
-            className="xs:w-68 md:w-40 bg-gradient-to-r from-green-400 to-green-700  hover:shadow-lg text-white px-6 py-4 rounded-sm font-semibold truncate transition-all duration-500 cursor-pointer"
+            className="xs:w-68 md:w-40 bg-gradient-to-r from-white to-neutral-300  hover:shadow-lg text-black px-6 py-4 rounded-sm font-semibold truncate transition-all duration-500 cursor-pointer"
           >
             Rent a House
           </button>

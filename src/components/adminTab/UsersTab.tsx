@@ -1,8 +1,16 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Users, Loader2, Eye, X, Calendar, Trash2 } from "lucide-react";
+import {
+  Users,
+  Loader2,
+  Eye,
+  Calendar,
+  Trash2,
+  ChevronDown,
+} from "lucide-react";
 import { UserRole } from "@/lib/utils/permission";
+import { useAuth } from "@/contexts/AuthContext";
 import SearchBar from "../misc/SearchBar";
 
 interface User {
@@ -40,6 +48,12 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
   const [viewingUser, setViewingUser] = useState<string | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [roleOpen, setRoleOpen] = useState<string | null>(null);
+  const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+
+  const { user } = useAuth();
+  const currentUserRole = user?.role as UserRole;
+  const currentUserId = user?.id;
 
   useEffect(() => {
     fetchUsers();
@@ -108,6 +122,41 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     }
   };
 
+  const updateUserRole = async (userId: string, newRole: UserRole) => {
+    try {
+      setUpdatingRole(userId);
+      setError(null);
+
+      const response = await fetch(`/api/users/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ role: newRole }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update user role");
+      }
+
+      //Update the user in the local state
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === userId ? { ...user, role: newRole } : user
+        )
+      );
+
+      setRoleOpen(null);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update user role"
+      );
+    } finally {
+      setUpdatingRole(null);
+    }
+  };
+
   const handleViewUser = (userId: string) => {
     setViewingUser(userId);
     fetchUserDetails(userId);
@@ -152,6 +201,42 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     });
   };
 
+  const canManageUser = (targetUser: User) => {
+    if (currentUserId === targetUser._id) return false; //can't manage self
+    if (currentUserRole === UserRole.OWNER) return true; //owners can manage anyone
+    if (currentUserRole === UserRole.ADMIN) {
+      return targetUser.role === UserRole.USER; //admins can only manage regular users
+    }
+    return false;
+  };
+
+  const getAvailableRoles = (targetUser: User): UserRole[] => {
+    const roles: UserRole[] = [];
+
+    if (currentUserRole === UserRole.OWNER) {
+      if (targetUser.role !== UserRole.USER) roles.push(UserRole.USER);
+      if (targetUser.role !== UserRole.ADMIN) roles.push(UserRole.ADMIN);
+    } else if (currentUserRole === UserRole.ADMIN) {
+      if (targetUser.role === UserRole.USER) {
+      }
+    }
+
+    return roles;
+  };
+
+  const getRoleColor = (role: UserRole) => {
+    switch (role) {
+      case UserRole.OWNER:
+        return "text-green-600 bg-green-50";
+      case UserRole.ADMIN:
+        return "text-light-blue bg-blue-50";
+      case UserRole.USER:
+        return "text-gray-600 bg-gray-100";
+      default:
+        return "text-gray-600 bg-gray-100";
+    }
+  };
+
   const filteredAndSortedUsers = useMemo(() => {
     const filtered = users.filter(
       (user) =>
@@ -190,6 +275,18 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     }
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setRoleOpen(null);
+    };
+
+    if (roleOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [roleOpen]);
+
   if (loading) {
     return (
       <div className="w-full h-full bg-white py-10 px-5 shadow-sm">
@@ -227,14 +324,14 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     <>
       <div className="space-y-6">
         <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+          <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
             />
 
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
+              <span className="text-sm ml-2 text-gray-600 font-medium whitespace-nowrap">
                 Sort by:
               </span>
               <div className="relative">
@@ -279,7 +376,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     <div className="flex items-center gap-1">
                       Users
                       {sortBy === "username" && (
-                        <span className="text-blue-600">
+                        <span className="text-gray-600">
                           {sortOrder === "asc" ? "↑" : "↓"}
                         </span>
                       )}
@@ -292,11 +389,14 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     <div className="flex items-center gap-1">
                       Email
                       {sortBy === "email" && (
-                        <span className="text-blue-600">
+                        <span className="text-gray-600">
                           {sortOrder === "asc" ? "↑" : "↓"}
                         </span>
                       )}
                     </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Role
                   </th>
                   <th
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
@@ -305,7 +405,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     <div className="flex items-center gap-1">
                       Date Joined
                       {sortBy === "createdAt" && (
-                        <span className="text-blue-600">
+                        <span className="text-gray-600">
                           {sortOrder === "asc" ? "↑" : "↓"}
                         </span>
                       )}
@@ -323,7 +423,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
                           <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span className="text-sm font-medium text-blue-600">
+                            <span className="text-sm font-medium text-light-blue">
                               {user.username
                                 .split(" ")
                                 .map((n) => n[0])
@@ -336,14 +436,63 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                           <div className="text-sm font-medium text-gray-500">
                             {user.username}
                           </div>
-                          <div className="text-xs text-gray-500 capitalize">
-                            {user.role} • {user.provider}
-                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500">{user.email}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {canManageUser(user) &&
+                      getAvailableRoles(user).length > 0 ? (
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setRoleOpen(
+                                roleOpen === user._id ? null : user._id
+                              );
+                            }}
+                            disabled={updatingRole === user._id}
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize cursor-pointer hover:opacity-80 transition-opacity ${getRoleColor(
+                              user.role
+                            )} ${
+                              updatingRole === user._id ? "opacity-50" : ""
+                            }`}
+                          >
+                            {updatingRole === user._id && (
+                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                            )}
+                            {user.role}
+                            <ChevronDown className="h-3 w-3 ml-1" />
+                          </button>
+
+                          {roleOpen === user._id && (
+                            <div
+                              className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-sm shadow z-50 max-w-24"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {getAvailableRoles(user).map((role) => (
+                                <button
+                                  key={role}
+                                  onClick={() => updateUserRole(user._id, role)}
+                                  className="block w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 capitalize first:rounded-t-sm last:rounded-b-md cursor-pointer"
+                                >
+                                  {role}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize ${getRoleColor(
+                            user.role
+                          )}`}
+                        >
+                          {user.role}
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500">
@@ -359,17 +508,19 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                         >
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button
-                          className="text-red-600 hover:text-red-800 pl-2 transition-colors disabled:opacity-50 cursor-pointer"
-                          onClick={() => setDeleteConfirm(user._id)}
-                          disabled={updatingUser === user._id}
-                        >
-                          {updatingUser === user._id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </button>
+                        {canManageUser(user) && (
+                          <button
+                            className="text-red-600 hover:text-red-800 pl-2 transition-colors disabled:opacity-50 cursor-pointer"
+                            onClick={() => setDeleteConfirm(user._id)}
+                            disabled={updatingUser === user._id}
+                          >
+                            {updatingUser === user._id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -449,7 +600,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                         onClick={() => setCurrentPage(index + 1)}
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           currentPage === index + 1
-                            ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                            ? "z-10 bg-blue-50 border-blue-500 text-light-blue"
                             : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                         }`}
                       >
@@ -472,41 +623,29 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
       </div>
 
       {viewingUser && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-5">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 pt-6">
-              <h3 className="text-xl font-bold text-gray-500 flex items-center">
-                User Details
-              </h3>
-              <button
-                onClick={closeModal}
-                className="text-gray-600 hover:text-red-700 transition-colors cursor-pointer"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="overflow-y-auto">
+            <div className="overflow-y-auto p-6">
               {loadingDetails ? (
                 <div className="p-6 text-center">
                   <Loader2 className="w-8 h-8 text-gray-700 animate-spin mx-auto mb-4" />
                   <p className="text-gray-600">Loading user details...</p>
                 </div>
               ) : userDetails ? (
-                <div className="p-6">
-                  <div className="text-black shadow-md rounded-sm px-4">
+                <div>
+                  <div className="text-black rounded-sm">
                     <h4 className="text-lg font-semibold mb-4 flex items-center">
                       User Information
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-600">
                           Username
                         </label>
                         <p className="text-gray-500">{userDetails.username}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-600">
                           Email
                         </label>
                         <p className="text-gray-500 flex items-center">
@@ -514,15 +653,15 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                         </p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-600">
                           Role
                         </label>
-                        <p className="text-gray-500 capitalize">
+                        <p className="text-gray-500 capitalize flex items-center">
                           {userDetails.role}
                         </p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-600">
                           Joined
                         </label>
                         <p className="text-gray-500 flex items-center">
@@ -532,7 +671,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       </div>
                       {userDetails.lastLoginAt && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-gray-600">
                             Last Login
                           </label>
                           <p className="text-gray-500">
@@ -542,7 +681,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       )}
 
                       <div className="mb-3">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-600">
                           Total Interests: {userDetails.totalInterests}
                         </label>
                         <button
@@ -566,15 +705,15 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                   <p className="text-gray-600">Failed to load user details.</p>
                 </div>
               )}
-            </div>
 
-            <div className="flex justify-center pb-5 w-full mx-auto">
-              <button
-                onClick={closeModal}
-                className="px-8 py-2.5 bg-neutral-200 text-black rounded-sm hover:bg-neutral-300 transition-colors cursor-pointer"
-              >
-                Close
-              </button>
+              <div className="flex justify-end w-full mx-auto">
+                <button
+                  onClick={closeModal}
+                  className="px-8 py-2.5 bg-neutral-200 text-black rounded-sm hover:bg-neutral-300 transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

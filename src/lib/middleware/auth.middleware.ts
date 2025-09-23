@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { UserRole } from "../utils/permission";
+import { UserRole, isAdminOrOwner, isOwner } from "../utils/permission";
 import { authConfig } from "../config/auth.config";
 
 export class AuthMiddleware {
@@ -40,11 +40,42 @@ export class AuthMiddleware {
       );
     }
 
-    if (session.user.role !== UserRole.ADMIN) {
+    if (!isAdminOrOwner(session.user.role)) {
       return NextResponse.json(
         {
           success: false,
           message: "Admin access required",
+        },
+        { status: 403 }
+      );
+    }
+
+    request.headers.set("x-user-id", session.user.id);
+    request.headers.set("x-user-role", session.user.role);
+
+    return null;
+  }
+
+  static async requireOwner(
+    request: NextRequest
+  ): Promise<NextResponse | null> {
+    const session = await getServerSession(authConfig);
+
+    if (!session || !session.user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Authentication required",
+        },
+        { status: 401 }
+      );
+    }
+
+    if (!isOwner(session.user.role)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Owner access required",
         },
         { status: 403 }
       );

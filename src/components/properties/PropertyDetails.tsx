@@ -376,13 +376,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                   <MapPin className="w-4 h-4 mr-2" />
                   <span>{currentProperty.location}</span>
                 </div>
-                <div
-                  className={`text-2xl font-bold ${
-                    currentProperty.category === "sale"
-                      ? "text-blue-600"
-                      : "text-green-500"
-                  }`}
-                >
+                <div className="text-2xl font-bold text-blue-600">
                   {currentProperty.category === "rent"
                     ? `Rwf ${currentProperty.price.toLocaleString()}/month`
                     : `Rwf ${currentProperty.price.toLocaleString()}`}
@@ -433,13 +427,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                       {currentProperty.features.map(
                         (feature: string, index: number) => (
                           <div key={index} className="flex items-center">
-                            <div
-                              className={`w-2 h-2 ${
-                                currentProperty.category === "sale"
-                                  ? "bg-blue-600"
-                                  : "bg-green-500"
-                              } rounded-full mr-3`}
-                            ></div>
+                            <div className="w-2 h-2 bg-blue-600                      rounded-full mr-3"></div>
                             <span className="text-gray-700">{feature}</span>
                           </div>
                         )
@@ -454,23 +442,23 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <div className="space-y-3">
                 {userInterest?.hasInterest ? (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                    <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                    <p className="text-green-800 font-medium">
+                  <div className="bg-blue-50 border border-light-blue/80 rounded-lg p-4 text-center">
+                    <CheckCircle className="h-8 w-8 text-light-blue mx-auto mb-2" />
+                    <p className="text-blue-600 font-medium">
                       Interest Placed!
                     </p>
-                    <p className="text-green-600 text-sm my-2">
+                    <p className="text-gray-600 text-sm my-2">
                       We&#39;ll contact you soon regarding this property.
                     </p>
 
                     <button
                       onClick={handleRemoveInterest}
                       disabled={removingInterest}
-                      className="flex items-center justify-self-center gap-1 text-gray-800 text-sm mt-4 hover:underline hover:text-red-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="flex items-center justify-self-center gap-1 bg-blue-600 text-white font-medium pb-2.5 pt-1.5 px-4 rounded-sm text-sm mt-4 hover:bg-red-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                     >
                       {removingInterest ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                           Removing...
                         </>
                       ) : (
@@ -481,11 +469,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 ) : (
                   <button
                     onClick={placeInterest}
-                    className={`flex items-center justify-center w-full bg-gradient-to-r ${
-                      currentProperty.category === "sale"
-                        ? "from-light-blue to-blue-800"
-                        : "from-green-500 to-green-700"
-                    } text-white p-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg`}
+                    className="flex items-center justify-center w-full bg-gradient-to-r from-light-blue to-blue-800 text-white p-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg"
                   >
                     <Heart className="w-5 h-5 mr-2" />
                     Place Interest

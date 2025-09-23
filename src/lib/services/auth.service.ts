@@ -228,7 +228,7 @@ export class AuthService {
             $each: [
               { token, expiresAt, userAgent, device, createdAt: new Date() },
             ],
-            $slice: -2,
+            $slice: -3,
           },
         },
       }
@@ -283,9 +283,19 @@ export class AuthService {
   async isUserAdmin(userId: string): Promise<boolean> {
     try {
       const user = await this.getUserById(userId);
-      return user?.role === UserRole.ADMIN;
+      return user?.role === UserRole.ADMIN || user?.role === UserRole.OWNER;
     } catch (error) {
       logger.error("Admin check failed:", error);
+      return false;
+    }
+  }
+
+  async isUserOwner(userId: string): Promise<boolean> {
+    try {
+      const user = await this.getUserById(userId);
+      return user?.role === UserRole.OWNER;
+    } catch (error) {
+      logger.error("Owner check failed:", error);
       return false;
     }
   }
@@ -347,16 +357,16 @@ export class AuthService {
     }
   }
 
-  async deleteUser(userId: string, adminId: string): Promise<boolean> {
+  async deleteUser(userId: string, requesterId: string): Promise<boolean> {
     try {
       await DBConnection.getInstance().connect();
 
-      const isAdmin = await this.isUserAdmin(adminId);
-      if (!isAdmin) {
+      const requester = await this.getUserById(requesterId);
+      if (!requester || !this.isUserAdmin(requesterId)) {
         throw ApiError.forbidden("Admin access required");
       }
 
-      if (userId === adminId) {
+      if (userId === requesterId) {
         throw ApiError.badRequest("Cannot delete your own account");
       }
 
@@ -365,8 +375,20 @@ export class AuthService {
         throw ApiError.notFound("User not found");
       }
 
-      if (user.role === UserRole.ADMIN) {
-        throw ApiError.badRequest("Cannot delete another admin account");
+      if (
+        (user.role === UserRole.ADMIN || user.role === UserRole.OWNER) &&
+        requester.role !== UserRole.OWNER
+      ) {
+        throw ApiError.badRequest(
+          "Only owners can delete admin or owner accounts"
+        );
+      }
+
+      if (user.role === UserRole.OWNER) {
+        const ownerCount = await User.countDocuments({ role: UserRole.OWNER });
+        if (ownerCount <= 1) {
+          throw ApiError.badRequest("Cannot delete the last owner account");
+        }
       }
 
       await User.findByIdAndDelete(userId);
@@ -385,6 +407,7 @@ export class AuthService {
   async getUserStats(): Promise<{
     totalUsers: number;
     totalAdmins: number;
+    totalOwners: number;
     recentRegistrations: number;
     activeUsers: number;
   }> {
@@ -395,17 +418,24 @@ export class AuthService {
       const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const lastMonth = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-      const [totalUsers, totalAdmins, recentRegistrations, activeUsers] =
-        await Promise.all([
-          User.countDocuments({ role: UserRole.USER }),
-          User.countDocuments({ role: UserRole.ADMIN }),
-          User.countDocuments({ createdAt: { $gte: lastWeek } }),
-          User.countDocuments({ lastLoginAt: { $gte: lastMonth } }),
-        ]);
+      const [
+        totalUsers,
+        totalAdmins,
+        totalOwners,
+        recentRegistrations,
+        activeUsers,
+      ] = await Promise.all([
+        User.countDocuments({ role: UserRole.USER }),
+        User.countDocuments({ role: UserRole.ADMIN }),
+        User.countDocuments({ role: UserRole.OWNER }),
+        User.countDocuments({ createdAt: { $gte: lastWeek } }),
+        User.countDocuments({ lastLoginAt: { $gte: lastMonth } }),
+      ]);
 
       return {
         totalUsers,
         totalAdmins,
+        totalOwners,
         recentRegistrations,
         activeUsers,
       };
@@ -423,9 +453,43 @@ export class AuthService {
     try {
       await DBConnection.getInstance().connect();
 
-      const isAdmin = await this.isUserAdmin(requesterId);
-      if (!isAdmin) {
+      const requester = await this.getUserById(requesterId);
+      if (!requester) {
+        throw ApiError.notFound("Requester not found");
+      }
+
+      const targetUser = await User.findById(userId);
+      if (!targetUser) {
+        throw ApiError.notFound("User not found");
+      }
+
+      const isRequesterOwner = requester.role === UserRole.OWNER;
+      const isRequesterAdmin =
+        requester.role === UserRole.ADMIN || isRequesterOwner;
+
+      if (!isRequesterAdmin) {
         throw ApiError.forbidden("Admin access required");
+      }
+
+      if (
+        (role === UserRole.ADMIN ||
+          role === UserRole.OWNER ||
+          targetUser.role === UserRole.ADMIN ||
+          targetUser.role === UserRole.OWNER) &&
+        !isRequesterOwner
+      ) {
+        throw ApiError.forbidden("Only owners can manage admin or owner roles");
+      }
+
+      if (
+        userId === requesterId &&
+        requester.role === UserRole.OWNER &&
+        role !== UserRole.OWNER
+      ) {
+        const ownerCount = await User.countDocuments({ role: UserRole.OWNER });
+        if (ownerCount <= 1) {
+          throw ApiError.badRequest("Cannot demote the only owner");
+        }
       }
 
       const user = await User.findByIdAndUpdate(
@@ -457,7 +521,7 @@ export class AuthService {
     try {
       await DBConnection.getInstance().connect();
 
-      const allowedUpdates = ["username", "image"]; // Add other allowed fields
+      const allowedUpdates = ["username", "image"];
       const filteredUpdates: Record<string, unknown> = {};
 
       for (const key of allowedUpdates) {
