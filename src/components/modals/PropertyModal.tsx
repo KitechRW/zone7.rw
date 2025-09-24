@@ -729,7 +729,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2.5 bg-gradient-to-r from-light-blue to-blue-800 text-white font-medium rounded-sm hover:shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+                className="px-6 py-2.5 bg-600 text-white font-medium rounded-sm hover:shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
               >
                 {loading && (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

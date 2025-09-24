@@ -97,7 +97,7 @@ const Benefits = () => {
         </motion.div>
       </div>
 
-      <div className="bg-gradient-to-r from-light-blue/20 to-green-300/20 p-10 mb-10 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-light-blue/10 to-white/20 p-10 mb-10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="relative py-5 z-10">
             <h3 className="xs:text-4xl md:text-5xl font-bold text-black text-center mb-16">
@@ -135,10 +135,10 @@ const Benefits = () => {
             </div>
           </div>
 
-          <div className="absolute top-10 left-5 w-6 h-6 bg-light-blue/20 rounded-full animate-pulse" />
-          <div className="absolute top-28 left-10 w-12 h-12 bg-light-blue/20 rounded-full animate-pulse" />
-          <div className="absolute bottom-10 right-10 w-4 h-4 bg-green-200  rounded-full animate-pulse delay-300" />
-          <div className="absolute bottom-20 right-20 w-8 h-8 bg-green-200 rounded-full animate-pulse delay-700" />
+          <div className="absolute top-10 left-5 w-6 h-3 bg-light-blue/10 rounded-full animate-spin" />
+          <div className="absolute top-28 left-10 w-12 h-12 bg-light-blue/10 rounded-full animate-bounce" />
+          <div className="absolute bottom-10 right-10 w-6 h-3 bg-gray-300  rounded-full animate-spin delay-300" />
+          <div className="absolute bottom-20 right-20 rotate-12 w-10 h-10 bg-gray-200 rounded-full animate-bounce delay-700" />
         </div>
       </div>
 

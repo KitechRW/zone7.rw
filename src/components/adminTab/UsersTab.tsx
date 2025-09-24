@@ -9,7 +9,7 @@ import {
   Trash2,
   ChevronDown,
   X,
-  EyeOff,
+  CheckCircle,
 } from "lucide-react";
 import { UserRole } from "@/lib/utils/permission";
 import { useAuth } from "@/contexts/AuthContext";
@@ -47,7 +47,6 @@ interface UsersTabProps {
 interface CreateAdminForm {
   username: string;
   email: string;
-  password: string;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -74,14 +73,13 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
   const [createAdminForm, setCreateAdminForm] = useState<CreateAdminForm>({
     username: "",
     email: "",
-    password: "",
   });
   const [formErrors, setFormErrors] = useState<{
     username?: string;
     email?: string;
     password?: string;
   }>({});
-  const [showPassword, setShowPassword] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // New state for pagination info
   const [pagination, setPagination] = useState({
@@ -251,14 +249,6 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
       isValid = false;
     }
 
-    if (!createAdminForm.password) {
-      errors.password = "Password is required";
-      isValid = false;
-    } else if (createAdminForm.password.length < 8) {
-      errors.password = "Password must be at least 8 characters";
-      isValid = false;
-    }
-
     setFormErrors(errors);
     return isValid;
   };
@@ -278,7 +268,6 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
         body: JSON.stringify({
           username: createAdminForm.username.trim(),
           email: createAdminForm.email.trim(),
-          password: createAdminForm.password,
         }),
       });
 
@@ -287,14 +276,19 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
         throw new Error(errorData.message || "Failed to create admin user");
       }
 
-      await response.json();
+      const data = await response.json();
 
-      // Refresh the user list to include the new admin
-      await fetchUsers(currentPage, searchQuery, sortBy, sortOrder);
+      setUsers((prevUsers) => [data.data, ...prevUsers]);
 
-      setCreateAdminForm({ username: "", email: "", password: "" });
+      setCreateAdminForm({ username: "", email: "" });
       setFormErrors({});
       setCreateAdminModal(false);
+
+      setIsSuccess(true);
+
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 5000);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to create admin user"
@@ -351,7 +345,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
 
   const closeCreateAdminModal = () => {
     setCreateAdminModal(false);
-    setCreateAdminForm({ username: "", email: "", password: "" });
+    setCreateAdminForm({ username: "", email: "" });
     setFormErrors({});
     setError(null);
   };
@@ -360,6 +354,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     try {
       setUpdatingUser(userId);
       setError(null);
+      setLoading(true);
 
       const response = await fetch(`/api/users/${userId}`, {
         method: "DELETE",
@@ -373,10 +368,17 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
       // Refresh the user list after deletion
       await fetchUsers(currentPage, searchQuery, sortBy, sortOrder);
       setDeleteConfirm(null);
+
+      setIsSuccess(true);
+
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 5000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete user");
     } finally {
       setUpdatingUser(null);
+      setLoading(false);
     }
   };
 
@@ -478,6 +480,12 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
   return (
     <>
       <div className="space-y-6">
+        {isSuccess && (
+          <div className="fixed top-5 right-4 z-50 bg-green-50 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
+            <CheckCircle className="h-5 w-5" />
+            <span className="font-medium">Success.</span>
+          </div>
+        )}
         <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
           <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center">
             <SearchBar
@@ -523,7 +531,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
               {canCreateAdmin() && (
                 <button
                   onClick={() => setCreateAdminModal(true)}
-                  className="px-4 py-2.5 bg-gradient-to-r from-light-blue to-blue-800 text-white rounded-sm font-medium hover:shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                  className="px-4 py-2.5 bg-blue-800 text-white rounded-sm font-medium hover:shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
                 >
                   Create Admin
                 </button>
@@ -730,7 +738,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
           )}
 
           {deleteConfirm && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+            <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
               <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-black w-80 max-w-sm mx-4 rounded-sm">
                 <h4 className="text-lg text-center font-bold">Delete User?</h4>
                 <p className="text-sm text-gray-600 text-center">
@@ -917,7 +925,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
               </h3>
               <button
                 onClick={closeCreateAdminModal}
-                className="text-gray-400 hover:text-red-600 transition-colors"
+                className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
                 disabled={creatingAdmin}
               >
                 <X className="h-5 w-5" />
@@ -997,50 +1005,6 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     {formErrors.email}
                   </p>
                 )}
-              </div>
-
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password *
-                </label>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={createAdminForm.password}
-                  onChange={(e) => {
-                    setCreateAdminForm({
-                      ...createAdminForm,
-                      password: e.target.value,
-                    });
-                    if (formErrors.password) {
-                      setFormErrors({ ...formErrors, password: undefined });
-                    }
-                  }}
-                  className={`w-full p-3 border rounded-sm focus:outline-none focus:border transition-colors text-gray-600 text-sm ${
-                    formErrors.password
-                      ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                      : "border-gray-300 focus:border-light-blue"
-                  }`}
-                  placeholder="Enter password"
-                  disabled={creatingAdmin}
-                />
-                {formErrors.password && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {formErrors.password}
-                  </p>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-12 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-                  disabled={creatingAdmin}
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
-                </button>
               </div>
 
               <div className="bg-blue-50/70 border border-blue-200 rounded-sm p-3 mt-4">

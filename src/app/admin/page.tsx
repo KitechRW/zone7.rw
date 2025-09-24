@@ -14,6 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Avatar from "@/components/misc/Avatar";
+import { Variants, motion } from "framer-motion";
 
 type AdminTab = "properties" | "users" | "interests";
 
@@ -105,11 +106,29 @@ const AdminDashboard = () => {
     authLoading,
   ]);
 
+  const sidebarVariants: Variants = {
+    collapsed: {
+      width: "5rem",
+      transition: {
+        duration: 0.2,
+      },
+    },
+    expanded: {
+      width: "18rem",
+      transition: {
+        duration: 0.2,
+      },
+    },
+  };
+
   const Sidebar = () => (
-    <div
-      className={`fixed top-0 left-0 ${
+    <motion.div
+      initial="collapsed"
+      animate={isCollapsed ? "collapsed" : "expanded"}
+      variants={sidebarVariants}
+      className={`fixed h-full top-0 left-0 ${
         isCollapsed ? "w-20" : "w-72"
-      } bg-white/50 backdrop-blur-xl shadow-sm h-full transition-all duration-300 truncate z-50`}
+      } bg-white/50 backdrop-blur-xl shadow-sm h-full transition-all duration-300 truncate z-50 group group-hover:w-72`}
     >
       <div className="relative px-6 py-10">
         <div className="">
@@ -238,7 +257,7 @@ const AdminDashboard = () => {
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 
   const renderActiveTab = () => {

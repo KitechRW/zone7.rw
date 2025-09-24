@@ -11,6 +11,7 @@ import {
   Trash2,
   RotateCcw,
   ChevronDown,
+  CheckCircle,
 } from "lucide-react";
 import { useInterest } from "@/contexts/InterestContext";
 import SearchBar from "../misc/SearchBar";
@@ -63,6 +64,7 @@ const InterestsTab = ({
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -160,6 +162,11 @@ const InterestsTab = ({
         setUpdatingInterest(interestId);
         await deleteInterest(interestId);
         setDeleteConfirm(null);
+        setIsSuccess(true);
+
+        setTimeout(() => {
+          setIsSuccess(false);
+        }, 5000);
 
         if (!filterByUserId && !selectedUserId) {
           await fetchStats();
@@ -172,6 +179,11 @@ const InterestsTab = ({
         console.error("Failed to delete interest:", error);
       } finally {
         setUpdatingInterest(null);
+        setIsSuccess(true);
+
+        setTimeout(() => {
+          setIsSuccess(false);
+        }, 5000);
       }
     } else {
       setDeleteConfirm(interestId);
@@ -302,7 +314,14 @@ const InterestsTab = ({
 
   return (
     <div className="space-y-6">
-      {stats && !isFilteredByUser && (
+      {isSuccess && (
+        <div className="fixed top-5 right-4 z-50 bg-green-50 border border-green-400 text-green-700 px-6 py-4 rounded-sm shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
+          <CheckCircle className="h-5 w-5" />
+          <span className="font-medium">Interest deleted successfully</span>
+        </div>
+      )}
+
+      {stats && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-sm shadow-sm p-6">
             <div className="flex items-center">
@@ -366,26 +385,6 @@ const InterestsTab = ({
         </div>
       )}
 
-      {isFilteredByUser && (
-        <div className="bg-white shadow-sm text-xs rounded-sm p-4 mb-10">
-          <div className="flex items-center justify-between">
-            <p className="text-gray-600 gap-2">
-              Showing interests for:&nbsp;
-              <span className="font-medium text-gray-800">
-                {getCurrentUserName()}
-              </span>{" "}
-              ({interests.length})
-            </p>
-            <button
-              onClick={clearUserFilter}
-              className="text-light-blue hover:underline font-medium cursor-pointer"
-            >
-              Show All Interests
-            </button>
-          </div>
-        </div>
-      )}
-
       <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
         <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
           <SearchBar
@@ -418,42 +417,51 @@ const InterestsTab = ({
             </div>
           </div>
 
-          {!isFilteredByUser && (
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
-                  Status:
-                </span>
-                <div className="relative">
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => {
-                      setStatusFilter(
-                        e.target.value as "all" | "new" | "contacted" | "closed"
-                      );
-                      setCurrentPage(1);
-                    }}
-                    className="min-w-24 py-2.5 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="new">New</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="closed">Closed</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-3.5 h-3 w-3 text-gray-400 pointer-events-none" />
-                </div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
+                Status:
+              </span>
+              <div className="relative">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(
+                      e.target.value as "all" | "new" | "contacted" | "closed"
+                    );
+                    setCurrentPage(1);
+                  }}
+                  className="min-w-24 py-2.5 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
+                >
+                  <option value="all">All Status</option>
+                  <option value="new">New</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="closed">Closed</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-3.5 h-3 w-3 text-gray-400 pointer-events-none" />
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         {(searchQuery || statusFilter !== "all" || isFilteredByUser) && (
-          <div className="mt-4 text-xs text-gray-600">
-            Found {pagination.total} interest
-            {pagination.total !== 1 ? "s" : ""}
-            {searchQuery && ` matching "${searchQuery}"`}
-            {statusFilter !== "all" && ` with status "${statusFilter}"`}
-            {isFilteredByUser && ` from ${getCurrentUserName()}`}
+          <div className="flex items-center justify-between mt-5">
+            <p className="text-xs text-gray-600">
+              Found {pagination.total} interests
+              {pagination.total !== 1 ? "s" : ""}
+              {searchQuery && ` matching "${searchQuery}"`}
+              {statusFilter !== "all" && ` with status "${statusFilter}"`}
+              {isFilteredByUser && ` from ${getCurrentUserName()}`}
+            </p>
+
+            {isFilteredByUser && (
+              <button
+                onClick={clearUserFilter}
+                className="text-light-blue text-xs hover:underline font-medium cursor-pointer"
+              >
+                Show All Interests
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -626,7 +634,7 @@ const InterestsTab = ({
 
                               <button
                                 onClick={() => setDetailsModal(null)}
-                                className="w-20 bg-neutral-100 text-gray-800 border border-gray-300 px-4 py-2 rounded-md hover:bg-neutral-200 transition-colors cursor-pointer"
+                                className="w-20 bg-neutral-100 text-gray-800 border border-gray-300 px-4 py-2 rounded-sm hover:bg-neutral-200 transition-colors cursor-pointer"
                               >
                                 Close
                               </button>
@@ -636,7 +644,7 @@ const InterestsTab = ({
 
                         {deleteConfirm === interest.id && (
                           <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-                            <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-black w-80 max-w-sm mx-4 rounded-md">
+                            <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-black w-80 max-w-sm mx-4 rounded-sm">
                               <h4 className="text-lg text-center font-bold">
                                 Remove Interest?
                               </h4>
@@ -647,7 +655,7 @@ const InterestsTab = ({
                                 <button
                                   onClick={() => handleDelete(interest.id)}
                                   disabled={updatingInterest === interest.id}
-                                  className="bg-red-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                  className="bg-red-600 text-white font-semibold px-4 py-2 rounded-sm hover:bg-red-700 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                 >
                                   {updatingInterest === interest.id ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -657,7 +665,7 @@ const InterestsTab = ({
                                 <button
                                   onClick={() => setDeleteConfirm(null)}
                                   disabled={updatingInterest === interest.id}
-                                  className="bg-gray-200 text-black font-semibold px-4 py-2 rounded-md hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50"
+                                  className="bg-gray-200 text-black font-semibold px-4 py-2 rounded-sm hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50"
                                 >
                                   Cancel
                                 </button>
@@ -694,14 +702,14 @@ const InterestsTab = ({
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1 || loading}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === pagination.pages || loading}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     Next
                   </button>
@@ -725,7 +733,7 @@ const InterestsTab = ({
                     </p>
                   </div>
                   <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1 || loading}

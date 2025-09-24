@@ -185,9 +185,9 @@ const ProfilePage = () => {
                   <div className="space-y-4">
                     <div className="animate-pulse">
                       <div className="flex space-x-4">
-                        <div className="bg-gray-300 rounded-sm w-24 h-20"></div>
+                        <div className="bg-gray-300 rounded-sm w-24 h-16"></div>
                         <div className="flex-1 space-y-2">
-                          <div className="h-80 bg-gray-200 rounded w-1/2"></div>
+                          <div className="h-28 bg-gray-200 rounded w-full"></div>
                         </div>
                       </div>
                     </div>
@@ -267,15 +267,15 @@ const ProfilePage = () => {
                             </div>
                           </div>
 
-                          <div>
+                          <div className="">
                             <div className="flex items-center justify-between text-sm text-gray-500">
                               <div className="flex flex-col items-center gap-4">
                                 <span className="flex items-center">
                                   <Phone className="w-4 h-4 mr-1" />
                                   {interest.userPhone}
                                 </span>
-                                <span className="flex items-center -ml-4">
-                                  <Calendar className="w-4 h-4 mr-2" />
+                                <span className="flex items-center">
+                                  <Calendar className="w-4 h-4 mr-1" />
                                   {formatDate(interest.createdAt)}
                                 </span>
                               </div>

@@ -231,7 +231,7 @@ const ResetPasswordPage = () => {
               </p>
               <Link
                 href="/auth/forgot-password"
-                className="inline-flex items-center px-8 py-3 text-sm font-medium rounded-sm text-white bg-gradient-to-r from-light-blue to-blue-800 hover:shadow-lg transition-colors duration-200"
+                className="inline-flex items-center px-8 py-3 text-sm font-medium rounded-sm text-white bg-blue-600 hover:shadow-lg transition-colors duration-200"
               >
                 Request New Reset Link
               </Link>
@@ -260,7 +260,7 @@ const ResetPasswordPage = () => {
               </p>
               <Link
                 href="/auth"
-                className="inline-flex items-center px-8 py-2.5 text-sm font-medium rounded-md text-white bg-gradient-to-r from-light-blue to-blue-800 hover:shadow-lg transition-colors duration-200"
+                className="inline-flex items-center px-8 py-2.5 text-sm font-medium rounded-md text-white bg-blue-600 hover:shadow-lg transition-colors duration-200"
               >
                 Sign In
               </Link>
@@ -403,7 +403,7 @@ const ResetPasswordPage = () => {
                 type="submit"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-full flex justify-center py-4 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-light-blue to-blue-800 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+                className="w-full flex justify-center py-4 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
               >
                 {loading ? (
                   <>

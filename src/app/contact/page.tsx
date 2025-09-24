@@ -312,7 +312,7 @@ const ContactPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full md:w-auto px-4 py-3 bg-gradient-to-r from-light-blue to-blue-800 text-white font-medium rounded-sm hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    className="w-full md:w-auto px-4 py-3 bg-blue-600 text-white font-medium rounded-sm hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                   >
                     {isSubmitting ? "Sending..." : "Send Message"}
                   </button>

@@ -43,7 +43,7 @@ const Error = ({
         <div className="space-x-4">
           <button
             onClick={reset}
-            className="bg-gradient-to-r from-light-blue to-blue-800 text-white font-medium px-4 py-3 rounded-sm hover:shadow-lg transition inline-flex items-center gap-2 cursor-pointer"
+            className="bg-blue-600 text-white font-medium px-4 py-3 rounded-sm hover:shadow-lg transition inline-flex items-center gap-2 cursor-pointer"
           >
             Try Again
           </button>

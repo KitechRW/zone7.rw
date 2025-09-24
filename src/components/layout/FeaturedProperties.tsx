@@ -57,7 +57,7 @@ const FeaturedProperties: React.FC<FeaturedProps> = ({ propertyRef }) => {
     <section className="max-w-7xl mx-auto xs:px-10 lg:px-5 py-10">
       <div ref={propertyRef} className="mb-12">
         <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold">
-          <span className="bg-gradient-to-r from-blue-900 to-blue-950 bg-clip-text text-transparent">
+          <span className="bg-black bg-clip-text text-transparent">
             Featured Properties
           </span>
         </h2>

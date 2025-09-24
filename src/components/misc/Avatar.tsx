@@ -5,8 +5,10 @@ interface AvatarProps {
 const Avatar: React.FC<AvatarProps> = ({ userName }) => {
   // Generate a color based on username
   const colors = [
-    "bg-gradient-to-r from-light-blue to-blue-800",
-    "bg-gradient-to-r from-green-500 to-green-700",
+    "bg-blue-600",
+    "bg-green-600",
+    "bg-purple-600",
+    "bg-pink-600",
   ];
   const colorIndex = userName.charCodeAt(0) % colors.length;
   const bgColor = colors[colorIndex];

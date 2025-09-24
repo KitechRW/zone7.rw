@@ -215,7 +215,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
             </p>
             <button
               onClick={handleBack}
-              className="bg-gradient-to-r from-light-blue to-blue-800 text-white px-6 py-3 font-medium rounded-sm hover:shadow-lg transition-colors flex items-center gap-2 mx-auto cursor-pointer"
+              className="bg-blue-800 text-white px-6 py-3 font-medium rounded-sm hover:shadow-lg transition-colors flex items-center gap-2 mx-auto cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Properties
@@ -293,7 +293,13 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 />
 
                 <div className="absolute top-4 left-4 flex gap-2">
-                  <span className="bg-gradient-to-br from-neutral-500 to-neutral-900 px-3 py-1.5 text-xs text-white font-semibold rounded-full shadow-md">
+                  <span
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md ${
+                      currentProperty.category === "rent"
+                        ? "bg-white text-black"
+                        : "bg-blue-800"
+                    }`}
+                  >
                     {currentProperty.category === "rent"
                       ? "For Rent"
                       : "For Sale"}
@@ -454,7 +460,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                     <button
                       onClick={handleRemoveInterest}
                       disabled={removingInterest}
-                      className="flex items-center justify-self-center gap-1 bg-blue-600 text-white font-medium pb-2.5 pt-1.5 px-4 rounded-sm text-sm mt-4 hover:bg-red-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                      className="flex items-center justify-self-center gap-1 bg-blue-800 text-white font-medium pb-2.5 pt-1.5 px-4 rounded-sm text-sm mt-4 hover:bg-red-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                     >
                       {removingInterest ? (
                         <>
@@ -469,7 +475,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 ) : (
                   <button
                     onClick={placeInterest}
-                    className="flex items-center justify-center w-full bg-gradient-to-r from-light-blue to-blue-800 text-white p-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg"
+                    className="flex items-center justify-center w-full bg-blue-600 text-white p-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg"
                   >
                     <Heart className="w-5 h-5 mr-2" />
                     Place Interest

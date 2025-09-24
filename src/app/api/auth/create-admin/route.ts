@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateRequest } from "@/lib/middleware/validation.middleware";
 import { AuthController } from "@/lib/controllers/auth.controller";
-import { registerSchema } from "@/lib/schema/auth.schema";
+import { createAdminSchema } from "@/lib/schema/auth.schema";
 import { AuthMiddleware } from "@/lib/middleware/auth.middleware";
 import { ApiError } from "@/lib/utils/apiError";
 import { z } from "zod";
@@ -14,9 +14,8 @@ export const POST = async (request: NextRequest) => {
     const authError = await AuthMiddleware.requireOwner(request);
     if (authError) return authError;
 
-    await validateRequest(request, registerSchema, {
-      passwordFields: true,
-      customNoSQLRules: { password: "lenient" },
+    await validateRequest(request, createAdminSchema, {
+      passwordFields: false,
     });
 
     return await authController.createAdmin(request);

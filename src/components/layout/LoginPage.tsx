@@ -446,7 +446,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-light-blue to-blue-800 text-white py-4 rounded-sm font-medium transition-all duration-300 transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 text-white py-4 rounded-sm font-medium transition-all duration-300 transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="w-6 h-6 border-4 border-t-transparent border-l-transparent border-white justify-self-center rounded-full animate-spin"></div>

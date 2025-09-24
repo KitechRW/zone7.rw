@@ -28,11 +28,17 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           height={208}
         />
         <div className="absolute top-4 left-4">
-          <span className="bg-gradient-to-br from-neutral-500 to-neutral-900 px-3 py-1.5 text-xs text-white font-semibold rounded-full shadow-md">
+          <span
+            className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md ${
+              property.category === "rent"
+                ? "bg-white text-black"
+                : "bg-blue-800"
+            }`}
+          >
             {property.category === "rent" ? "For Rent" : "For Sale"}
           </span>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent transition-all duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent hover:from-black transition-colors duration-300" />
       </div>
 
       <div className="absolute bottom-1 w-full p-4 flex flex-col">

@@ -23,8 +23,10 @@ const InterestModal: React.FC<InterestModalProps> = ({
   );
 
   const validatePhone = (phone: string) => {
-    const phoneRegex = /^\+?[1-9]\d{8,14}$/;
-    return phoneRegex.test(phone.replace(/\s+/g, ""));
+    const normalized = phone.replace(/[\s\-()]/g, "");
+    const e164 = /^\+?[1-9]\d{8,14}$/;
+    const local = /^0\d{9}$/;
+    return e164.test(normalized) || local.test(normalized);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -159,7 +161,7 @@ const InterestModal: React.FC<InterestModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 py-3 px-4 bg-gradient-to-r from-light-blue to-blue-800 text-white rounded-sm font-medium hover:shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-sm font-medium hover:shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? (
                   <>

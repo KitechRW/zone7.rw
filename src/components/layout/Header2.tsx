@@ -116,7 +116,7 @@ const Header = () => {
             ) : (
               <button
                 onClick={login}
-                className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm text-white transition cursor-pointer"
+                className="bg-blue-600 font-medium px-4 pb-2 pt-1 rounded-sm text-white transition cursor-pointer"
               >
                 Login
               </button>
@@ -193,7 +193,7 @@ const Header = () => {
                 ) : (
                   <button
                     onClick={() => menuItemClick(login)}
-                    className="w-full bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 py-2.5 rounded-sm hover:shadow-lg transition cursor-pointer"
+                    className="w-full bg-blue-600 font-medium text-white px-4 py-2.5 rounded-sm hover:shadow-lg transition cursor-pointer"
                   >
                     Login
                   </button>

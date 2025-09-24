@@ -311,7 +311,7 @@ const PropertiesTab = () => {
 
         <button
           onClick={() => openModal("create")}
-          className="bg-gradient-to-r from-light-blue to-blue-900 text-white text-sm font-medium px-4 py-3 mb-4 mr-2 rounded-sm hover:shadow-lg transition-colors flex items-center justify-center gap-1 justify-self-end truncate cursor-pointer"
+          className="bg-blue-800 text-white text-sm font-medium px-4 py-3 mb-4 mr-2 rounded-sm hover:shadow-lg transition-colors flex items-center justify-center gap-1 justify-self-end truncate cursor-pointer"
           disabled={propertiesLoading}
         >
           Add Property

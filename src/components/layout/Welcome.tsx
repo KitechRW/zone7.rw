@@ -43,9 +43,9 @@ const Welcome: React.FC<WelcomeProps> = ({ homeRef }) => {
         />
       </div>
 
-      <div className="h-full flex flex-col items-center justify-center relative z-10">
+      <div className="h-full max-w-7xl mx-auto px-5 flex flex-col items-center justify-center relative z-10">
         <div className="flex flex-col items-center text-white max-w-2xl text-center px-5 gap-10">
-          <h1 className="xs:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+          <h1 className="xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Live The Dream
             <br />
             In Your Property
@@ -59,13 +59,13 @@ const Welcome: React.FC<WelcomeProps> = ({ homeRef }) => {
         <div className="absolute xs:bottom-5 md:bottom-24 flex xs:flex-col md:flex-row items-center xs:gap-5 md:gap-10">
           <button
             onClick={buyProperties}
-            className="xs:w-68 md:w-40 bg-gradient-to-r from-light-blue to-blue-800 hover:shadow-lg text-white px-6 py-4 rounded-sm font-semibold truncate transition-all duration-500 cursor-pointer"
+            className="xs:w-68 md:w-44 bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-lg text-white px-6 py-4 rounded-sm font-semibold truncate transition-all duration-500 cursor-pointer"
           >
             Buy Properties
           </button>
           <button
             onClick={rentHouse}
-            className="xs:w-68 md:w-40 bg-gradient-to-r from-white to-neutral-300  hover:shadow-lg text-black px-6 py-4 rounded-sm font-semibold truncate transition-all duration-500 cursor-pointer"
+            className="xs:w-68 md:w-44 bg-gradient-to-r from-white to-neutral-300  hover:shadow-lg text-black px-6 py-4 rounded-sm font-semibold truncate transition-all duration-500 cursor-pointer"
           >
             Rent a House
           </button>

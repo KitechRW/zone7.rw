@@ -182,7 +182,7 @@ const ForgotPasswordPage = () => {
               />
               <label
                 htmlFor="email"
-                className="absolute bg-white px-1 text-xs text-gray-500 transition-all left-4 -top-[9px] peer-placeholder-shown:top-5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-600 peer-focus:-top-[9px] peer-focus:text-xs peer-focus:text-light-blue cursor-text"
+                className="absolute bg-white px-1 text-xs text-gray-500 transition-all left-4 -top-[9px] peer-placeholder-shown:top-5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-500 peer-focus:-top-[9px] peer-focus:text-xs peer-focus:text-light-blue cursor-text"
               >
                 Email Address
               </label>
@@ -199,7 +199,7 @@ const ForgotPasswordPage = () => {
                 type="submit"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-full flex justify-center py-4 px-4 rounded-sm text-sm font-medium text-white bg-gradient-to-r from-light-blue to-blue-800 hover:shadow-lg  disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+                className="w-full flex justify-center py-4 px-4 rounded-sm text-sm font-medium text-white bg-blue-600 hover:shadow-lg  disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
               >
                 {loading ? (
                   <>

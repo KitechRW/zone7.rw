@@ -10,8 +10,10 @@ import { getEmailRole } from "../utils/admin";
 import { ApiError } from "../utils/apiError";
 import logger from "../utils/logger";
 import { Password } from "../utils/password";
+import { PasswordGenerator } from "../utils/passwordGenerator";
 import { UserRole } from "../utils/permission";
 import { Tokens } from "../utils/tokens";
+import { EmailService } from "./email.service";
 
 export interface UserFilters {
   role?: UserRole | "all";
@@ -153,7 +155,10 @@ export class AuthService {
     }
   }
 
-  async createAdmin(credentials: RegisterCredentials): Promise<IUser> {
+  async createAdmin(credentials: {
+    username: string;
+    email: string;
+  }): Promise<IUser> {
     try {
       await DBConnection.getInstance().connect();
 
@@ -171,12 +176,9 @@ export class AuthService {
         throw ApiError.conflict("Username already taken");
       }
 
-      const validatePassword = Password.validate(credentials.password);
-
-      if (!validatePassword.isValid)
-        throw ApiError.validationError(validatePassword.errors.join(", "));
-
-      const hashedPassword = await Password.hash(credentials.password);
+      // Generate a secure random password
+      const generatedPassword = PasswordGenerator.generate(12);
+      const hashedPassword = await Password.hash(generatedPassword);
 
       const user = new User({
         username: credentials.username.trim(),
@@ -186,7 +188,18 @@ export class AuthService {
         role: "admin",
       });
 
-      return await user.save();
+      const savedUser = await user.save();
+
+      // Send email with credentials
+      const emailService = EmailService.getInstance();
+      await emailService.sendAdminCredentials({
+        userEmail: credentials.email.toLowerCase().trim(),
+        userName: credentials.username.trim(),
+        password: generatedPassword,
+        loginUrl: `${process.env.NEXT_PUBLIC_COMPANY_URL}/auth`,
+      });
+
+      return savedUser;
     } catch (error: unknown) {
       logger.error(
         "Admin creation failed",

@@ -151,7 +151,7 @@ const Header: React.FC<HeaderProps> = ({
               ) : (
                 <button
                   onClick={login}
-                  className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm text-white transition cursor-pointer"
+                  className="bg-blue-600 font-medium px-4 pb-2 pt-1 rounded-sm text-white transition cursor-pointer"
                 >
                   Login
                 </button>
@@ -253,7 +253,7 @@ const Header: React.FC<HeaderProps> = ({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute right-0 md:hidden min-w-[40%] max-w-1/2 p-5 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-lg"
+            className="absolute right-0 md:hidden w-1/2 p-5 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-lg"
           >
             <div className="relative h-full py-5">
               <div className="space-y-4">
@@ -304,7 +304,7 @@ const Header: React.FC<HeaderProps> = ({
                 ) : (
                   <button
                     onClick={() => menuItemClick(login)}
-                    className="w-full bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 py-2.5 rounded-sm hover:shadow-lg transition cursor-pointer"
+                    className="w-full bg-blue-600 font-medium text-white px-4 py-2.5 rounded-sm hover:shadow-lg transition cursor-pointer"
                   >
                     Login
                   </button>

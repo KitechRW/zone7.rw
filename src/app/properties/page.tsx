@@ -148,7 +148,7 @@ const PropertyPage: React.FC<FeaturedProps> = ({ propertyRef }) => {
         className="max-w-7xl mx-auto mt-20 xs:px-10 lg:px-5 mb-24"
       >
         <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold py-5 mb-5">
-          <span className="bg-blue-900 bg-clip-text text-transparent">
+          <span className="bg-black bg-clip-text text-transparent">
             Property Listings
           </span>
         </h2>

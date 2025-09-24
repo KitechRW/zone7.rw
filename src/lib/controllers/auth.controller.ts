@@ -124,7 +124,9 @@ export class AuthController {
         request.headers.get("x-request-id") ||
         `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      const credentials = getValidatedData<RegisterCredentials>(request);
+      const credentials = getValidatedData<{ username: string; email: string }>(
+        request
+      );
 
       const user = await this.authService.createAdmin(credentials);
 
