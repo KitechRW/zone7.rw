@@ -103,23 +103,37 @@ const Header: React.FC<HeaderProps> = ({
               >
                 Home
               </h2>
-              <h2
-                onClick={scrollToProperties}
-                className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
-              >
-                Properties
-              </h2>
+              <Link href="/properties">
+                <h2
+                  onClick={scrollToProperties}
+                  className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
+                >
+                  Properties
+                </h2>
+              </Link>
+
               {user ? (
                 <div className="group">
                   <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
                     <Avatar userName={user.email} />
                   </button>
-                  <div className="absolute right-0 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
-                    <div className="flex flex-col items-center justify-center gap-4">
-                      <Link href="/profile">
-                        <p className="px-2 py-1 text-sm text-black font-medium truncate hover:text-cyan-600">
-                          My account
-                        </p>
+                  <div className="absolute right-5 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Link
+                        href="/profile"
+                        title="My account"
+                        className="hover:bg-black/5 rounded-md p-2 w-full"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h1 className="font-semibold text-gray-900 text-sm capitalize">
+                              {user?.username?.split("_")[0] || "User"}
+                            </h1>
+                            <p className="text-gray-500 text-xs truncate">
+                              {user?.email}
+                            </p>
+                          </div>
+                        </div>
                       </Link>
                       <button
                         onClick={logout}
@@ -137,7 +151,7 @@ const Header: React.FC<HeaderProps> = ({
               ) : (
                 <button
                   onClick={login}
-                  className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm text-white transition cursor-pointer"
+                  className="bg-blue-600 font-medium px-4 pb-2 pt-1 rounded-sm text-white transition cursor-pointer"
                 >
                   Login
                 </button>
@@ -168,23 +182,33 @@ const Header: React.FC<HeaderProps> = ({
               <h2 className="text-white font-medium hover:text-cyan-300 transition cursor-pointer">
                 Home
               </h2>
-              <h2
-                onClick={scrollToProperties}
-                className="text-white font-medium hover:text-cyan-400 transition cursor-pointer"
-              >
-                Properties
-              </h2>
+              <Link href="/properties">
+                <h2 className="text-white font-medium hover:text-cyan-300 transition cursor-pointer">
+                  Properties
+                </h2>
+              </Link>
               {user ? (
                 <div className="group">
                   <button className="relative flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
                     <Avatar userName={user.email} />
                   </button>
-                  <div className="absolute right-0 min-w-48 z-50 hidden px-5 py-4 bg-white/10 backdrop-blur-lg rounded-md shadow-lg group-hover:block">
+                  <div className="absolute right-5 min-w-48 z-50 hidden px-5 py-4 bg-black/50 backdrop-blur-lg rounded-md shadow-lg group-hover:block">
                     <div className="flex flex-col items-center justify-center gap-4">
-                      <Link href="/profile">
-                        <p className="px-2 py-1 text-sm text-white hover:text-cyan-300 truncate">
-                          My account
-                        </p>
+                      <Link
+                        href="/profile"
+                        title="My account"
+                        className="hover:bg-white/15 rounded-md p-2 w-full"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 min-w-0">
+                            <h1 className="font-semibold text-gray-100 text-sm capitalize">
+                              {user?.username?.split("_")[0] || "User"}
+                            </h1>
+                            <p className="text-gray-300 text-xs truncate">
+                              {user?.email}
+                            </p>
+                          </div>
+                        </div>
                       </Link>
                       <button
                         onClick={logout}
@@ -229,31 +253,42 @@ const Header: React.FC<HeaderProps> = ({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute right-0 md:hidden w-1/2 p-6 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-md"
+            className="absolute right-0 md:hidden w-1/2 p-5 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-lg"
           >
             <div className="relative h-full py-5">
               <div className="space-y-4">
                 <h2
                   onClick={() => menuItemClick(scrollToHome)}
-                  className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
+                  className="text-black font-medium hover:text-cyan-700 transition cursor-pointer"
                 >
                   Home
                 </h2>
-                <h2
-                  onClick={() => menuItemClick(scrollToProperties)}
-                  className="text-black font-medium hover:text-cyan-300 transition cursor-pointer"
-                >
-                  Properties
-                </h2>
+                <Link href="/properties">
+                  <h2 className="text-black font-medium hover:text-cyan-700 transition cursor-pointer">
+                    Properties
+                  </h2>
+                </Link>
               </div>
 
               <div className="absolute bottom-24 w-full">
                 {user ? (
                   <div className="flex flex-col gap-1">
-                    <Link href="/profile">
-                      <p className="font-medium hover:text-cyan-700 text-black text-center truncate mb-4">
-                        My account
-                      </p>
+                    <Link
+                      href="/profile"
+                      title="My account"
+                      className="hover:bg-black/5 rounded-md p-2 w-full"
+                    >
+                      <div className="flex items-center gap-4 mb-2">
+                        {user && <Avatar userName={user?.email} />}
+                        <div className="flex-1 min-w-0">
+                          <h1 className="font-semibold text-gray-900 text-sm capitalize">
+                            {user?.username?.split("_")[0] || "User"}
+                          </h1>
+                          <p className="text-gray-500 text-xs truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+                      </div>
                     </Link>
                     <button
                       onClick={() => menuItemClick(logout)}
@@ -269,7 +304,7 @@ const Header: React.FC<HeaderProps> = ({
                 ) : (
                   <button
                     onClick={() => menuItemClick(login)}
-                    className="bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 pb-3 pt-2 rounded-sm hover:shadow-lg transition cursor-pointer"
+                    className="w-full bg-blue-600 font-medium text-white px-4 py-2.5 rounded-sm hover:shadow-lg transition cursor-pointer"
                   >
                     Login
                   </button>

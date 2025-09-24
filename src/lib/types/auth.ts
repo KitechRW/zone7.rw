@@ -29,6 +29,25 @@ export interface RegisterCredentials {
   password: string;
 }
 
+export interface CreateAdminRequest {
+  username: string;
+  email: string;
+}
+
+export interface CreateAdminCredentials {
+  success: true;
+  message: string;
+  data: {
+    id: string;
+    username: string;
+    email: string;
+    role: string;
+    createdAt: Date;
+    emailSent: boolean;
+  };
+  requestId: string;
+}
+
 export interface AuthSession {
   user: UserData;
   tokens: AuthTokens;

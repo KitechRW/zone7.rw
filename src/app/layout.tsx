@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Lexend } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Suspense } from "react";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const lexend = Lexend({
+  variable: "--font-lexend",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Real Estate",
-  description: "Best property listing in Rwanda",
+  title: `${process.env.NEXT_PUBLIC_COMPANY_NAME}`,
+  description: "Best Property Listing in Rwanda",
 };
 
 if (typeof window === "undefined") {
@@ -28,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${outfit.variable} antialiased`}>
+    <html lang="en" className={lexend.variable}>
+      <body className={`antialiased`}>
         <Suspense fallback={<div className="min-h-screen" />}>
           <Providers>{children}</Providers>
         </Suspense>

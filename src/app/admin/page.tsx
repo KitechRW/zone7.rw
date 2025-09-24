@@ -12,8 +12,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useInterest } from "@/contexts/InterestContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Avatar from "@/components/misc/Avatar";
+import { Variants, motion } from "framer-motion";
 
 type AdminTab = "properties" | "users" | "interests";
 
@@ -30,9 +31,14 @@ const AdminDashboard = () => {
   const { stats: interestStats, fetchStats: fetchInterestStats } =
     useInterest();
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("properties");
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserName, setSelectedUserName] = useState<string>("");
   const [usersStats, setUsersStats] = useState<UserStats>({
     totalUsers: 0,
     totalAdmins: 0,
@@ -40,10 +46,29 @@ const AdminDashboard = () => {
     activeUsers: 0,
   });
 
-  const router = useRouter();
-
   const login = () => {
     router.push("/auth");
+  };
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["properties", "users", "interests"].includes(tab)) {
+      setActiveTab(tab as AdminTab);
+    } else {
+      setActiveTab("properties");
+
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set("tab", "properties");
+      window.history.replaceState({}, "", newUrl.toString());
+    }
+  }, [searchParams]);
+
+  const changeTab = (tab: AdminTab) => {
+    setActiveTab(tab);
+
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set("tab", tab);
+    window.history.pushState({}, "", newUrl.toString());
   };
 
   // Initialize data
@@ -81,13 +106,31 @@ const AdminDashboard = () => {
     authLoading,
   ]);
 
+  const sidebarVariants: Variants = {
+    collapsed: {
+      width: "5rem",
+      transition: {
+        duration: 0.2,
+      },
+    },
+    expanded: {
+      width: "18rem",
+      transition: {
+        duration: 0.2,
+      },
+    },
+  };
+
   const Sidebar = () => (
-    <div
-      className={`fixed top-0 left-0 ${
+    <motion.div
+      initial="collapsed"
+      animate={isCollapsed ? "collapsed" : "expanded"}
+      variants={sidebarVariants}
+      className={`fixed h-full top-0 left-0 ${
         isCollapsed ? "w-20" : "w-72"
-      } bg-white/50 backdrop-blur-xl shadow-sm h-full transition-all duration-300 truncate z-50`}
+      } bg-white/50 backdrop-blur-xl shadow-sm h-full transition-all duration-300 truncate z-50 group group-hover:w-72`}
     >
-      <div className="relative px-5 py-10">
+      <div className="relative px-6 py-10">
         <div className="">
           <Link href="/">
             <Image src={logoblue} alt="Logo" className="w-16" priority />
@@ -113,10 +156,8 @@ const AdminDashboard = () => {
         <nav className="absolute top-40 my-5 left-7 space-y-7">
           <button
             title="Properties"
-            onClick={() => {
-              setActiveTab("properties");
-            }}
-            className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
+            onClick={() => changeTab("properties")}
+            className={`relative w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "properties"
                 ? "text-light-blue"
                 : "text-gray-600 hover:bg-gray-100"
@@ -127,7 +168,7 @@ const AdminDashboard = () => {
             <span
               className={`${
                 isCollapsed ? "hidden" : ""
-              } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
+              } absolute -right-5 bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-[10px]`}
             >
               {PropertyStats?.totalProperties || 0}
             </span>
@@ -135,9 +176,7 @@ const AdminDashboard = () => {
 
           <button
             title="Interests"
-            onClick={() => {
-              setActiveTab("interests");
-            }}
+            onClick={() => changeTab("interests")}
             className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "interests"
                 ? "text-light-blue"
@@ -151,7 +190,7 @@ const AdminDashboard = () => {
             <span
               className={`${
                 isCollapsed ? "hidden" : ""
-              } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
+              } bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-[10px]`}
             >
               {interestStats?.total || 0}
             </span>
@@ -159,7 +198,7 @@ const AdminDashboard = () => {
 
           <button
             title="Users"
-            onClick={() => setActiveTab("users")}
+            onClick={() => changeTab("users")}
             className={`w-full flex items-center gap-3 rounded-lg text-left transition-colors cursor-pointer ${
               activeTab === "users"
                 ? "text-light-blue"
@@ -173,7 +212,7 @@ const AdminDashboard = () => {
             <span
               className={`${
                 isCollapsed ? "hidden" : ""
-              } bg-gray-200/80 text-gray-700 px-2 py-1 rounded-full text-[10px]`}
+              } bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-[10px]`}
             >
               {usersStats.totalUsers + usersStats.totalAdmins || 0}
             </span>
@@ -186,11 +225,17 @@ const AdminDashboard = () => {
             <Avatar userName={user.email} />
           ) : (
             <div className="flex flex-col gap-1">
-              <Link href="/profile">
-                <p className="font-medium hover:text-cyan-700 text-black text-center truncate mb-4">
-                  My account
-                </p>
-              </Link>
+              <div className="flex items-center gap-4 mb-5">
+                {user && <Avatar userName={user?.email} />}
+                <div className="flex-1 min-w-0">
+                  <h1 className="font-semibold text-gray-900 text-sm capitalize">
+                    {user?.username?.split("_")[0] || "User"}
+                  </h1>
+                  <p className="text-gray-500 text-xs truncate">
+                    {user?.email}
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={logout}
                 className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-black rounded transition cursor-pointer"
@@ -212,7 +257,7 @@ const AdminDashboard = () => {
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 
   const renderActiveTab = () => {
@@ -220,9 +265,26 @@ const AdminDashboard = () => {
       case "properties":
         return <PropertiesTab />;
       case "users":
-        return <UsersTab />;
+        return (
+          <UsersTab
+            onViewUserInterests={(userId: string, userName: string) => {
+              setSelectedUserId(userId);
+              setSelectedUserName(userName);
+              changeTab("interests");
+            }}
+          />
+        );
       case "interests":
-        return <InterestsTab />;
+        return (
+          <InterestsTab
+            filterByUserId={selectedUserId}
+            filterByUserName={selectedUserName}
+            onClearUserFilter={() => {
+              setSelectedUserId(null);
+              setSelectedUserName("");
+            }}
+          />
+        );
       default:
         return <PropertiesTab />;
     }

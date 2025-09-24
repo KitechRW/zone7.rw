@@ -30,7 +30,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
   const { fetchProperty, currentProperty, error, clearError } = useProperty();
-  const { createInterest, checkUserInterest } = useInterest();
+  const { createInterest, checkUserInterest, deleteInterest } = useInterest();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +42,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     interest: Interest | null;
   } | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [removingInterest, setRemovingInterest] = useState(false);
 
   useEffect(() => {
     const loadProperty = async () => {
@@ -134,6 +135,31 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     }
   };
 
+  const handleRemoveInterest = async () => {
+    const interestId = userInterest?.interest?.id || userInterest?.interest?.id;
+    if (!interestId) return;
+
+    try {
+      setRemovingInterest(true);
+
+      await deleteInterest(interestId);
+
+      // Update the user interest state
+      setUserInterest({
+        hasInterest: false,
+        interest: null,
+      });
+
+      // Show a brief success message
+      setShowSuccessMessage(true);
+      setTimeout(() => setShowSuccessMessage(false), 3000);
+    } catch (error) {
+      console.error("Failed to remove interest:", error);
+    } finally {
+      setRemovingInterest(false);
+    }
+  };
+
   if (isLoading) {
     return <Loader className="h-screen" />;
   }
@@ -142,10 +168,10 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     return (
       <div className="overflow-x-hidden">
         <Header2 />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center mt-20">
+        <div className="min-h-screen bg-platinum flex items-center justify-center mt-20">
           <div className="text-center max-w-md mx-auto p-6">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4">
-              <h2 className="text-xl font-bold text-red-800 mb-2">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-4">
+              <h2 className="text-xl font-bold text-gray-800 mb-2">
                 Error Loading Property
               </h2>
               <p className="text-red-600 mb-4">{error}</p>
@@ -155,13 +181,13 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                     clearError();
                     fetchProperty(propertyId);
                   }}
-                  className="bg-red-600 text-white px-4 py-2 rounded-sm hover:bg-red-700 transition-colors mr-2 cursor-pointer"
+                  className="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-sm hover:bg-red-700 transition-colors mr-2 cursor-pointer"
                 >
                   Try Again
                 </button>
                 <button
                   onClick={handleBack}
-                  className="bg-neutral-200 text-black border border-gray-300 px-4 py-2 rounded-sm hover:bg-neutral-300 transition-colors cursor-pointer"
+                  className="bg-neutral-200 text-sm font-medium text-black border border-gray-300 px-4 py-2 rounded-sm hover:bg-neutral-300 transition-colors cursor-pointer"
                 >
                   Go Back
                 </button>
@@ -189,7 +215,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
             </p>
             <button
               onClick={handleBack}
-              className="bg-gradient-to-r from-light-blue to-blue-800 text-white px-6 py-3 font-medium rounded-sm hover:shadow-lg transition-colors flex items-center gap-2 mx-auto cursor-pointer"
+              className="bg-blue-800 text-white px-6 py-3 font-medium rounded-sm hover:shadow-lg transition-colors flex items-center gap-2 mx-auto cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Properties
@@ -238,7 +264,9 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
         <div className="fixed top-4 right-4 z-50 bg-green-50 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
           <CheckCircle className="h-5 w-5" />
           <span className="font-medium">
-            Interest placed successfully! We&#39;ll contact you soon.
+            {userInterest?.hasInterest
+              ? "Interest placed successfully! We'll contact you soon."
+              : "Interest removed successfully."}
           </span>
         </div>
       )}
@@ -265,7 +293,13 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 />
 
                 <div className="absolute top-4 left-4 flex gap-2">
-                  <span className="bg-gradient-to-br from-neutral-500 to-neutral-900 px-3 py-1.5 text-xs text-white font-semibold rounded-full shadow-md">
+                  <span
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md ${
+                      currentProperty.category === "rent"
+                        ? "bg-white text-black"
+                        : "bg-blue-800"
+                    }`}
+                  >
                     {currentProperty.category === "rent"
                       ? "For Rent"
                       : "For Sale"}
@@ -348,13 +382,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                   <MapPin className="w-4 h-4 mr-2" />
                   <span>{currentProperty.location}</span>
                 </div>
-                <div
-                  className={`text-2xl font-bold ${
-                    currentProperty.category === "sale"
-                      ? "text-blue-600"
-                      : "text-green-500"
-                  }`}
-                >
+                <div className="text-2xl font-bold text-blue-600">
                   {currentProperty.category === "rent"
                     ? `Rwf ${currentProperty.price.toLocaleString()}/month`
                     : `Rwf ${currentProperty.price.toLocaleString()}`}
@@ -405,13 +433,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                       {currentProperty.features.map(
                         (feature: string, index: number) => (
                           <div key={index} className="flex items-center">
-                            <div
-                              className={`w-2 h-2 ${
-                                currentProperty.category === "sale"
-                                  ? "bg-blue-600"
-                                  : "bg-green-500"
-                              } rounded-full mr-3`}
-                            ></div>
+                            <div className="w-2 h-2 bg-blue-600                      rounded-full mr-3"></div>
                             <span className="text-gray-700">{feature}</span>
                           </div>
                         )
@@ -426,23 +448,34 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <div className="space-y-3">
                 {userInterest?.hasInterest ? (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                    <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                    <p className="text-green-800 font-medium mb-1">
+                  <div className="bg-blue-50 border border-light-blue/80 rounded-lg p-4 text-center">
+                    <CheckCircle className="h-8 w-8 text-light-blue mx-auto mb-2" />
+                    <p className="text-blue-600 font-medium">
                       Interest Placed!
                     </p>
-                    <p className="text-green-600 text-sm">
+                    <p className="text-gray-600 text-sm my-2">
                       We&#39;ll contact you soon regarding this property.
                     </p>
+
+                    <button
+                      onClick={handleRemoveInterest}
+                      disabled={removingInterest}
+                      className="flex items-center justify-self-center gap-1 bg-blue-800 text-white font-medium pb-2.5 pt-1.5 px-4 rounded-sm text-sm mt-4 hover:bg-red-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
+                    >
+                      {removingInterest ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Removing...
+                        </>
+                      ) : (
+                        <>Remove</>
+                      )}
+                    </button>
                   </div>
                 ) : (
                   <button
                     onClick={placeInterest}
-                    className={`flex items-center justify-center w-full bg-gradient-to-r ${
-                      currentProperty.category === "sale"
-                        ? "from-light-blue to-blue-800 hover:from-blue-600"
-                        : "from-green-500 to-green-700 hover:from-green-500"
-                    } text-white p-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg`}
+                    className="flex items-center justify-center w-full bg-blue-600 text-white p-4 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg"
                   >
                     <Heart className="w-5 h-5 mr-2" />
                     Place Interest

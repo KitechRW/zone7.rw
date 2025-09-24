@@ -82,12 +82,23 @@ const Header = () => {
                 <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
                   <Avatar userName={user.email} />
                 </button>
-                <div className="absolute right-0 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
+                <div className="absolute right-5 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
                   <div className="flex flex-col items-center justify-center gap-4">
-                    <Link href="/profile">
-                      <p className="px-2 py-1 text-sm text-black font-medium truncate hover:text-cyan-700">
-                        My account
-                      </p>
+                    <Link
+                      href="/profile"
+                      title="My account"
+                      className="hover:bg-black/5 rounded-md p-2 w-full"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h1 className="font-semibold text-gray-900 text-sm capitalize">
+                            {user?.username?.split("_")[0] || "User"}
+                          </h1>
+                          <p className="text-gray-500 text-xs truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+                      </div>
                     </Link>
                     <button
                       onClick={logout}
@@ -105,7 +116,7 @@ const Header = () => {
             ) : (
               <button
                 onClick={login}
-                className="bg-gradient-to-r from-light-blue to-blue-800 font-medium px-4 pb-2 pt-1 rounded-sm text-white transition cursor-pointer"
+                className="bg-blue-600 font-medium px-4 pb-2 pt-1 rounded-sm text-white transition cursor-pointer"
               >
                 Login
               </button>
@@ -131,47 +142,63 @@ const Header = () => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute right-0 md:hidden w-1/2 p-6 min-h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-md"
+            className="absolute right-0 md:hidden min-w-[40%] max-w-1/2 p-5 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-lg"
           >
-            <div className="relative flex flex-col gap-5">
-              <Link href="/">
-                <h2 className="text-black font-medium hover:text-cyan-700 transition cursor-pointer">
-                  Home
-                </h2>
-              </Link>
+            <div className="relative h-full py-5">
+              <div className="flex flex-col gap-4">
+                <Link href="/">
+                  <h2 className="text-black font-medium hover:text-cyan-700 transition cursor-pointer">
+                    Home
+                  </h2>
+                </Link>
 
-              <Link href="/properties">
-                <h2 className="text-black font-medium hover:text-cyan-700 transition cursor-pointer">
-                  Properties
-                </h2>
-              </Link>
+                <Link href="/properties">
+                  <h2 className="text-black font-medium hover:text-cyan-700 transition cursor-pointer">
+                    Properties
+                  </h2>
+                </Link>
+              </div>
 
-              {user ? (
-                <div className="flex flex-col gap-1">
-                  <Link href="/profile">
-                    <p className="font-medium hover:text-cyan-700 text-black truncate mb-3">
-                      My account
-                    </p>
-                  </Link>
+              <div className="absolute bottom-28 max-w-full">
+                {user ? (
+                  <div className="flex flex-col gap-1">
+                    <Link
+                      href="/profile"
+                      title="My account"
+                      className="hover:bg-black/5 rounded-md p-2 w-full"
+                    >
+                      <div className="flex items-center gap-4 mb-2">
+                        {user && <Avatar userName={user?.email} />}
+                        <div className="flex-1 min-w-0">
+                          <h1 className="font-semibold text-gray-900 text-sm capitalize">
+                            {user?.username?.split("_")[0] || "User"}
+                          </h1>
+                          <p className="text-gray-500 text-xs truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                    <button
+                      onClick={() => menuItemClick(logout)}
+                      className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-black rounded transition cursor-pointer"
+                    >
+                      {authLoading ? (
+                        <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin truncate" />
+                      ) : (
+                        "Logout"
+                      )}
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    onClick={() => menuItemClick(logout)}
-                    className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-black rounded transition cursor-pointer"
+                    onClick={() => menuItemClick(login)}
+                    className="w-full bg-blue-600 font-medium text-white px-4 py-2.5 rounded-sm hover:shadow-lg transition cursor-pointer"
                   >
-                    {authLoading ? (
-                      <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent border-b-transparent border-l-transparent animate-spin justify-self-center" />
-                    ) : (
-                      "Logout"
-                    )}
+                    Login
                   </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => menuItemClick(login)}
-                  className="bg-gradient-to-r from-light-blue to-blue-800 font-medium text-white px-4 pb-3 pt-2 rounded-sm hover:shadow-lg transition cursor-pointer"
-                >
-                  Login
-                </button>
-              )}
+                )}
+              </div>
             </div>
           </motion.nav>
         )}

@@ -46,7 +46,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         <button>
           <Link
             href="/"
-            className="bg-gradient-to-r from-light-blue to-blue-800 text-white px-6 py-2.5 rounded-sm font-medium hover:shadow-lg transition inline-flex items-center gap-2"
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-sm font-medium hover:shadow-lg transition inline-flex items-center gap-2"
           >
             Go Home
           </Link>

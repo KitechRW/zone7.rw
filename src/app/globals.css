@@ -14,6 +14,11 @@
   --font-sans: var(--font-outfit);
   --font-mono: var(--font-geist-mono);
 
+  --font-sans: var(
+    --font-lexend,
+    var(--font-outfit, system-ui, "Segoe UI", "Helvetica Neue", Arial)
+  );
+
   --breakpoint-xs: 200px;
   --breakpoint-sm: 410px;
   --breakpoint-md: 768px;

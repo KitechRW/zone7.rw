@@ -45,7 +45,7 @@ const Dropdown = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-20 p-2 text-left bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
+        className="xs:w-28 md:w-40 lg:w-20 p-2 text-left bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
       >
         <span
           className={`truncate text-xs ${
@@ -62,7 +62,7 @@ const Dropdown = ({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-20 bg-white border border-gray-300 rounded-b-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 xs:w-28 md:w-40 lg:w-20 bg-white border border-gray-300 rounded-b-lg max-h-60 overflow-auto">
           {options.map((option) => (
             <button
               key={option.value}

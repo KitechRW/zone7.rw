@@ -311,10 +311,8 @@ export class InterestService {
     try {
       await DBConnection.getInstance().connect();
 
-      // Get interests for specific user
-      const matchConditions = { userId };
-
-      const interests = await Interest.find(matchConditions)
+      // Get interests for specific user only
+      const interests = await Interest.find({ userId: userId })
         .lean<LeanInterest[]>()
         .sort({ createdAt: -1 });
 
@@ -326,6 +324,7 @@ export class InterestService {
         };
       }
 
+      // Get user details
       const user = await User.findById(userId)
         .select("username email")
         .lean<LeanUser>();

@@ -39,15 +39,18 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
                   About Us
                 </li>
               </Link>
-              <li className="text-gray-400 hover:text-white transition">
-                Contact
-              </li>
+
+              <Link href="/contact">
+                <li className="text-gray-400 hover:text-white transition">
+                  Contact
+                </li>
+              </Link>
             </ul>
           </div>
 
           <div className="w-52">
-            <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
-            <address className="not-italic text-gray-400">
+            <h3 className="text-xl font-semibold mb-4">Address</h3>
+            <address className="not-italic text-gray-400 space-y-1">
               <p>KG Ave 123</p>
               <p>Giporoso, Kigali</p>
               <p>info@realestate.com</p>
@@ -58,7 +61,8 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
           <p>
-            &copy; {new Date().getFullYear()} Real Estate. All rights reserved.
+            &copy; {new Date().getFullYear()}{" "}
+            {process.env.NEXT_PUBLIC_COMPANY_NAME}. All rights reserved.
           </p>
         </div>
       </div>

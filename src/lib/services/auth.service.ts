@@ -10,8 +10,10 @@ import { getEmailRole } from "../utils/admin";
 import { ApiError } from "../utils/apiError";
 import logger from "../utils/logger";
 import { Password } from "../utils/password";
+import { PasswordGenerator } from "../utils/passwordGenerator";
 import { UserRole } from "../utils/permission";
 import { Tokens } from "../utils/tokens";
+import { EmailService } from "./email.service";
 
 export interface UserFilters {
   role?: UserRole | "all";
@@ -153,6 +155,69 @@ export class AuthService {
     }
   }
 
+  async createAdmin(credentials: {
+    username: string;
+    email: string;
+  }): Promise<IUser> {
+    try {
+      await DBConnection.getInstance().connect();
+
+      const existingUser = await User.findOne({
+        $or: [
+          { email: credentials.email.toLowerCase() },
+          { username: credentials.username },
+        ],
+      });
+
+      if (existingUser) {
+        if (existingUser.email === credentials.email.toLowerCase()) {
+          throw ApiError.conflict("This email is already registered");
+        }
+        throw ApiError.conflict("Username already taken");
+      }
+
+      // Generate a secure random password
+      const generatedPassword = PasswordGenerator.generate(12);
+      const hashedPassword = await Password.hash(generatedPassword);
+
+      const user = new User({
+        username: credentials.username.trim(),
+        email: credentials.email.toLowerCase().trim(),
+        password: hashedPassword,
+        provider: "credentials",
+        role: "admin",
+      });
+
+      const savedUser = await user.save();
+
+      // Send email with credentials
+      const emailService = EmailService.getInstance();
+      await emailService.sendAdminCredentials({
+        userEmail: credentials.email.toLowerCase().trim(),
+        userName: credentials.username.trim(),
+        password: generatedPassword,
+        loginUrl: `${process.env.NEXT_PUBLIC_COMPANY_URL}/auth`,
+      });
+
+      return savedUser;
+    } catch (error: unknown) {
+      logger.error(
+        "Admin creation failed",
+        error instanceof Error && error.message
+      );
+
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      if (error instanceof Error && error.name?.includes("Mongo")) {
+        throw ApiError.internalServer("Database error during admin creation");
+      }
+
+      throw ApiError.internalServer("Admin creation failed");
+    }
+  }
+
   private async generateTokens(userId: string): Promise<AuthTokens> {
     const accessToken = await Tokens.createAccessToken(
       { userId, type: "access" },
@@ -228,7 +293,7 @@ export class AuthService {
             $each: [
               { token, expiresAt, userAgent, device, createdAt: new Date() },
             ],
-            $slice: -10,
+            $slice: -3,
           },
         },
       }
@@ -283,9 +348,19 @@ export class AuthService {
   async isUserAdmin(userId: string): Promise<boolean> {
     try {
       const user = await this.getUserById(userId);
-      return user?.role === UserRole.ADMIN;
+      return user?.role === UserRole.ADMIN || user?.role === UserRole.OWNER;
     } catch (error) {
       logger.error("Admin check failed:", error);
+      return false;
+    }
+  }
+
+  async isUserOwner(userId: string): Promise<boolean> {
+    try {
+      const user = await this.getUserById(userId);
+      return user?.role === UserRole.OWNER;
+    } catch (error) {
+      logger.error("Owner check failed:", error);
       return false;
     }
   }
@@ -324,49 +399,121 @@ export class AuthService {
       }
 
       const skip = (page - 1) * limit;
-      const sort: Record<string, 1 | -1> = {};
-      sort[sortBy] = sortOrder === "desc" ? -1 : 1;
 
-      const [users, total] = await Promise.all([
-        User.find(query)
-          .select("-password -refreshTokens")
-          .sort(sort)
-          .skip(skip)
-          .limit(limit),
-        User.countDocuments(query),
-      ]);
-
-      return {
-        users,
-        total,
-        pages: Math.ceil(total / limit),
+      const rolePriority: Record<string, number> = {
+        owner: 0,
+        admin: 1,
+        user: 2,
       };
+
+      // For default sorting
+      if (
+        (!filters.search && sortBy === "createdAt" && sortOrder === "desc") ||
+        sortBy === "role"
+      ) {
+        const allUsers = await User.find(query).select(
+          "-password -refreshTokens"
+        );
+
+        // Custom sort function
+        allUsers.sort((a: IUser, b: IUser) => {
+          if (
+            sortBy === "role" ||
+            (!filters.search && sortBy === "createdAt" && sortOrder === "desc")
+          ) {
+            const roleA = rolePriority[a.role] ?? 3;
+            const roleB = rolePriority[b.role] ?? 3;
+
+            if (sortBy === "role") {
+              if (sortOrder === "asc") {
+                if (roleA !== roleB) return roleA - roleB;
+              } else {
+                if (roleA !== roleB) return roleB - roleA;
+              }
+              // Secondary sort by username for same roles
+              return a.username.localeCompare(b.username);
+            } else {
+              if (roleA !== roleB) {
+                return roleA - roleB; // Always owner first for default
+              }
+              return (
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+              );
+            }
+          }
+
+          // Fallback (shouldn't reach here in this branch)
+          return 0;
+        });
+
+        // Apply pagination
+        const users = allUsers.slice(skip, skip + limit);
+        const total = allUsers.length;
+
+        return {
+          users,
+          total,
+          pages: Math.ceil(total / limit),
+        };
+      } else {
+        // For other sorts, use MongoDB sorting
+        const sort: Record<string, 1 | -1> = {};
+        sort[sortBy] = sortOrder === "desc" ? -1 : 1;
+
+        const [users, total] = await Promise.all([
+          User.find(query)
+            .select("-password -refreshTokens")
+            .sort(sort)
+            .skip(skip)
+            .limit(limit),
+          User.countDocuments(query),
+        ]);
+
+        return {
+          users,
+          total,
+          pages: Math.ceil(total / limit),
+        };
+      }
     } catch (error) {
       logger.error("Get all users failed:", error);
       throw ApiError.internalServer("Failed to fetch users");
     }
   }
 
-  async deleteUser(userId: string): Promise<boolean> {
+  async deleteUser(userId: string, requesterId: string): Promise<boolean> {
     try {
       await DBConnection.getInstance().connect();
 
-      // const isAdmin = await this.isUserAdmin(adminId);
-      // if (!isAdmin) {
-      //   throw ApiError.forbidden("Admin access required");
-      // }
+      const requester = await this.getUserById(requesterId);
+      if (!requester || !this.isUserAdmin(requesterId)) {
+        throw ApiError.forbidden("Admin access required");
+      }
 
-      // if (userId === adminId) {
-      //   throw ApiError.badRequest("Cannot delete your own account");
-      // }
+      if (userId === requesterId) {
+        throw ApiError.badRequest("Cannot delete your own account");
+      }
 
       const user = await User.findById(userId);
       if (!user) {
         throw ApiError.notFound("User not found");
       }
 
-      if (user.role === UserRole.ADMIN) {
-        throw ApiError.badRequest("Cannot delete another admin account");
+      if (
+        (user.role === UserRole.ADMIN || user.role === UserRole.OWNER) &&
+        requester.role !== UserRole.OWNER
+      ) {
+        throw ApiError.badRequest(
+          "Only owners can delete admin or owner accounts"
+        );
+      }
+
+      if (user.role === UserRole.OWNER) {
+        const ownerCount = await User.countDocuments({ role: UserRole.OWNER });
+        if (ownerCount <= 1) {
+          throw ApiError.badRequest("Cannot delete the last owner account");
+        }
       }
 
       await User.findByIdAndDelete(userId);
@@ -385,6 +532,7 @@ export class AuthService {
   async getUserStats(): Promise<{
     totalUsers: number;
     totalAdmins: number;
+    totalOwners: number;
     recentRegistrations: number;
     activeUsers: number;
   }> {
@@ -395,17 +543,24 @@ export class AuthService {
       const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
       const lastMonth = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-      const [totalUsers, totalAdmins, recentRegistrations, activeUsers] =
-        await Promise.all([
-          User.countDocuments({ role: UserRole.USER }),
-          User.countDocuments({ role: UserRole.ADMIN }),
-          User.countDocuments({ createdAt: { $gte: lastWeek } }),
-          User.countDocuments({ lastLoginAt: { $gte: lastMonth } }),
-        ]);
+      const [
+        totalUsers,
+        totalAdmins,
+        totalOwners,
+        recentRegistrations,
+        activeUsers,
+      ] = await Promise.all([
+        User.countDocuments({ role: UserRole.USER }),
+        User.countDocuments({ role: UserRole.ADMIN }),
+        User.countDocuments({ role: UserRole.OWNER }),
+        User.countDocuments({ createdAt: { $gte: lastWeek } }),
+        User.countDocuments({ lastLoginAt: { $gte: lastMonth } }),
+      ]);
 
       return {
         totalUsers,
         totalAdmins,
+        totalOwners,
         recentRegistrations,
         activeUsers,
       };
@@ -423,9 +578,43 @@ export class AuthService {
     try {
       await DBConnection.getInstance().connect();
 
-      const isAdmin = await this.isUserAdmin(requesterId);
-      if (!isAdmin) {
+      const requester = await this.getUserById(requesterId);
+      if (!requester) {
+        throw ApiError.notFound("Requester not found");
+      }
+
+      const targetUser = await User.findById(userId);
+      if (!targetUser) {
+        throw ApiError.notFound("User not found");
+      }
+
+      const isRequesterOwner = requester.role === UserRole.OWNER;
+      const isRequesterAdmin =
+        requester.role === UserRole.ADMIN || isRequesterOwner;
+
+      if (!isRequesterAdmin) {
         throw ApiError.forbidden("Admin access required");
+      }
+
+      if (
+        (role === UserRole.ADMIN ||
+          role === UserRole.OWNER ||
+          targetUser.role === UserRole.ADMIN ||
+          targetUser.role === UserRole.OWNER) &&
+        !isRequesterOwner
+      ) {
+        throw ApiError.forbidden("Only owners can manage admin or owner roles");
+      }
+
+      if (
+        userId === requesterId &&
+        requester.role === UserRole.OWNER &&
+        role !== UserRole.OWNER
+      ) {
+        const ownerCount = await User.countDocuments({ role: UserRole.OWNER });
+        if (ownerCount <= 1) {
+          throw ApiError.badRequest("Cannot demote the only owner");
+        }
       }
 
       const user = await User.findByIdAndUpdate(
@@ -457,7 +646,7 @@ export class AuthService {
     try {
       await DBConnection.getInstance().connect();
 
-      const allowedUpdates = ["username", "image"]; // Add other allowed fields
+      const allowedUpdates = ["username", "image"];
       const filteredUpdates: Record<string, unknown> = {};
 
       for (const key of allowedUpdates) {

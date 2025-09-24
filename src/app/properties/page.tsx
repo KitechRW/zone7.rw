@@ -12,11 +12,11 @@ import Header2 from "@/components/layout/Header2";
 import Footer2 from "@/components/layout/Footer2";
 import { PropertyFilters } from "@/types/Properties";
 
-interface ListingsProps {
+interface FeaturedProps {
   propertyRef: RefObject<HTMLDivElement | null>;
 }
 
-const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
+const PropertyPage: React.FC<FeaturedProps> = ({ propertyRef }) => {
   const {
     activeFilters,
     searchQuery,
@@ -139,13 +139,16 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
     searchQuery.trim();
 
   return pageLoading ? (
-    <Loader className="min-h-screen" />
+    <Loader className="h-screen" />
   ) : (
     <section className="overflow-x-hidden">
       <Header2 />
-      <div ref={propertyRef} className="max-w-7xl mx-auto mt-20 p-5 mb-24">
-        <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold mb-5">
-          <span className="bg-gradient-to-r from-blue-800 to-blue-950 bg-clip-text text-transparent">
+      <div
+        ref={propertyRef}
+        className="max-w-7xl mx-auto mt-20 xs:px-10 lg:px-5 mb-24"
+      >
+        <h2 className="xs:text-4xl md:text-5xl lg:text-6xl text-center font-bold py-5 mb-5">
+          <span className="bg-black bg-clip-text text-transparent">
             Property Listings
           </span>
         </h2>
@@ -154,14 +157,14 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
         </p>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-sm mb-6 text-center">
+          <div className="bg-gray-50 border border-gray-200 text-red-800 px-4 py-5 rounded-sm mb-6 text-center">
             <p>{error}</p>
             <button
               onClick={() => {
                 clearError();
                 fetchProperties({}, currentPage, 12);
               }}
-              className="mt-2 text-red-600 hover:text-red-800 underline"
+              className="bg-red-600 text-white text-sm font-medium px-4 py-2 rounded-sm hover:bg-red-700 transition-colors mt-2 mr-2 cursor-pointer"
             >
               Try again
             </button>
@@ -171,7 +174,7 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
         <div className="flex xs:flex-col md:flex-row items-center justify-center gap-4 mb-4">
           <button
             onClick={toggleFilter}
-            className="xs:flex lg:hidden xs:w-full items-center justify-center gap-2 bg-neutral-100 text-blue-600 text-sm border-2 border-gray-400/70 px-4 py-3 rounded-sm font-medium hover:bg-neutral-200/50 cursor-pointer transition"
+            className="xs:flex lg:hidden xs:w-full items-center justify-center gap-2 bg-neutral-100 text-blue-600 text-sm border-2 border-gray-300 px-4 py-3 rounded-sm font-medium hover:bg-neutral-200/50 cursor-pointer transition"
           >
             <Filter className="w-4 h-4" />
             Filters
@@ -282,13 +285,12 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
           <>
             <PropertyGrid properties={properties} />
 
-            {/* Pagination */}
             {pagination.pages > 1 && (
               <div className="flex justify-center items-center mt-12 space-x-2">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1 || propertiesLoading}
-                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Previous
                 </button>
@@ -298,10 +300,10 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
                     key={index}
                     onClick={() => handlePageChange(index + 1)}
                     disabled={propertiesLoading}
-                    className={`px-4 py-2 text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`px-4 py-2 text-sm font-medium rounded-md disabled:opacity-50 border  disabled:cursor-not-allowed cursor-pointer ${
                       currentPage === index + 1
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                        ? "bg-blue-50 border-light-blue text-light-blue"
+                        : "text-gray-700 bg-white  border-gray-300 hover:bg-gray-100"
                     }`}
                   >
                     {index + 1}
@@ -313,7 +315,7 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
                   disabled={
                     currentPage === pagination.pages || propertiesLoading
                   }
-                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   Next
                 </button>
@@ -323,21 +325,6 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
         ) : (
           <div className="text-center py-16">
             <div className="max-w-md mx-auto bg-gray-50 border border-gray-200 rounded-lg p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-gray-200 rounded-full">
-                <svg
-                  className="w-6 h-6 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-              </div>
               <h3 className="text-lg font-medium text-gray-800 mb-2">
                 No Properties Found
               </h3>
@@ -349,7 +336,7 @@ const PropertyPage: React.FC<ListingsProps> = ({ propertyRef }) => {
               {hasActiveFilters && (
                 <button
                   onClick={clearAllFilters}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-light-blue hover:text-blue-600 font-medium cursor-pointer"
                 >
                   Clear all filters
                 </button>

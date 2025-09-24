@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Home, Shield, Award, Heart, MapPinHouse, Phone } from "lucide-react";
+import { Home, Shield, Award, Heart, MapPinHouse } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import CountUp from "react-countup";
+import Link from "next/link";
 
 const Benefits = () => {
   const [count, setCount] = useState(false);
@@ -17,8 +18,8 @@ const Benefits = () => {
   }, [inView]);
 
   const stats = [
-    { number: 150, label: "Happy Clients", icon: Heart },
-    { number: 500, label: "Properties Sold", icon: Home },
+    { number: 1500, label: "Happy Clients", icon: Heart },
+    { number: 900, label: "Properties Sold", icon: Home },
     { number: 6, label: "Years Experience", icon: Award },
   ];
 
@@ -27,8 +28,8 @@ const Benefits = () => {
       <div className="max-w-7xl mx-auto xs:px-10 lg:px-5 text-center mb-16">
         <h2 className="xs:text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
           With&nbsp;
-          <span className="bg-gradient-to-r from-light-blue to-blue-800 bg-clip-text text-transparent">
-            Real Estate
+          <span className="bg-blue-800 bg-clip-text text-transparent">
+            {process.env.NEXT_PUBLIC_COMPANY_NAME}
           </span>{" "}
           Your Dream Home Awaits You
         </h2>
@@ -96,10 +97,10 @@ const Benefits = () => {
         </motion.div>
       </div>
 
-      <div className="bg-gradient-to-r from-light-blue/20 to-green-300/20 p-10 mb-10 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-light-blue/10 to-white/20 p-10 mb-10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="relative z-10">
-            <h3 className="text-3xl font-bold text-black text-center mb-12">
+          <div className="relative py-5 z-10">
+            <h3 className="xs:text-4xl md:text-5xl font-bold text-black text-center mb-16">
               Trusted by Hundreds of Satisfied Clients
             </h3>
 
@@ -134,10 +135,10 @@ const Benefits = () => {
             </div>
           </div>
 
-          <div className="absolute top-10 left-5 w-6 h-6 bg-light-blue/20 rounded-full animate-pulse" />
-          <div className="absolute top-28 left-10 w-12 h-12 bg-light-blue/20 rounded-full animate-pulse" />
-          <div className="absolute bottom-10 right-10 w-4 h-4 bg-green-200  rounded-full animate-pulse delay-300" />
-          <div className="absolute bottom-20 right-20 w-8 h-8 bg-green-200 rounded-full animate-pulse delay-700" />
+          <div className="absolute top-10 left-5 w-6 h-3 bg-light-blue/10 rounded-full animate-spin" />
+          <div className="absolute top-28 left-10 w-12 h-12 bg-light-blue/10 rounded-full animate-bounce" />
+          <div className="absolute bottom-10 right-10 w-6 h-3 bg-gray-300  rounded-full animate-spin delay-300" />
+          <div className="absolute bottom-20 right-20 rotate-12 w-10 h-10 bg-gray-200 rounded-full animate-bounce delay-700" />
         </div>
       </div>
 
@@ -149,14 +150,16 @@ const Benefits = () => {
 
           <p className="text-black italic xs:text-lg md:text-xl mb-10 max-w-2xl mx-auto">
             Join hundreds of satisfied clients who found their dream properties
-            with Real Estate. Your journey starts with a single click.
+            with {process.env.NEXT_PUBLIC_COMPANY_NAME}. Your journey starts
+            with a single click.
           </p>
 
           <div className="flex justify-center">
-            <button className="bg-gradient-to-br from-gray-600 to-gray-800 text-white px-10 py-5 rounded-sm font-semibold flex items-center justify-center hover:shadow-lg transition cursor-pointer">
-              <Phone className="w-5 h-5 mr-3" />
-              Contact The Agent
-            </button>
+            <Link href={"/properties"}>
+              <button className="bg-gradient-to-br from-gray-600 to-gray-800 text-white px-10 py-5 rounded-sm font-semibold flex items-center justify-center hover:shadow-lg transition cursor-pointer">
+                Get Started
+              </button>
+            </Link>
           </div>
         </div>
       </div>

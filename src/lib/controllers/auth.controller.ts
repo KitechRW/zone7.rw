@@ -5,7 +5,7 @@ import { ApiError } from "../utils/apiError";
 import { ErrorMiddleware } from "../middleware/error.middleware";
 import { RateLimitMiddleware } from "../middleware/rateLimit.middleware";
 import { getValidatedData } from "../middleware/validation.middleware";
-import { UserRole } from "../utils/permission";
+import { UserRole, isOwner, isAdminOrOwner } from "../utils/permission";
 import { AuthMiddleware } from "../middleware/auth.middleware";
 import { IUser } from "../db/models/user.model";
 
@@ -55,6 +55,7 @@ export class AuthController {
             username: user.username,
             email: user.email,
             provider: user.provider,
+            role: user.role,
           },
         },
         { status: 201 }
@@ -74,10 +75,8 @@ export class AuthController {
       });
       rateLimiter(request);
 
-      //Vvalidated data from the validation middleware
       const credentials = getValidatedData<LoginCredentials>(request);
 
-      // Get user agent and device info
       const userAgent = request.headers.get("user-agent") || "";
       const device = this.extractDeviceInfo(userAgent);
 
@@ -87,7 +86,6 @@ export class AuthController {
         device
       );
 
-      // Set refresh token as httpOnly cookie
       const response = NextResponse.json(
         {
           success: true,
@@ -99,6 +97,7 @@ export class AuthController {
               username: user.username,
               email: user.email,
               provider: user.provider,
+              role: user.role,
             },
             accessToken: tokens.accessToken,
             expiresAt: tokens.accessTokenExpires,
@@ -107,7 +106,6 @@ export class AuthController {
         { status: 200 }
       );
 
-      // Set refresh token as secure httpOnly cookie
       response.cookies.set("refresh-token", tokens.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -117,6 +115,37 @@ export class AuthController {
       });
 
       return response;
+    }
+  );
+
+  createAdmin = ErrorMiddleware.catchAsync(
+    async (request: NextRequest): Promise<NextResponse> => {
+      const requestId =
+        request.headers.get("x-request-id") ||
+        `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const credentials = getValidatedData<{ username: string; email: string }>(
+        request
+      );
+
+      const user = await this.authService.createAdmin(credentials);
+
+      return NextResponse.json(
+        {
+          success: true,
+          requestId,
+          message: "Admin user created successfully",
+          data: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            provider: user.provider,
+            role: user.role,
+            createdAt: user.createdAt,
+          },
+        },
+        { status: 201 }
+      );
     }
   );
 
@@ -149,7 +178,6 @@ export class AuthController {
         { status: 200 }
       );
 
-      // Update refresh token cookie
       response.cookies.set("refresh-token", tokens.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -183,7 +211,6 @@ export class AuthController {
         { status: 200 }
       );
 
-      // Clear refresh token cookie
       response.cookies.set("refresh-token", "", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -211,7 +238,6 @@ export class AuthController {
         );
       }
 
-      // Get user data
       const user = await this.authService.getUserById(userId);
 
       if (!user) {
@@ -352,10 +378,41 @@ export class AuthController {
       if (authError) return authError;
 
       const requesterId = request.headers.get("x-user-id")!;
+      const requesterRole = request.headers.get("x-user-role") as UserRole;
       const { role } = await request.json();
 
       if (!role || !Object.values(UserRole).includes(role)) {
         throw ApiError.badRequest("Invalid role");
+      }
+
+      const targetUser = await this.authService.getUserById(context.params.id);
+      if (!targetUser) {
+        throw ApiError.notFound("User not found");
+      }
+
+      if (role === UserRole.ADMIN || role === UserRole.OWNER) {
+        if (!isOwner(requesterRole)) {
+          throw ApiError.forbidden(
+            "Only owners can promote users to admin or owner roles"
+          );
+        }
+      }
+
+      if (
+        targetUser.role === UserRole.ADMIN ||
+        targetUser.role === UserRole.OWNER
+      ) {
+        if (!isOwner(requesterRole)) {
+          throw ApiError.forbidden(
+            "Only owners can modify admin or owner roles"
+          );
+        }
+      }
+
+      if (role === UserRole.OWNER) {
+        throw ApiError.badRequest(
+          "Owner role assignment requires special authorization"
+        );
       }
 
       const user = await this.authService.updateUserRole(
@@ -380,10 +437,12 @@ export class AuthController {
       request: NextRequest,
       context: RouteContext
     ): Promise<NextResponse> => {
-      const authError = await AuthMiddleware.requireAuth(request);
+      const authError = await AuthMiddleware.requireAdmin(request);
       if (authError) return authError;
 
-      await this.authService.deleteUser(context.params.id);
+      const requesterId = request.headers.get("x-user-id")!;
+
+      await this.authService.deleteUser(context.params.id, requesterId);
 
       return NextResponse.json(
         {
@@ -406,7 +465,7 @@ export class AuthController {
       const userRole = request.headers.get("x-user-role") as UserRole;
       const userId = request.headers.get("x-user-id");
 
-      if (userRole !== UserRole.ADMIN && context.params.id !== userId) {
+      if (!isAdminOrOwner(userRole) && context.params.id !== userId) {
         throw ApiError.forbidden("Access denied");
       }
 
@@ -452,6 +511,11 @@ export class AuthController {
 
       const userId = request.headers.get("x-user-id")!;
       const updates = await request.json();
+
+      //Prevent role changes through profile update
+      if (updates.role) {
+        delete updates.role;
+      }
 
       const user = await this.authService.updateUserProfile(userId, updates);
 

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
 import Loader from "../misc/Loader";
+import { UserRole } from "@/lib/utils/permission";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -150,8 +151,16 @@ const LoginPage = () => {
           });
 
           if (result?.ok) {
-            await getSession();
-            router.push("/");
+            const session = await getSession();
+
+            if (
+              session?.user.role === UserRole.OWNER ||
+              session?.user.role === UserRole.ADMIN
+            ) {
+              router.push("/admin");
+            } else {
+              router.push("/");
+            }
           } else {
             setRedirecting(false);
             setLoginState("login");
@@ -181,8 +190,16 @@ const LoginPage = () => {
           setError("Invalid email or password");
         } else {
           setRedirecting(true);
-          await getSession();
-          router.push("/");
+
+          const session = await getSession();
+          if (
+            session?.user.role === UserRole.OWNER ||
+            session?.user.role === UserRole.ADMIN
+          ) {
+            router.push("/admin");
+          } else {
+            router.push("/");
+          }
         }
       }
     } catch (error) {
@@ -234,14 +251,9 @@ const LoginPage = () => {
 
   if (redirecting) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center">
         <div className="flex flex-col items-center">
-          <Loader className="h-12 w-12 justify-self-center mr-16 mb-4" />
-          <p className="text-gray-600">
-            {loginState === "register"
-              ? "Registration successful..."
-              : "Login successful..."}
-          </p>
+          <Loader className="h-12 w-12 justify-self-center mb-4" />
         </div>
       </div>
     );
@@ -422,17 +434,19 @@ const LoginPage = () => {
             )}
 
             <div className="flex items-center justify-between">
-              {loginState === "login" && error && (
-                <p className="text-sm text-light-blue hover:text-blue-800 transition-colors cursor-pointer">
-                  Forgot password?
-                </p>
+              {loginState === "login" && (
+                <Link href="/auth/forgot-password">
+                  <p className="text-sm text-light-blue hover:text-blue-800 transition-colors cursor-pointer">
+                    Forgot password?
+                  </p>
+                </Link>
               )}
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-light-blue to-blue-800 text-white py-4 rounded-sm font-medium transition-all duration-300 transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 text-white py-4 rounded-sm font-medium transition-all duration-300 transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="w-6 h-6 border-4 border-t-transparent border-l-transparent border-white justify-self-center rounded-full animate-spin"></div>

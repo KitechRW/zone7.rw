@@ -31,6 +31,11 @@ interface InterestContextType {
     limit?: number
   ) => Promise<{ interests: Interest[]; total: number; pages: number }>;
   createInterest: (data: CreateInterestData) => Promise<Interest>;
+  fetchUserInterests: (userId: string) => Promise<{
+    interests: Interest[];
+    total: number;
+    pages: number;
+  }>;
   updateInterestStatus: (
     id: string,
     status: "new" | "contacted" | "closed"
@@ -43,6 +48,7 @@ interface InterestContextType {
   }>;
 
   clearError: () => void;
+  clearInterests: () => void;
 }
 
 const InterestContext = createContext<InterestContextType | undefined>(
@@ -141,6 +147,21 @@ class InterestAPI {
     return result.data.stats;
   }
 
+  static async getUserInterests(userId: string): Promise<{
+    interests: Interest[];
+    total: number;
+    pages: number;
+  }> {
+    const response = await fetch(`/api/interests/user?userId=${userId}`);
+    const result = await this.handleResponse(response);
+
+    return {
+      interests: result.data.interests || result.data,
+      total: result.data.total || result.data.length || 0,
+      pages: 1, // User interests might not be paginated
+    };
+  }
+
   static async checkUserInterest(propertyId: string): Promise<{
     hasInterest: boolean;
     interest: Interest | null;
@@ -149,6 +170,10 @@ class InterestAPI {
       `/api/interests/check?propertyId=${propertyId}`
     );
     const result = await this.handleResponse(response);
+
+    if (result.data.interest) {
+      result.data.interest.id = result.data.interest._id;
+    }
     return result.data;
   }
 }
@@ -224,6 +249,60 @@ export const InterestProvider: React.FC<{ children: ReactNode }> = ({
         return newInterest;
       } catch (err) {
         handleError(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [clearError, handleError]
+  );
+
+  const fetchUserInterests = useCallback(
+    async (userId: string) => {
+      try {
+        setLoading(true);
+        clearError();
+
+        // Clear existing interests first
+        setInterests([]);
+        setPagination({
+          total: 0,
+          pages: 0,
+          currentPage: 1,
+        });
+
+        // Make sure to pass the userId as a query parameter
+        const response = await fetch(`/api/interests/user?userId=${userId}`);
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(
+            error.message || error.error || "Failed to fetch user interests"
+          );
+        }
+
+        const result = await response.json();
+
+        // Extract the interests data properly
+        const interests = result.data.interests || [];
+        const total = result.data.total || interests.length || 0;
+        const pages = result.data.pages || (total > 0 ? 1 : 0);
+
+        setInterests(interests);
+        setPagination({
+          total,
+          pages,
+          currentPage: 1,
+        });
+
+        return {
+          interests,
+          total,
+          pages,
+        };
+      } catch (err) {
+        handleError(err);
+        setInterests([]);
         throw err;
       } finally {
         setLoading(false);
@@ -312,6 +391,11 @@ export const InterestProvider: React.FC<{ children: ReactNode }> = ({
     [clearError, handleError]
   );
 
+  const clearInterests = useCallback(() => {
+    setInterests([]);
+    setPagination({ total: 0, pages: 0, currentPage: 1 });
+  }, []);
+
   const value: InterestContextType = {
     interests,
     loading,
@@ -321,12 +405,14 @@ export const InterestProvider: React.FC<{ children: ReactNode }> = ({
 
     fetchInterests,
     createInterest,
+    fetchUserInterests,
     updateInterestStatus,
     deleteInterest,
     fetchStats,
     checkUserInterest,
 
     clearError,
+    clearInterests,
   };
 
   return (

@@ -10,13 +10,31 @@ import {
   Eye,
   Trash2,
   RotateCcw,
+  ChevronDown,
+  CheckCircle,
 } from "lucide-react";
 import { useInterest } from "@/contexts/InterestContext";
 import SearchBar from "../misc/SearchBar";
 
+interface InterestsTabProps {
+  filterByUserId?: string | null;
+  filterByUserName?: string;
+  onClearUserFilter?: () => void;
+}
+
+interface User {
+  _id: string;
+  username: string;
+  email: string;
+}
+
 const ITEMS_PER_PAGE = 10;
 
-const InterestsTab = () => {
+const InterestsTab = ({
+  filterByUserId,
+  filterByUserName,
+  onClearUserFilter,
+}: InterestsTabProps = {}) => {
   const {
     interests,
     loading,
@@ -24,9 +42,11 @@ const InterestsTab = () => {
     stats,
     pagination,
     fetchInterests,
+    fetchUserInterests,
     updateInterestStatus,
     deleteInterest,
     fetchStats,
+    clearInterests,
   } = useInterest();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,30 +61,74 @@ const InterestsTab = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [updatingInterest, setUpdatingInterest] = useState<string | null>(null);
   const [detailsModal, setDetailsModal] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoadingUsers(true);
+        const response = await fetch("/api/users");
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data.data || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  //Set selected user from users tab
+  useEffect(() => {
+    if (filterByUserId) {
+      setSelectedUserId(filterByUserId);
+    }
+  }, [filterByUserId]);
+
+  //Load data when filters change
   useEffect(() => {
     const loadData = async () => {
       try {
-        await Promise.all([
-          fetchInterests({}, 1, ITEMS_PER_PAGE),
-          fetchStats(),
-        ]);
+        const activeUserId = filterByUserId || selectedUserId;
+
+        if (activeUserId) {
+          // When filtering by specific user, clear existing data first
+          clearInterests();
+          await fetchUserInterests(activeUserId);
+        } else {
+          const filters = {
+            status: statusFilter === "all" ? undefined : statusFilter,
+            search: searchQuery || undefined,
+          };
+          await Promise.all([
+            fetchInterests(filters, currentPage, ITEMS_PER_PAGE),
+            fetchStats(),
+          ]);
+        }
       } catch (error) {
         console.error("Failed to load interests data:", error);
       }
     };
 
     loadData();
-  }, [fetchInterests, fetchStats]);
-
-  useEffect(() => {
-    const filters = {
-      status: statusFilter === "all" ? undefined : statusFilter,
-      search: searchQuery || undefined,
-    };
-
-    fetchInterests(filters, currentPage, ITEMS_PER_PAGE);
-  }, [searchQuery, statusFilter, currentPage, fetchInterests]);
+  }, [
+    searchQuery,
+    statusFilter,
+    currentPage,
+    filterByUserId,
+    selectedUserId,
+    fetchInterests,
+    fetchUserInterests,
+    fetchStats,
+    clearInterests,
+  ]);
 
   const handleSort = (column: "createdAt" | "userName" | "status") => {
     if (sortBy === column) {
@@ -82,9 +146,9 @@ const InterestsTab = () => {
     try {
       setUpdatingInterest(interestId);
       await updateInterestStatus(interestId, newStatus);
-
-      // Refresh stats
-      await fetchStats();
+      if (!filterByUserId && !selectedUserId) {
+        await fetchStats();
+      }
     } catch (error) {
       console.error("Failed to update interest status:", error);
     } finally {
@@ -98,10 +162,16 @@ const InterestsTab = () => {
         setUpdatingInterest(interestId);
         await deleteInterest(interestId);
         setDeleteConfirm(null);
+        setIsSuccess(true);
 
-        await fetchStats();
+        setTimeout(() => {
+          setIsSuccess(false);
+        }, 5000);
 
-        // If we're on the last page and it becomes empty, go to previous page
+        if (!filterByUserId && !selectedUserId) {
+          await fetchStats();
+        }
+
         if (interests.length === 1 && currentPage > 1) {
           setCurrentPage(currentPage - 1);
         }
@@ -109,6 +179,11 @@ const InterestsTab = () => {
         console.error("Failed to delete interest:", error);
       } finally {
         setUpdatingInterest(null);
+        setIsSuccess(true);
+
+        setTimeout(() => {
+          setIsSuccess(false);
+        }, 5000);
       }
     } else {
       setDeleteConfirm(interestId);
@@ -117,6 +192,24 @@ const InterestsTab = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleUserFilter = (userId: string) => {
+    setSelectedUserId(userId);
+    setCurrentPage(1); // Reset to first page
+
+    // Clear the external filter when user selects from dropdown
+    if (onClearUserFilter && userId !== filterByUserId) {
+      onClearUserFilter();
+    }
+  };
+
+  const clearUserFilter = () => {
+    setSelectedUserId("");
+    setCurrentPage(1);
+    if (onClearUserFilter) {
+      onClearUserFilter();
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -130,13 +223,13 @@ const InterestsTab = () => {
   const getStatusColor = (status: "new" | "contacted" | "closed") => {
     switch (status) {
       case "new":
-        return "bg-blue-100 text-blue-800";
+        return "text-blue-600";
       case "contacted":
-        return "bg-yellow-100 text-yellow-800";
+        return "text-green-600";
       case "closed":
-        return "bg-gray-100 text-gray-800";
+        return "text-gray-600";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-50 text-gray-600";
     }
   };
 
@@ -160,21 +253,37 @@ const InterestsTab = () => {
 
   const handleRefresh = async () => {
     try {
-      await Promise.all([
-        fetchInterests(
-          {
-            status: statusFilter === "all" ? undefined : statusFilter,
-            search: searchQuery || undefined,
-          },
-          currentPage,
-          ITEMS_PER_PAGE
-        ),
-        fetchStats(),
-      ]);
+      const userIdToFilter = filterByUserId || selectedUserId;
+
+      if (userIdToFilter) {
+        await fetchUserInterests(userIdToFilter);
+      } else {
+        await Promise.all([
+          fetchInterests(
+            {
+              status: statusFilter === "all" ? undefined : statusFilter,
+              search: searchQuery || undefined,
+            },
+            currentPage,
+            ITEMS_PER_PAGE
+          ),
+          fetchStats(),
+        ]);
+      }
     } catch (error) {
       console.error("Failed to refresh data:", error);
     }
   };
+
+  const getCurrentUserName = () => {
+    const currentUserId = filterByUserId || selectedUserId;
+    if (filterByUserName) return filterByUserName;
+
+    const user = users.find((u) => u._id === currentUserId);
+    return user?.username || "Unknown User";
+  };
+
+  const isFilteredByUser = !!(filterByUserId || selectedUserId);
 
   if (error) {
     return (
@@ -205,69 +314,76 @@ const InterestsTab = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-sm shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-800 truncate">
-                  Total Interests
-                </dt>
-                <dd className="font-medium text-gray-900">
-                  {stats?.total || 0}
-                </dd>
-              </dl>
-            </div>
-          </div>
+      {isSuccess && (
+        <div className="fixed top-5 right-4 z-50 bg-green-50 border border-green-400 text-green-700 px-6 py-4 rounded-sm shadow-lg flex items-center gap-2 animate-in slide-in-from-right duration-300">
+          <CheckCircle className="h-5 w-5" />
+          <span className="font-medium">Interest deleted successfully</span>
         </div>
+      )}
 
-        <div className="bg-white rounded-sm shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-800 truncate">
-                  New
-                </dt>
-                <dd className="font-medium text-blue-600">{stats?.new || 0}</dd>
-              </dl>
+      {stats && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-sm shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-800 truncate">
+                    Total Interests
+                  </dt>
+                  <dd className="font-medium text-gray-900">
+                    {stats?.total || 0}
+                  </dd>
+                </dl>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white rounded-sm shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Contacted
-                </dt>
-                <dd className="font-medium text-yellow-600">
-                  {loading ? (
-                    <div className="animate-pulse bg-gray-200 h-6 w-8 rounded"></div>
-                  ) : (
-                    stats?.contacted || 0
-                  )}
-                </dd>
-              </dl>
+          <div className="bg-white rounded-sm shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-800 truncate">
+                    New
+                  </dt>
+                  <dd className="font-medium text-gray-900">
+                    {stats?.new || 0}
+                  </dd>
+                </dl>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-white rounded-sm shadow-sm p-6">
-          <div className="flex items-center">
-            <div className="ml-5 w-0 flex-1">
-              <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
-                  Closed
-                </dt>
-                <dd className="font-medium text-gray-600">
-                  {stats?.closed || 0}
-                </dd>
-              </dl>
+          <div className="bg-white rounded-sm shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Contacted
+                  </dt>
+                  <dd className="font-medium text-gray-900">
+                    {stats?.contacted || 0}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-sm shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Closed
+                  </dt>
+                  <dd className="font-medium text-gray-900">
+                    {stats?.closed || 0}
+                  </dd>
+                </dl>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
         <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
@@ -276,10 +392,35 @@ const InterestsTab = () => {
             setSearchQuery={setSearchQuery}
           />
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
+              Users:
+            </span>
+            <div className="relative">
+              <select
+                value={selectedUserId || filterByUserId || ""}
+                onChange={(e) => handleUserFilter(e.target.value)}
+                disabled={loadingUsers}
+                className="w-full py-3 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
+              >
+                <option value="">All Users</option>
+                {users.map((user) => (
+                  <option key={user._id} value={user._id}>
+                    {user.username} ({user.email})
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-4 h-3 w-3 text-gray-400 pointer-events-none" />
+              {loadingUsers && (
+                <Loader2 className="absolute right-8 top-3.5 h-4 w-4 animate-spin text-gray-400" />
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
-                Sort by:
+                Status:
               </span>
               <div className="relative">
                 <select
@@ -290,46 +431,50 @@ const InterestsTab = () => {
                     );
                     setCurrentPage(1);
                   }}
-                  className="w-24 py-3 px-3  text-left text-gray-500 text-xs bg-white cursor-pointer border border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
+                  className="min-w-24 py-2.5 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
                 >
                   <option value="all">All Status</option>
                   <option value="new">New</option>
                   <option value="contacted">Contacted</option>
                   <option value="closed">Closed</option>
                 </select>
+                <ChevronDown className="absolute right-2 top-3.5 h-3 w-3 text-gray-400 pointer-events-none" />
               </div>
             </div>
-
-            <button
-              onClick={handleRefresh}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 border border-gray-300 bg-neutral-200 text-gray-700 text-sm rounded-sm hover:bg-neutral-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {loading ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <RotateCcw className="h-3 w-3" />
-              )}
-              Refresh
-            </button>
           </div>
         </div>
 
-        {(searchQuery || statusFilter !== "all") && (
-          <div className="mt-4 text-sm text-gray-600">
-            Found {pagination.total} interest
-            {pagination.total !== 1 ? "s" : ""}
-            {searchQuery && ` matching "${searchQuery}"`}
-            {statusFilter !== "all" && ` with status "${statusFilter}"`}
+        {(searchQuery || statusFilter !== "all" || isFilteredByUser) && (
+          <div className="flex items-center justify-between mt-5">
+            <p className="text-xs text-gray-600">
+              Found {pagination.total} interests
+              {pagination.total !== 1 ? "s" : ""}
+              {searchQuery && ` matching "${searchQuery}"`}
+              {statusFilter !== "all" && ` with status "${statusFilter}"`}
+              {isFilteredByUser && ` from ${getCurrentUserName()}`}
+            </p>
+
+            {isFilteredByUser && (
+              <button
+                onClick={clearUserFilter}
+                className="text-light-blue text-xs hover:underline font-medium cursor-pointer"
+              >
+                Show All Interests
+              </button>
+            )}
           </div>
         )}
       </div>
 
       <div className="bg-white rounded-sm shadow-sm overflow-hidden">
         {loading && interests.length === 0 ? (
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            <span className="ml-2 text-gray-600">Loading interests...</span>
+          <div className="bg-white rounded-sm shadow-sm p-4">
+            <div className="animate-pulse space-y-4">
+              <div className="h-10 bg-gray-200 mb-8" />
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-200 rounded"></div>
+              ))}
+            </div>
           </div>
         ) : (
           <>
@@ -342,7 +487,7 @@ const InterestsTab = () => {
                       onClick={() => handleSort("userName")}
                     >
                       <div className="flex items-center gap-1">
-                        Users ({stats?.total || 0})
+                        Users
                         {sortBy === "userName" && (
                           <span className="text-blue-600">
                             {sortOrder === "asc" ? "↑" : "↓"}
@@ -427,7 +572,7 @@ const InterestsTab = () => {
                             )
                           }
                           disabled={updatingInterest === interest.id}
-                          className={`text-xs font-medium px-2.5 py-1.5 rounded-sm border-0 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${getStatusColor(
+                          className={`max-w-24 text-xs font-medium px-2 py-1.5 rounded-sm outline-none border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${getStatusColor(
                             interest.status
                           )}`}
                         >
@@ -479,7 +624,7 @@ const InterestsTab = () => {
 
                         {detailsModal === interest.id && (
                           <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-40">
-                            <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-gray-700 min-w-sm  mx-4 rounded-sm">
+                            <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-gray-700 min-w-sm mx-4 rounded-sm">
                               <h4 className="text-xl text-center font-semibold">
                                 Full Message
                               </h4>
@@ -489,7 +634,7 @@ const InterestsTab = () => {
 
                               <button
                                 onClick={() => setDetailsModal(null)}
-                                className="w-20 bg-neutral-100 text-gray-800 border border-gray-300 px-4 py-2 rounded-md hover:bg-neutral-200 transition-colors cursor-pointer"
+                                className="w-20 bg-neutral-100 text-gray-800 border border-gray-300 px-4 py-2 rounded-sm hover:bg-neutral-200 transition-colors cursor-pointer"
                               >
                                 Close
                               </button>
@@ -499,7 +644,7 @@ const InterestsTab = () => {
 
                         {deleteConfirm === interest.id && (
                           <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-                            <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-black w-80 max-w-sm mx-4 rounded-md">
+                            <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-black w-80 max-w-sm mx-4 rounded-sm">
                               <h4 className="text-lg text-center font-bold">
                                 Remove Interest?
                               </h4>
@@ -510,7 +655,7 @@ const InterestsTab = () => {
                                 <button
                                   onClick={() => handleDelete(interest.id)}
                                   disabled={updatingInterest === interest.id}
-                                  className="bg-red-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                  className="bg-red-600 text-white font-semibold px-4 py-2 rounded-sm hover:bg-red-700 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                 >
                                   {updatingInterest === interest.id ? (
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -520,7 +665,7 @@ const InterestsTab = () => {
                                 <button
                                   onClick={() => setDeleteConfirm(null)}
                                   disabled={updatingInterest === interest.id}
-                                  className="bg-gray-200 text-black font-semibold px-4 py-2 rounded-md hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50"
+                                  className="bg-gray-200 text-black font-semibold px-4 py-2 rounded-sm hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50"
                                 >
                                   Cancel
                                 </button>
@@ -542,27 +687,29 @@ const InterestsTab = () => {
                   No interests found
                 </h3>
                 <p className="mt-1 text-sm text-gray-500">
-                  {searchQuery || statusFilter !== "all"
+                  {isFilteredByUser
+                    ? `${getCurrentUserName()} has not placed any interests yet`
+                    : searchQuery || statusFilter !== "all"
                     ? "No interests match your current filters"
                     : "No users have shown interest in properties yet"}
                 </p>
               </div>
             )}
 
-            {pagination.pages > 1 && (
+            {pagination.pages > 1 && !isFilteredByUser && (
               <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
                 <div className="flex-1 flex justify-between sm:hidden">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1 || loading}
-                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === pagination.pages || loading}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     Next
                   </button>
@@ -586,7 +733,7 @@ const InterestsTab = () => {
                     </p>
                   </div>
                   <div>
-                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    <nav className="relative z-0 inline-flex rounded-sm shadow-sm -space-x-px">
                       <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1 || loading}
