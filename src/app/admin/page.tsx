@@ -27,6 +27,9 @@ const AdminDashboard = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("properties");
   const [isCollapsed, setIsCollapsed] = useState(true);
