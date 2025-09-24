@@ -368,9 +368,19 @@ export class AuthService {
   async isUserAdmin(userId: string): Promise<boolean> {
     try {
       const user = await this.getUserById(userId);
-      return user?.role === UserRole.ADMIN;
+      return user?.role === UserRole.ADMIN || user?.role === UserRole.OWNER;
     } catch (error) {
       logger.error("Admin check failed:", error);
+      return false;
+    }
+  }
+
+  async isUserOwner(userId: string): Promise<boolean> {
+    try {
+      const user = await this.getUserById(userId);
+      return user?.role === UserRole.OWNER;
+    } catch (error) {
+      logger.error("Owner check failed:", error);
       return false;
     }
   }
@@ -543,6 +553,7 @@ export class AuthService {
     totalUsers: number;
     totalBrokers: number;
     totalAdmins: number;
+    totalOwners: number;
     recentRegistrations: number;
     activeUsers: number;
   }> {
@@ -571,6 +582,7 @@ export class AuthService {
         totalUsers,
         totalBrokers,
         totalAdmins,
+        totalOwners,
         recentRegistrations,
         activeUsers,
       };
@@ -626,6 +638,27 @@ export class AuthService {
         const adminCount = await User.countDocuments({ role: UserRole.ADMIN });
         if (adminCount <= 1) {
           throw ApiError.badRequest("Cannot demote the only admin");
+        }
+      }
+
+      if (
+        (role === UserRole.ADMIN ||
+          role === UserRole.OWNER ||
+          targetUser.role === UserRole.ADMIN ||
+          targetUser.role === UserRole.OWNER) &&
+        !isRequesterOwner
+      ) {
+        throw ApiError.forbidden("Only owners can manage admin or owner roles");
+      }
+
+      if (
+        userId === requesterId &&
+        requester.role === UserRole.OWNER &&
+        role !== UserRole.OWNER
+      ) {
+        const ownerCount = await User.countDocuments({ role: UserRole.OWNER });
+        if (ownerCount <= 1) {
+          throw ApiError.badRequest("Cannot demote the only owner");
         }
       }
 

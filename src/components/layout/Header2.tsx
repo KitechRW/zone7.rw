@@ -205,7 +205,6 @@ const Header = () => {
                         </div>
                       </div>
                     </Link>
-
                     <button
                       onClick={() => menuItemClick(logout)}
                       className="px-2 pt-2 pb-3 font-medium text-sm text-white bg-black rounded transition cursor-pointer"
