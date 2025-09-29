@@ -18,18 +18,10 @@ import { Variants, motion, AnimatePresence } from "framer-motion";
 
 type AdminTab = "properties" | "users" | "interests";
 
-interface UserStats {
-  totalUsers: number;
-  totalAdmins: number;
-  recentRegistrations: number;
-  activeUsers: number;
-}
-
 const AdminDashboard = () => {
-  const { fetchProperties, fetchStats, stats: PropertyStats } = useProperty();
+  const { fetchProperties, fetchStats } = useProperty();
   const { isAuthenticated, isAdmin, authLoading, user, logout } = useAuth();
-  const { stats: interestStats, fetchStats: fetchInterestStats } =
-    useInterest();
+  const { fetchStats: fetchInterestStats } = useInterest();
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,12 +31,6 @@ const AdminDashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
-  const [usersStats, setUsersStats] = useState<UserStats>({
-    totalUsers: 0,
-    totalAdmins: 0,
-    recentRegistrations: 0,
-    activeUsers: 0,
-  });
 
   const login = useCallback(() => {
     router.push("/auth");
@@ -82,13 +68,6 @@ const AdminDashboard = () => {
           fetchStats(),
           fetchInterestStats(),
         ]);
-
-        // Fetch user statistics
-        const usersResponse = await fetch("/api/users/stats");
-        if (usersResponse.ok) {
-          const usersData = await usersResponse.json();
-          setUsersStats(usersData.data);
-        }
       } catch (error) {
         console.error("Failed to initialize dashboard data:", error);
       } finally {
@@ -300,9 +279,6 @@ const AdminDashboard = () => {
       activeTab,
       user,
       authLoading,
-      PropertyStats?.totalProperties,
-      interestStats?.total,
-      usersStats.activeUsers,
       sidebarVariants,
       textVariants,
       changeTab,
