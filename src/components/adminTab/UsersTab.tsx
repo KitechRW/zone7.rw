@@ -501,7 +501,19 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
             <span className="font-medium">Success.</span>
           </div>
         )}
-        <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
+
+        <div className="w-full">
+          <div className="bg-white rounded-sm shadow-lg shadow-light-blue/10 p-5 truncate transition-colors">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Users</p>
+                <p className="font-bold text-gray-900">{pagination.total}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-sm shadow-sm p-5 my-10">
           <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center">
             <SearchBar
               searchQuery={searchQuery}
@@ -573,7 +585,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     onClick={() => handleSort("username")}
                   >
                     <div className="flex items-center gap-1">
-                      Users ({pagination.total})
+                      Users
                       {sortBy === "username" && (
                         <span className="text-gray-600">
                           {sortOrder === "asc" ? "↑" : "↓"}
@@ -762,16 +774,17 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                 </p>
                 <div className="flex items-center gap-4 text-sm">
                   <button
-                    onClick={() => deleteUser(deleteConfirm)}
-                    className="bg-red-600 text-white font-semibold px-4 py-2 rounded-sm hover:bg-red-700 cursor-pointer transition-colors"
-                  >
-                    Delete
-                  </button>
-                  <button
                     onClick={() => setDeleteConfirm(null)}
                     className="bg-gray-200 text-black font-semibold px-4 py-2 rounded-sm hover:bg-gray-300 transition-colors cursor-pointer"
                   >
                     Cancel
+                  </button>
+
+                  <button
+                    onClick={() => deleteUser(deleteConfirm)}
+                    className="bg-red-600 text-white font-semibold px-4 py-2 rounded-sm hover:bg-red-700 cursor-pointer transition-colors"
+                  >
+                    Delete
                   </button>
                 </div>
               </div>
@@ -780,8 +793,8 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
 
           {pagination.pages > 1 && (
             <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
+              <div className="flex-1 flex items-center justify-between">
+                <div className="xs:hidden md:inline-block">
                   <p className="text-sm text-gray-700">
                     Showing{" "}
                     <span className="font-medium">
@@ -803,7 +816,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     <button
                       onClick={() => handlePageChange(pagination.page - 1)}
                       disabled={pagination.page === 1}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
@@ -811,7 +824,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       <button
                         key={index}
                         onClick={() => handlePageChange(index + 1)}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        className={`relative inline-flex items-center px-4 py-2 border text-xs font-medium ${
                           pagination.page === index + 1
                             ? "z-10 bg-blue-50 border-light-blue text-light-blue"
                             : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
@@ -823,7 +836,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     <button
                       onClick={() => handlePageChange(pagination.page + 1)}
                       disabled={pagination.page === pagination.pages}
-                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </button>

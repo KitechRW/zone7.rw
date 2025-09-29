@@ -350,69 +350,49 @@ const InterestsTab = ({
 
       {stats && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-sm shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-800 truncate">
-                    Total Interests
-                  </dt>
-                  <dd className="font-medium text-gray-900">
-                    {stats?.total || 0}
-                  </dd>
-                </dl>
-              </div>
-            </div>
+          <div className="flex items-center bg-white rounded-sm shadow-lg shadow-light-blue/10 max-h-20 p-4">
+            <dl>
+              <dt className="text-sm font-medium text-gray-800 truncate">
+                Total Interests
+              </dt>
+              <dd className="font-medium text-gray-900">{stats?.total || 0}</dd>
+            </dl>
           </div>
 
-          <div className="bg-white rounded-sm shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-800 truncate">
-                    New
-                  </dt>
-                  <dd className="font-medium text-gray-900">
-                    {stats?.new || 0}
-                  </dd>
-                </dl>
-              </div>
-            </div>
+          <div className="flex items-center bg-white rounded-sm shadow-lg shadow-light-blue/10 max-h-20 p-4">
+            <dl>
+              <dt className="text-sm font-medium text-gray-800 truncate">
+                New
+              </dt>
+              <dd className="font-medium text-gray-900">{stats?.new || 0}</dd>
+            </dl>
           </div>
 
-          <div className="bg-white rounded-sm shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Contacted
-                  </dt>
-                  <dd className="font-medium text-gray-900">
-                    {stats?.contacted || 0}
-                  </dd>
-                </dl>
-              </div>
-            </div>
+          <div className="flex items-center bg-white rounded-sm shadow-lg shadow-light-blue/10 max-h-20 p-4">
+            <dl>
+              <dt className="text-sm font-medium text-gray-500 truncate">
+                Contacted
+              </dt>
+              <dd className="font-medium text-gray-900">
+                {stats?.contacted || 0}
+              </dd>
+            </dl>
           </div>
 
-          <div className="bg-white rounded-sm shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Closed
-                  </dt>
-                  <dd className="font-medium text-gray-900">
-                    {stats?.closed || 0}
-                  </dd>
-                </dl>
-              </div>
-            </div>
+          <div className="flex items-center bg-white rounded-sm shadow-lg shadow-light-blue/10 max-h-20 p-4">
+            <dl>
+              <dt className="text-sm font-medium text-gray-500 truncate">
+                Closed
+              </dt>
+              <dd className="font-medium text-gray-900">
+                {stats?.closed || 0}
+              </dd>
+            </dl>
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
+      <div className="bg-white rounded-sm shadow-sm p-5">
         <div className="mb-10">
           <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
             <SearchBar
@@ -725,25 +705,9 @@ const InterestsTab = ({
 
               {pagination.pages > 1 && !isFilteredByUser && (
                 <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                  <div className="flex-1 flex justify-between sm:hidden">
-                    <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1 || loading}
-                      className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === pagination.pages || loading}
-                      className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      Next
-                    </button>
-                  </div>
-                  <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
+                  <div className="flex-1 flex items-center justify-between">
+                    <div className="xs:hidden md:inline-block">
+                      <p className="text-xs text-gray-700">
                         Showing{" "}
                         <span className="font-medium">
                           {(currentPage - 1) * ITEMS_PER_PAGE + 1}
@@ -765,7 +729,7 @@ const InterestsTab = ({
                         <button
                           onClick={() => handlePageChange(currentPage - 1)}
                           disabled={currentPage === 1 || loading}
-                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                           Previous
                         </button>
@@ -774,7 +738,7 @@ const InterestsTab = ({
                             key={index}
                             onClick={() => handlePageChange(index + 1)}
                             disabled={loading}
-                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium disabled:opacity-50 ${
+                            className={`relative inline-flex items-center px-4 py-2 border text-xs font-medium disabled:opacity-50 ${
                               currentPage === index + 1
                                 ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
                                 : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
@@ -786,7 +750,7 @@ const InterestsTab = ({
                         <button
                           onClick={() => handlePageChange(currentPage + 1)}
                           disabled={currentPage === pagination.pages || loading}
-                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                           Next
                         </button>
