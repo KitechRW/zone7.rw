@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import DBConnection from "../db/connect";
 import { IUser, User } from "../db/models/user.model";
 import {
@@ -159,6 +160,9 @@ export class AuthService {
     username: string;
     email: string;
   }): Promise<IUser> {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
       await DBConnection.getInstance().connect();
 
@@ -167,7 +171,7 @@ export class AuthService {
           { email: credentials.email.toLowerCase() },
           { username: credentials.username },
         ],
-      });
+      }).session(session);
 
       if (existingUser) {
         if (existingUser.email === credentials.email.toLowerCase()) {
@@ -176,7 +180,6 @@ export class AuthService {
         throw ApiError.conflict("Username already taken");
       }
 
-      // Generate a secure random password
       const generatedPassword = PasswordGenerator.generate(12);
       const hashedPassword = await Password.hash(generatedPassword);
 
@@ -188,9 +191,8 @@ export class AuthService {
         role: "admin",
       });
 
-      const savedUser = await user.save();
+      const savedUser = await user.save({ session });
 
-      // Send email with credentials
       const emailService = EmailService.getInstance();
       await emailService.sendAdminCredentials({
         userEmail: credentials.email.toLowerCase().trim(),
@@ -199,8 +201,14 @@ export class AuthService {
         loginUrl: `${process.env.NEXT_PUBLIC_COMPANY_URL}/auth`,
       });
 
+      //Only commit if email was sent successfully
+      await session.commitTransaction();
+
       return savedUser;
     } catch (error: unknown) {
+      // Rollback if anything fails
+      await session.abortTransaction();
+
       logger.error(
         "Admin creation failed",
         error instanceof Error && error.message
@@ -215,6 +223,8 @@ export class AuthService {
       }
 
       throw ApiError.internalServer("Admin creation failed");
+    } finally {
+      session.endSession();
     }
   }
 
@@ -437,8 +447,8 @@ export class AuthService {
                 return roleA - roleB; // Always owner first for default
               }
               return (
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
               );
             }
           }

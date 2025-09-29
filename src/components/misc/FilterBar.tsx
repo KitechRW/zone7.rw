@@ -114,7 +114,7 @@ const FilterBar = ({
   ];
 
   return (
-    <div className="bg-white p-4 rounded-sm shadow-md mb-10 border border-gray-200">
+    <div className="bg-white p-4 rounded-sm shadow-md mb-5 border border-gray-200">
       <div className="flex xs:flex-col lg:flex-row items-center justify-between gap-5">
         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
@@ -259,7 +259,7 @@ const FilterBar = ({
 
       <div className="flex items-center justify-between py-1.5 mt-4">
         <p
-          className={`pl-2 text-gray-600 text-xs ${
+          className={`pl-2 text-gray-600 xs:text-[10px] md:text-xs ${
             loading ? "animate-pulse" : ""
           }`}
         >
@@ -268,16 +268,16 @@ const FilterBar = ({
             : `${pagination.total} properties found`}
         </p>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end xs:gap-2 md:gap-4">
           <button
             onClick={manageClear}
-            className="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-sm hover:bg-gray-200 border border-gray-300 transition-colors duration-200 cursor-pointer"
+            className="px-4 py-2 xs:text-[10px] md:text-xs font-medium text-gray-700 bg-gray-100 rounded-sm hover:bg-gray-200 border border-gray-300 transition-colors duration-200 truncate cursor-pointer"
           >
             Clear All
           </button>
           <button
             onClick={manageApply}
-            className="px-4 py-2 text-xs font-medium text-white bg-black rounded-sm hover:shadow-lg transition-all duration-200 cursor-pointer"
+            className="px-4 py-2 xs:text-[10px] md:text-xs font-medium text-white bg-black rounded-sm hover:shadow-lg transition-all duration-200 truncate cursor-pointer"
           >
             Apply Filters
           </button>

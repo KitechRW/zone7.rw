@@ -297,7 +297,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                     className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md ${
                       currentProperty.category === "rent"
                         ? "bg-white text-black"
-                        : "bg-blue-800"
+                        : "bg-blue-700 text-white"
                     }`}
                   >
                     {currentProperty.category === "rent"

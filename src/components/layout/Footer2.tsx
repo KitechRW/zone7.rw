@@ -19,11 +19,18 @@ const Footer2 = () => {
           </div>
 
           <div className="w-52">
-            <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-xl text-white font-semibold mb-4">
+              Quick Links
+            </h3>
             <ul className="flex flex-col gap-2 cursor-pointer">
               <Link href="/">
                 <li className="text-gray-400 hover:text-white transition">
                   Home
+                </li>
+              </Link>
+              <Link href="/properties">
+                <li className="text-gray-400 hover:text-white transition">
+                  Properties
                 </li>
               </Link>
               <Link href="/about">
@@ -41,7 +48,9 @@ const Footer2 = () => {
           </div>
 
           <div className="w-52">
-            <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
+            <h3 className="text-xl text-white font-semibold mb-4">
+              Contact Us
+            </h3>
             <address className="not-italic text-gray-400 space-y-1">
               <p>KG Ave 123</p>
               <p>Giporoso, Kigali</p>
