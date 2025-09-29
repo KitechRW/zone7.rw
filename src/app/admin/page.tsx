@@ -101,13 +101,13 @@ const AdminDashboard = () => {
     }
   }, [searchParams]);
 
-  const changeTab = (tab: AdminTab) => {
+  const changeTab = useCallback((tab: AdminTab) => {
     setActiveTab(tab);
 
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.set("tab", tab);
     window.history.pushState({}, "", newUrl.toString());
-  };
+  }, []);
 
   // Initialize data
   useEffect(() => {
