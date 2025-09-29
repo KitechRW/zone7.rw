@@ -585,7 +585,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     onClick={() => handleSort("username")}
                   >
                     <div className="flex items-center gap-1">
-                      Users ({pagination.total})
+                      Users
                       {sortBy === "username" && (
                         <span className="text-gray-600">
                           {sortOrder === "asc" ? "↑" : "↓"}
