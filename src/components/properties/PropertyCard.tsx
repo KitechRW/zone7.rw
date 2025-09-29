@@ -32,7 +32,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md ${
               property.category === "rent"
                 ? "bg-white text-black"
-                : "bg-blue-800"
+                : "bg-blue-700 text-white"
             }`}
           >
             {property.category === "rent" ? "For Rent" : "For Sale"}

@@ -202,7 +202,7 @@ const PropertiesTab = () => {
         ))}
 
       {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4">
           <div className="bg-white rounded-sm shadow-sm p-4 truncate transition-colors">
             <div className="flex items-center justify-between transition-all duration-500">
               <div>
@@ -449,14 +449,15 @@ const PropertiesTab = () => {
                       </div>
                       {deleteConfirm === property.id && (
                         <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
-                          <div className="flex flex-col items-center justify-center gap-6 bg-white p-4 text-gray-800 w-full max-w-sm rounded-sm">
+                          <div className="flex flex-col items-center justify-center gap-5 bg-white p-4 text-gray-800 w-full max-w-sm rounded-sm">
                             <h4 className="text-lg text-center font-bold">
                               Confirm Delete
                             </h4>
-                            <p>
+                            <p className="text-wrap text-center">
                               Are you sure you want to delete &#34;
-                              {property.title}&#34;
+                              {property.title}&#34;?
                             </p>
+
                             <div className="flex items-center gap-5 text-sm">
                               <button
                                 onClick={() => handleDelete(property.id)}

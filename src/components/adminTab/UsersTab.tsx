@@ -278,7 +278,22 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
 
       const data = await response.json();
 
-      setUsers((prevUsers) => [data.data, ...prevUsers]);
+      const returned = data.data as Partial<User>;
+
+      const normalized: User = {
+        ...returned,
+        _id:
+          (returned._id as string) ??
+          (returned as unknown as Record<string, unknown>)["id"] ??
+          `temp-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+        username: returned.username ?? "",
+        email: returned.email ?? "",
+        role: (returned.role as UserRole) ?? UserRole.USER,
+        provider: returned.provider ?? "local",
+        createdAt: returned.createdAt ?? new Date().toISOString(),
+      };
+
+      setUsers((prevUsers) => [normalized, ...prevUsers]);
 
       setCreateAdminForm({ username: "", email: "" });
       setFormErrors({});
@@ -514,7 +529,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                         order as "asc" | "desc"
                       );
                     }}
-                    className="py-3 px-1 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 flex items-center justify-between"
+                    className="py-3 px-1 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-light-blue transition-all duration-200 flex items-center justify-between"
                   >
                     <option value="createdAt-desc">Default</option>
                     <option value="createdAt-asc">Oldest First</option>
@@ -558,7 +573,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     onClick={() => handleSort("username")}
                   >
                     <div className="flex items-center gap-1">
-                      Users
+                      Users ({pagination.total})
                       {sortBy === "username" && (
                         <span className="text-gray-600">
                           {sortOrder === "asc" ? "↑" : "↓"}
@@ -591,9 +606,6 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                         </span>
                       )}
                     </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
                   </th>
                   <th
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
@@ -691,58 +703,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {canManageUser(user) &&
-                      getAvailableRoles(user).length > 0 ? (
-                        <div className="relative">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setRoleOpen(
-                                roleOpen === user._id ? null : user._id
-                              );
-                            }}
-                            disabled={updatingRole === user._id}
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize cursor-pointer hover:opacity-80 transition-opacity ${getRoleColor(
-                              user.role
-                            )} ${
-                              updatingRole === user._id ? "opacity-50" : ""
-                            }`}
-                          >
-                            {updatingRole === user._id && (
-                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                            )}
-                            {user.role}
-                            <ChevronDown className="h-3 w-3 ml-1" />
-                          </button>
 
-                          {roleOpen === user._id && (
-                            <div
-                              className="absolute top-full left-0 mt-1 border border-gray-200 rounded-sm shadow z-50 max-w-24"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {getAvailableRoles(user).map((role) => (
-                                <button
-                                  key={role}
-                                  onClick={() => updateUserRole(user._id, role)}
-                                  className="block w-full bg-white text-left px-3 py-1 text-xs text-gray-700 hover:bg-gray-100 capitalize first:rounded-t-sm last:rounded-b-md cursor-pointer"
-                                >
-                                  {role}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize ${getRoleColor(
-                            user.role
-                          )}`}
-                        >
-                          {user.role}
-                        </span>
-                      )}
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500">
                         {formatDate(user.createdAt)}
@@ -1080,7 +1041,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-light-blue to-blue-800 text-white rounded-sm hover:shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-sm hover:shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                   disabled={creatingAdmin}
                 >
                   {creatingAdmin && (

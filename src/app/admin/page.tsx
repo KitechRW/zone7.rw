@@ -214,7 +214,7 @@ const AdminDashboard = () => {
                 isCollapsed ? "hidden" : ""
               } bg-gray-100 text-gray-900 px-2 py-1 rounded-full text-[10px]`}
             >
-              {usersStats.totalUsers + usersStats.totalAdmins || 0}
+              {usersStats.activeUsers || 0}
             </span>
           </button>
         </nav>
@@ -222,11 +222,11 @@ const AdminDashboard = () => {
       <div className="absolute left-7 bottom-10 w-3/4 mx-auto">
         {user ? (
           isCollapsed ? (
-            <Avatar userName={user.email} />
+            <Avatar userName={user.username} />
           ) : (
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-4 mb-5">
-                {user && <Avatar userName={user?.email} />}
+                {user && <Avatar userName={user?.username} />}
                 <div className="flex-1 min-w-0">
                   <h1 className="font-semibold text-gray-900 text-sm capitalize">
                     {user?.username?.split("_")[0] || "User"}

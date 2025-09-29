@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -80,7 +80,7 @@ const Header = () => {
             {user ? (
               <div className="group">
                 <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
-                  <Avatar userName={user.email} />
+                  <Avatar userName={user.username} />
                 </button>
                 <div className="absolute right-5 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
                   <div className="flex flex-col items-center justify-center gap-4">
@@ -142,16 +142,20 @@ const Header = () => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute right-0 md:hidden min-w-[40%] max-w-1/2 p-5 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-lg"
+            className="absolute top-0 right-0 md:hidden w-1/2 p-5 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-lg"
           >
             <div className="relative h-full py-5">
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-5">
+                <ArrowRight
+                  className="w-6 h-6 text-black -mt-4 cursor-pointer"
+                  onClick={() => setIsMenuOpen(false)}
+                />
+
                 <Link href="/">
                   <h2 className="text-black font-medium hover:text-cyan-700 transition cursor-pointer">
                     Home
                   </h2>
                 </Link>
-
                 <Link href="/properties">
                   <h2 className="text-black font-medium hover:text-cyan-700 transition cursor-pointer">
                     Properties
@@ -159,7 +163,7 @@ const Header = () => {
                 </Link>
               </div>
 
-              <div className="absolute bottom-28 max-w-full">
+              <div className="absolute bottom-20 w-full">
                 {user ? (
                   <div className="flex flex-col gap-1">
                     <Link
@@ -168,7 +172,7 @@ const Header = () => {
                       className="hover:bg-black/5 rounded-md p-2 w-full"
                     >
                       <div className="flex items-center gap-4 mb-2">
-                        {user && <Avatar userName={user?.email} />}
+                        {user && <Avatar userName={user?.username} />}
                         <div className="flex-1 min-w-0">
                           <h1 className="font-semibold text-gray-900 text-sm capitalize">
                             {user?.username?.split("_")[0] || "User"}

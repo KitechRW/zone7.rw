@@ -437,8 +437,8 @@ export class AuthService {
                 return roleA - roleB; // Always owner first for default
               }
               return (
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
               );
             }
           }

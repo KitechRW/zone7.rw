@@ -23,7 +23,9 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
           </div>
 
           <div className="w-52">
-            <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-xl font-semibold mb-4 text-white">
+              Quick Links
+            </h3>
             <ul className="flex flex-col gap-1 cursor-pointer">
               <li
                 onClick={scrollToHome}
@@ -31,9 +33,11 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
               >
                 Home
               </li>
-              <li className="text-gray-400 hover:text-white transition">
-                Properties
-              </li>
+              <Link href="/properties">
+                <li className="text-gray-400 hover:text-white transition">
+                  Properties
+                </li>
+              </Link>
               <Link href="/about">
                 <li className="text-gray-400 hover:text-white transition">
                   About Us
@@ -49,7 +53,7 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
           </div>
 
           <div className="w-52">
-            <h3 className="text-xl font-semibold mb-4">Address</h3>
+            <h3 className="text-xl font-semibold mb-4 text-white">Address</h3>
             <address className="not-italic text-gray-400 space-y-1">
               <p>KG Ave 123</p>
               <p>Giporoso, Kigali</p>

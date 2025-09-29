@@ -413,84 +413,86 @@ const InterestsTab = ({
       )}
 
       <div className="bg-white rounded-sm shadow-sm p-5 mb-10">
-        <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
-          <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-          />
+        <div className="mb-10">
+          <div className="flex flex-col lg:flex-row gap-4 justify-between lg:items-center">
+            <SearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+            />
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
-              Users:
-            </span>
-            <div className="relative">
-              <select
-                value={selectedUserId || filterByUserId || ""}
-                onChange={(e) => handleUserFilter(e.target.value)}
-                disabled={loadingUsers}
-                className="w-full py-3 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
-              >
-                <option value="">All Users</option>
-                {users.map((user) => (
-                  <option key={user._id} value={user._id}>
-                    {user.username} ({user.email})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 top-4 h-3 w-3 text-gray-400 pointer-events-none" />
-              {loadingUsers && (
-                <Loader2 className="absolute right-8 top-3.5 h-4 w-4 animate-spin text-gray-400" />
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
-                Status:
+                Users:
               </span>
               <div className="relative">
                 <select
-                  value={statusFilter}
-                  onChange={(e) => {
-                    setStatusFilter(
-                      e.target.value as "all" | "new" | "contacted" | "closed"
-                    );
-                    setCurrentPage(1);
-                  }}
-                  className="min-w-24 py-2.5 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-lg hover:border-gray-400 focus:outline-none focus:border-gray-800 transition-all duration-200 appearance-none"
+                  value={selectedUserId || filterByUserId || ""}
+                  onChange={(e) => handleUserFilter(e.target.value)}
+                  disabled={loadingUsers}
+                  className="w-full py-3 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-light-blue transition-all duration-200 appearance-none"
                 >
-                  <option value="all">All Status</option>
-                  <option value="new">New</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="closed">Closed</option>
+                  <option value="">All Users</option>
+                  {users.map((user) => (
+                    <option key={user._id} value={user._id}>
+                      {user.username} ({user.email})
+                    </option>
+                  ))}
                 </select>
-                <ChevronDown className="absolute right-2 top-3.5 h-3 w-3 text-gray-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-4 h-3 w-3 text-gray-400 pointer-events-none" />
+                {loadingUsers && (
+                  <Loader2 className="absolute right-8 top-3.5 h-4 w-4 animate-spin text-gray-400" />
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 font-medium whitespace-nowrap">
+                  Status:
+                </span>
+                <div className="relative">
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => {
+                      setStatusFilter(
+                        e.target.value as "all" | "new" | "contacted" | "closed"
+                      );
+                      setCurrentPage(1);
+                    }}
+                    className="min-w-24 py-2.5 px-2 text-left text-gray-500 text-xs bg-white cursor-pointer border-2 border-gray-300 rounded-t-lg hover:border-gray-400 focus:outline-none focus:border-light-blue transition-all duration-200 appearance-none"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-3.5 h-3 w-3 text-gray-400 pointer-events-none" />
+                </div>
               </div>
             </div>
           </div>
+
+          {(searchQuery || statusFilter !== "all" || isFilteredByUser) && (
+            <div className="flex items-center justify-between my-4">
+              <p className="text-xs text-gray-600">
+                Found {pagination.total} interests
+                {pagination.total !== 1 ? "s" : ""}
+                {searchQuery && ` matching "${searchQuery}"`}
+                {statusFilter !== "all" && ` with status "${statusFilter}"`}
+                {isFilteredByUser && ` from ${getCurrentUserName()}`}
+              </p>
+
+              {isFilteredByUser && (
+                <button
+                  onClick={clearUserFilter}
+                  className="text-light-blue text-xs hover:underline font-medium cursor-pointer"
+                >
+                  Show All Interests
+                </button>
+              )}
+            </div>
+          )}
         </div>
-
-        {(searchQuery || statusFilter !== "all" || isFilteredByUser) && (
-          <div className="flex items-center justify-between mt-5">
-            <p className="text-xs text-gray-600">
-              Found {pagination.total} interests
-              {pagination.total !== 1 ? "s" : ""}
-              {searchQuery && ` matching "${searchQuery}"`}
-              {statusFilter !== "all" && ` with status "${statusFilter}"`}
-              {isFilteredByUser && ` from ${getCurrentUserName()}`}
-            </p>
-
-            {isFilteredByUser && (
-              <button
-                onClick={clearUserFilter}
-                className="text-light-blue text-xs hover:underline font-medium cursor-pointer"
-              >
-                Show All Interests
-              </button>
-            )}
-          </div>
-        )}
 
         <div className="bg-white rounded-sm shadow-sm overflow-hidden">
           {loading && interests.length === 0 ? (
@@ -564,7 +566,6 @@ const InterestsTab = ({
                               {interest.userName}
                             </div>
                             <div className="text-sm text-gray-500 flex items-center gap-2 line-clamp-1">
-                              <Mail className="h-3 w-3 mt-1" />
                               {interest.userEmail}
                             </div>
                             {interest.userPhone && (

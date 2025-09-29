@@ -720,7 +720,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="px-6 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isReadOnly ? "Close" : "Cancel"}
             </button>
@@ -729,12 +729,12 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2.5 bg-600 text-white font-medium rounded-sm hover:shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+                className="px-6 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-sm hover:shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
               >
                 {loading && (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 )}
-                {mode === "create" ? "Create Property" : "Update Property"}
+                {mode === "create" ? "Create" : "Update"}
               </button>
             )}
           </div>
