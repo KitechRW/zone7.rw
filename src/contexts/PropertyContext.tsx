@@ -287,6 +287,17 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
     [clearError, handleError]
   );
 
+  //refresh stats after create, update, delete
+  const refreshStats = useCallback(async () => {
+    try {
+      const statsData = await PropertyAPI.getStats();
+      setStats(statsData);
+    } catch (err) {
+      console.error("Failed to refresh stats:", err);
+      //No need to throw error
+    }
+  }, []);
+
   const createProperty = useCallback(
     async (data: CreatePropertyFormData) => {
       try {
@@ -304,6 +315,8 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
           total: prev.total + 1,
         }));
 
+        await refreshStats();
+
         return newProperty;
       } catch (err) {
         handleError(err);
@@ -312,7 +325,7 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
         setLoading(false);
       }
     },
-    [clearError, handleError]
+    [clearError, handleError, refreshStats]
   );
 
   const updateProperty = useCallback(
@@ -338,6 +351,8 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
           setCurrentProperty(updatedProperty);
         }
 
+        await refreshStats();
+
         return updatedProperty;
       } catch (err) {
         handleError(err);
@@ -346,7 +361,7 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
         setLoading(false);
       }
     },
-    [currentProperty?.id, clearError, handleError]
+    [currentProperty?.id, clearError, handleError, refreshStats]
   );
 
   const deleteProperty = useCallback(
@@ -370,6 +385,8 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
         if (currentProperty?.id === id) {
           setCurrentProperty(null);
         }
+
+        await refreshStats();
       } catch (err) {
         handleError(err);
         throw err;
@@ -377,7 +394,7 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
         setLoading(false);
       }
     },
-    [currentProperty?.id, clearError, handleError]
+    [currentProperty?.id, clearError, handleError, refreshStats]
   );
 
   const fetchFeaturedProperties = useCallback(

@@ -58,7 +58,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
     bathrooms: property?.type === "house" ? property?.bathrooms || 1 : 0,
     area: property?.area || 0,
     location: property?.location || "",
-    featured: property?.featured || true,
+    featured: property?.featured ?? true,
     description: property?.description || "",
     features: property?.features || [],
   }));
@@ -211,11 +211,25 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
         }));
 
       const submissionData: CreatePropertyFormData = {
-        ...formData,
+        title: formData.title,
+        type: formData.type,
+        category: formData.category,
+        price: formData.price,
+        area: formData.area,
+        location: formData.location,
+        featured: formData.featured,
+        description: formData.description,
+        features: formData.features,
         roomTypeImageUploads,
         removeRoomTypeImages: imagesToRemove,
         mainImageFile: mainImage?.file as File,
       };
+
+      // Only include bedrooms and bathrooms for houses
+      if (formData.type === "house") {
+        submissionData.bedrooms = formData.bedrooms;
+        submissionData.bathrooms = formData.bathrooms;
+      }
 
       if (mainImage?.file) {
         submissionData.mainImageFile = mainImage.file;
@@ -442,10 +456,10 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      featured: e.target.checked ? true : prev.featured,
+                      featured: e.target.checked,
                     }))
                   }
-                  className="w-4 h-4 text-light-blue rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-light-blue rounded focus:ring-blue-500 cursor-pointer"
                   disabled={isReadOnly || loading}
                 />
               </div>
@@ -518,7 +532,9 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                   key={index}
                   className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-sm"
                 >
-                  <span className="text-gray-700">{feature}</span>
+                  <span className="text-blue-900 text-sm italic">
+                    • {feature}
+                  </span>
                   {!isReadOnly && (
                     <button
                       type="button"

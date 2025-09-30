@@ -37,6 +37,18 @@ const AdminDashboard = () => {
   }, [router]);
 
   useEffect(() => {
+    const handleResize = () => {
+      const largeScreen = window.innerWidth >= 1280;
+      setIsCollapsed(!largeScreen);
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab && ["properties", "users", "interests"].includes(tab)) {
       setActiveTab(tab as AdminTab);

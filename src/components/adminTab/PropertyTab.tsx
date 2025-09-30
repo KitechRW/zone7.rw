@@ -448,7 +448,7 @@ const PropertiesTab = () => {
                         </button>
                       </div>
                       {deleteConfirm === property.id && (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
+                        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
                           <div className="flex flex-col items-center justify-center gap-5 bg-white p-4 text-gray-800 w-full max-w-sm rounded-sm">
                             <h4 className="text-lg text-center font-bold">
                               Confirm Delete
@@ -460,6 +460,12 @@ const PropertiesTab = () => {
 
                             <div className="flex items-center gap-5 text-sm">
                               <button
+                                onClick={() => setDeleteConfirm(null)}
+                                className="bg-neutral-200 text-black font-semibold px-3 sm:px-4 py-2 rounded-sm hover:bg-neutral-300 transition cursor-pointer flex-1"
+                              >
+                                Cancel
+                              </button>
+                              <button
                                 onClick={() => handleDelete(property.id)}
                                 className="bg-red-600 text-white font-semibold px-3 sm:px-4 py-2 rounded-sm hover:bg-red-700 cursor-pointer flex-1"
                               >
@@ -468,12 +474,6 @@ const PropertiesTab = () => {
                                 ) : (
                                   "Delete"
                                 )}
-                              </button>
-                              <button
-                                onClick={() => setDeleteConfirm(null)}
-                                className="bg-neutral-200 text-black font-semibold px-3 sm:px-4 py-2 rounded-sm hover:bg-neutral-300 transition cursor-pointer flex-1"
-                              >
-                                Cancel
                               </button>
                             </div>
                           </div>

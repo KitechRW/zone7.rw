@@ -677,7 +677,7 @@ const InterestsTab = ({
                           )}
 
                           {deleteConfirm === interest.id && (
-                            <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+                            <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
                               <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-black w-80 max-w-sm mx-4 rounded-sm">
                                 <h4 className="text-lg text-center font-bold">
                                   Remove Interest?
@@ -687,6 +687,13 @@ const InterestsTab = ({
                                 </p>
                                 <div className="flex items-center gap-4 text-sm">
                                   <button
+                                    onClick={() => setDeleteConfirm(null)}
+                                    disabled={updatingInterest === interest.id}
+                                    className="bg-gray-200 text-black font-semibold px-4 py-2 rounded-sm hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
                                     onClick={() => handleDelete(interest.id)}
                                     disabled={updatingInterest === interest.id}
                                     className="bg-red-600 text-white font-semibold px-4 py-2 rounded-sm hover:bg-red-700 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
@@ -695,13 +702,6 @@ const InterestsTab = ({
                                       <Loader2 className="h-4 w-4 animate-spin" />
                                     ) : null}
                                     Remove
-                                  </button>
-                                  <button
-                                    onClick={() => setDeleteConfirm(null)}
-                                    disabled={updatingInterest === interest.id}
-                                    className="bg-gray-200 text-black font-semibold px-4 py-2 rounded-sm hover:bg-gray-300 transition-colors cursor-pointer disabled:opacity-50"
-                                  >
-                                    Cancel
                                   </button>
                                 </div>
                               </div>
@@ -714,7 +714,7 @@ const InterestsTab = ({
                 </table>
               </div>
 
-              {sortedInterests.length === 0 && !loading && (
+              {sortedInterests.length === 0 && (
                 <div className="text-center py-12">
                   <Heart className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900">
