@@ -816,7 +816,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     <button
                       onClick={() => handlePageChange(pagination.page - 1)}
                       disabled={pagination.page === 1}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Previous
                     </button>
@@ -828,7 +828,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                           pagination.page === index + 1
                             ? "z-10 bg-blue-50 border-light-blue text-light-blue"
                             : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
-                        }`}
+                        } cursor-pointer`}
                       >
                         {index + 1}
                       </button>
@@ -836,7 +836,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     <button
                       onClick={() => handlePageChange(pagination.page + 1)}
                       disabled={pagination.page === pagination.pages}
-                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       Next
                     </button>

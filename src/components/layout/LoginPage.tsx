@@ -96,9 +96,7 @@ const LoginPage = () => {
         errors.password = "Password is required";
       } else if (formData.password.length < 8) {
         errors.password = "Password must be at least 8 characters";
-      } else if (
-        !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]/.test(formData.password)
-      ) {
+      } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
         errors.password =
           "Password must contain at least one uppercase letter, one lowercase letter, and one number.";
       }
@@ -268,7 +266,7 @@ const LoginPage = () => {
       <div className="hidden lg:flex lg:w-[60%] relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://res.cloudinary.com/dx2czuzzs/image/upload/v1757017159/20230301_133532_bra5eb.jpg"
+            src="https://res.cloudinary.com/dx2czuzzs/image/upload/v1759323615/villa-house_nvq4vl.png"
             alt="Background Image"
             fill
             className="object-cover"

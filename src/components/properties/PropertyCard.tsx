@@ -31,19 +31,19 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <span
             className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md ${
               property.category === "rent"
-                ? "bg-white text-black"
+                ? "bg-white text-black border border-gray-400"
                 : "bg-blue-700 text-white"
             }`}
           >
             {property.category === "rent" ? "For Rent" : "For Sale"}
           </span>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent hover:from-black transition-colors duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent group-hover:from-black transition-colors duration-300" />
       </div>
 
       <div className="absolute bottom-1 w-full p-4 flex flex-col">
         <div>
-          <h3 className="font-bold text-lg text-gray-200 mb-2 line-clamp-2">
+          <h3 className="font-bold text-lg text-gray-200 mb-0.5 line-clamp-2">
             {property.title}
           </h3>
 
@@ -53,7 +53,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </div>
 
           <div>
-            <div className="mb-4">
+            <div className="mb-5">
               <span className="text-2xl font-bold text-gray-200">
                 Rwf {property.price.toLocaleString()}
                 {property.category === "rent" && (
@@ -66,23 +66,35 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           <div className="flex justify-between text-sm text-gray-300">
             {property.type === "house" ? (
               <>
-                <div className="flex items-center">
+                <div className="flex items-center text-xs">
                   <Bed className="w-4 h-4 mr-1 text-gray-300" />
-                  <span>{property.bedrooms} beds</span>
+                  <span>
+                    {property.bedrooms}{" "}
+                    <span className="xs:hidden sm:inline-block"> bedrooms</span>
+                  </span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center text-xs">
                   <Toilet className="w-4 h-4 mr-1 text-gray-300" />
-                  <span>{property.bathrooms} baths</span>
+                  <span>
+                    {property.bathrooms}{" "}
+                    <span className="xs:hidden sm:inline-block">
+                      {" "}
+                      bathrooms
+                    </span>
+                  </span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center text-xs">
                   <LandPlot className="w-4 h-4 mr-1 text-gray-300" />
-                  <span>{property.area} m²</span>
+                  <span>
+                    {property.area}{" "}
+                    <span className="xs:hidden sm:inline-block"> m²</span>
+                  </span>
                 </div>
               </>
             ) : (
               <div className="flex items-center">
                 <LandPlot className="w-4 h-4 mr-2 text-gray-400" />
-                <span>{property.area.toLocaleString()} m² land</span>
+                <span>{property.area.toLocaleString()} m²</span>
               </div>
             )}
           </div>
