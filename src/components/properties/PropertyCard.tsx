@@ -1,0 +1,107 @@
+import { Property } from "@/types/Properties";
+import { Bed, LandPlot, MapPin, Toilet } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+
+interface PropertyCardProps {
+  property: Property;
+}
+
+const PropertyCard = ({ property }: PropertyCardProps) => {
+  const router = useRouter();
+
+  const viewDetails = () => {
+    router.push(`/properties/${property.id}`);
+  };
+
+  return (
+    <div
+      onClick={viewDetails}
+      className="relative w-full h-96 rounded-xl shadow-lg overflow-hidden hover:shadow-xl cursor-pointer group"
+    >
+      <div className="relative h-full overflow-hidden">
+        <Image
+          src={property.mainImage}
+          alt={property.title}
+          className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700 "
+          width={400}
+          height={208}
+        />
+        <div className="absolute top-4 left-4">
+          <span
+            className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-md ${
+              property.category === "rent"
+                ? "bg-white text-black border border-gray-400"
+                : "bg-blue-700 text-white"
+            }`}
+          >
+            {property.category === "rent" ? "For Rent" : "For Sale"}
+          </span>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent group-hover:from-black transition-colors duration-300" />
+      </div>
+
+      <div className="absolute bottom-1 w-full p-4 flex flex-col">
+        <div>
+          <h3 className="font-bold text-lg text-gray-200 mb-0.5 line-clamp-2">
+            {property.title}
+          </h3>
+
+          <div className="flex items-center text-gray-200 mb-4">
+            <MapPin className="w-4 h-4 mr-2 text-gray-200" />
+            <span className="text-sm truncate">{property.location}</span>
+          </div>
+
+          <div>
+            <div className="mb-5">
+              <span className="text-2xl font-bold text-gray-200">
+                Rwf {property.price.toLocaleString()}
+                {property.category === "rent" && (
+                  <span className="text-sm font-medium text-gray-200">/mo</span>
+                )}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex justify-between text-sm text-gray-300">
+            {property.type === "house" ? (
+              <>
+                <div className="flex items-center text-xs">
+                  <Bed className="w-4 h-4 mr-1 text-gray-300" />
+                  <span>
+                    {property.bedrooms}{" "}
+                    <span className="xs:hidden sm:inline-block"> bedrooms</span>
+                  </span>
+                </div>
+                <div className="flex items-center text-xs">
+                  <Toilet className="w-4 h-4 mr-1 text-gray-300" />
+                  <span>
+                    {property.bathrooms}{" "}
+                    <span className="xs:hidden sm:inline-block">
+                      {" "}
+                      bathrooms
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center text-xs">
+                  <LandPlot className="w-4 h-4 mr-1 text-gray-300" />
+                  <span>
+                    {property.area}{" "}
+                    <span className="xs:hidden sm:inline-block"> m²</span>
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center">
+                <LandPlot className="w-4 h-4 mr-2 text-gray-400" />
+                <span>{property.area.toLocaleString()} m²</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PropertyCard;

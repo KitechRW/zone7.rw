@@ -1,0 +1,42 @@
+{
+  "name": "realestate",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.7.0",
+    "dompurify": "^3.2.6",
+    "framer-motion": "^12.23.12",
+    "jose": "^6.1.0",
+    "jsdom": "^26.1.0",
+    "lucide-react": "^0.542.0",
+    "mongodb": "^6.19.0",
+    "mongoose": "^8.18.0",
+    "next": "15.5.2",
+    "next-auth": "^4.24.11",
+    "react": "19.1.0",
+    "react-countup": "^6.5.3",
+    "react-dom": "19.1.0",
+    "react-intersection-observer": "^9.16.0",
+    "winston": "^3.17.0",
+    "zod": "^4.1.5"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.2",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

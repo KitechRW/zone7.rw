@@ -1,0 +1,62 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up SSH directory
+        run: |
+          mkdir -p ~/.ssh
+          touch ~/.ssh/known_hosts
+
+      - name: Add Server to Known Hosts
+        run: ssh-keyscan -H kitech.rw >> ~/.ssh/known_hosts
+
+      - name: Deploy to Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # Set up SSH key
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # Extract the repository name (without the organization prefix)
+          REPO_NAME="${{ github.repository }}"  # Format: owner/repo
+          REPO_NAME="${REPO_NAME##*/}"  # Extract only the repository name part (after the last "/")
+
+          # Determine the branch and set the script path accordingly
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+              BRANCH_NAME="main"
+              SCRIPT_PATH="/scripts/$REPO_NAME/live/build.sh"  # Use live script for main
+            elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+              BRANCH_NAME="develop"
+              SCRIPT_PATH="/scripts/$REPO_NAME/staging/build.sh"  # Use staging script for develop
+            else
+              echo "Unsupported branch for push event: ${{ github.ref }}"
+              exit 1
+            fi
+          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "develop" ]]; then
+            BRANCH_NAME="${{ github.head_ref }}"
+            SCRIPT_PATH="/scripts/$REPO_NAME/develop/build.sh"  # Use develop script for PRs targeting develop
+          else
+            echo "Unsupported event: ${{ github.event_name }}"
+            exit 1
+          fi
+
+          # SSH into the server and run the deployment script
+          ssh -o StrictHostKeyChecking=no -p 22 root@kitech.rw "$SCRIPT_PATH" "$BRANCH_NAME"
