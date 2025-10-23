@@ -23,6 +23,8 @@ interface LeanInterest {
   _id: mongoose.Types.ObjectId;
   userId: string;
   propertyId: string;
+  userName: string;
+  userEmail: string;
   userPhone: string;
   message?: string;
   status: "new" | "contacted" | "closed";
@@ -83,7 +85,7 @@ export class InterestService {
 
       // Check if user already has interest in this property
       const existingInterest = await Interest.findOne({
-        userId: data.userId,
+        userEmail: data.userEmail,
         propertyId: data.propertyId,
       });
 
@@ -93,15 +95,25 @@ export class InterestService {
         );
       }
 
-      const user = await User.findById(data.userId);
-      if (!user) {
-        throw ApiError.badRequest("User not found");
+      //Handle both authenticated and guest users
+      let userName = data.userName || "Guest User";
+      let userEmail = data.userEmail;
+
+      if (data.userId) {
+        //If user is authenticated, fetch their details
+        const user = await User.findById(data.userId);
+        if (user) {
+          userName = user.username;
+          userEmail = user.email;
+        }
       }
 
       const interest = new Interest({
-        userId: data.userId,
+        userId: data.userId || undefined,
         propertyId: data.propertyId,
-        userPhone: data.userPhone,
+        userName: userName,
+        userEmail: userEmail,
+        userPhone: data.userPhone || undefined,
         message: data.message,
         status: "new",
       });
@@ -120,9 +132,9 @@ export class InterestService {
             propertyLocation: property.location,
             propertyPrice: `Rwf ${property.price.toLocaleString()}`,
             propertyCategory: property.category,
-            userName: user.username,
-            userEmail: user.email,
-            userPhone: data.userPhone,
+            userName: userName,
+            userEmail: userEmail,
+            userPhone: data.userPhone || "Not provided",
             message: data.message,
             interestDate: savedInterest.createdAt.toISOString(),
           });
@@ -133,8 +145,8 @@ export class InterestService {
 
       return {
         ...savedInterest.toObject(),
-        userName: user.username,
-        userEmail: user.email,
+        userName: userName,
+        userEmail: userEmail,
         propertyTitle: await this.getPropertyTitle(data.propertyId),
       };
     } catch (error: unknown) {
@@ -216,13 +228,22 @@ export class InterestService {
         };
       }
 
+      //Filter out interests that have userId before fetching users
       const userIds = [
-        ...new Set(interests.map((interest) => interest.userId)),
+        ...new Set(
+          interests
+            .filter((interest) => interest.userId)
+            .map((interest) => interest.userId!)
+        ),
       ];
 
-      const users = await User.find({ _id: { $in: userIds } })
-        .select("username email")
-        .lean<LeanUser[]>();
+      //Only fetch users if there are authenticated interests
+      const users =
+        userIds.length > 0
+          ? await User.find({ _id: { $in: userIds } })
+              .select("username email")
+              .lean<LeanUser[]>()
+          : [];
 
       // Create user lookup map
       const userMap = new Map(users.map((user) => [user._id.toString(), user]));
@@ -236,8 +257,20 @@ export class InterestService {
       const enrichedInterests: InterestWithDetails[] = [];
 
       for (const interest of interests) {
-        const user = userMap.get(interest.userId);
-        if (!user) continue; // Skip if user not found
+        // CHANGED: Handle both authenticated and guest users
+        let userName: string;
+        let userEmail: string;
+
+        if (interest.userId) {
+          const user = userMap.get(interest.userId);
+          if (!user) continue;
+          userName = user.username;
+          userEmail = user.email;
+        } else {
+          // Guest user - use stored values
+          userName = interest.userName || "Guest User";
+          userEmail = interest.userEmail;
+        }
 
         const enrichedInterest: InterestWithDetails = {
           _id: interest._id.toString(),
@@ -247,20 +280,20 @@ export class InterestService {
           userPhone: interest.userPhone,
           message: interest.message,
           status: interest.status,
-          userName: user.username,
-          userEmail: user.email,
+          userName: userName,
+          userEmail: userEmail,
           propertyTitle:
             propertyTitles.get(interest.propertyId) || "Property not found",
           createdAt: interest.createdAt,
           updatedAt: interest.updatedAt,
         } as InterestWithDetails;
 
-        // Apply search filter if needed
+        // CHANGED: Updated search filter to use the resolved userName and userEmail
         if (filters.search) {
           const searchLower = filters.search.toLowerCase();
           const matchesSearch =
-            user.username.toLowerCase().includes(searchLower) ||
-            user.email.toLowerCase().includes(searchLower) ||
+            userName.toLowerCase().includes(searchLower) ||
+            userEmail.toLowerCase().includes(searchLower) ||
             (interest.message &&
               interest.message.toLowerCase().includes(searchLower));
 
@@ -512,20 +545,30 @@ export class InterestService {
   }
 
   async getUserInterest(
-    userId: string,
+    userIdOrEmail: string,
     propertyId: string
   ): Promise<IInterest | null> {
     try {
       await DBConnection.getInstance().connect();
 
-      return await Interest.findOne({
-        userId,
+      //Try by userId first, then by email
+      let interest = await Interest.findOne({
+        userId: userIdOrEmail,
         propertyId,
       });
+
+      if (!interest) {
+        interest = await Interest.findOne({
+          userEmail: userIdOrEmail,
+          propertyId,
+        });
+      }
+
+      return interest;
     } catch (error: unknown) {
       logger.error("Failed to get user interest", {
         error: error instanceof Error && error.message,
-        userId,
+        userIdOrEmail,
         propertyId,
       });
 

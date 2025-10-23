@@ -1,7 +1,9 @@
+import mongoose, { FilterQuery } from "mongoose";
 import DBConnection from "../db/connect";
 import { IProperty, Property, IRoomType } from "../db/models/property.model";
 import { ApiError } from "../utils/apiError";
 import logger from "../utils/logger";
+import { UserRole } from "../utils/permission";
 import { CloudinaryService } from "./cloudinary.service";
 
 export interface PropertyFilters {
@@ -16,6 +18,7 @@ export interface PropertyFilters {
   featured?: boolean;
   location?: string;
   search?: string;
+  createdBy?: string;
 }
 
 export interface RoomTypeImageUpload {
@@ -46,6 +49,7 @@ export interface CreatePropertyData {
   features?: string[];
   mainImageFile: File;
   roomTypeImageUploads?: RoomTypeImageUpload[];
+  youtubeLink?: string;
 }
 
 export interface UpdatePropertyData extends Partial<CreatePropertyData> {
@@ -55,20 +59,23 @@ export interface UpdatePropertyData extends Partial<CreatePropertyData> {
   roomTypeImages?: IRoomType[];
 }
 
-interface Query {
-  [key: string]:
-    | string
-    | boolean
-    | number
-    | Record<string, unknown>
-    | Array<Record<string, unknown>>;
-}
+type Query = FilterQuery<IProperty>;
 
 export class PropertyService {
-  static async createProperty(data: CreatePropertyData): Promise<IProperty> {
+  static async createProperty(
+    data: CreatePropertyData,
+    userId: string,
+    userRole: UserRole
+  ): Promise<IProperty> {
     try {
       // Connect to database
       await DBConnection.getInstance().connect();
+
+      const userExists = await mongoose.model("User").findById(userId);
+
+      if (!userExists) {
+        throw new ApiError(400, "Invalid user, creator not found");
+      }
 
       let mainImageUrl: string;
       let roomTypeImages: IRoomType[] = [];
@@ -150,6 +157,9 @@ export class PropertyService {
         features: data.features || [],
         mainImage: mainImageUrl,
         roomTypeImages: roomTypeImages,
+        youtubeLink: data.youtubeLink?.trim() || undefined,
+        createdBy: new mongoose.Types.ObjectId(userId),
+        createdByRole: userRole,
       };
 
       try {
@@ -212,7 +222,11 @@ export class PropertyService {
     }
   }
 
-  static async updateProperty(data: UpdatePropertyData): Promise<IProperty> {
+  static async updateProperty(
+    data: UpdatePropertyData,
+    requesterId: string,
+    requesterRole: string
+  ): Promise<IProperty> {
     await DBConnection.getInstance().connect();
 
     try {
@@ -220,6 +234,13 @@ export class PropertyService {
 
       if (!existingProperty) {
         throw new ApiError(404, "Property not found");
+      }
+
+      const isAdmin = requesterRole === "admin";
+      const isCreator = existingProperty.createdBy.toString() === requesterId;
+
+      if (!isAdmin && !isCreator) {
+        throw new ApiError(403, "You can only update properties you created");
       }
 
       let roomTypeImages = [...existingProperty.roomTypeImages];
@@ -307,7 +328,11 @@ export class PropertyService {
     }
   }
 
-  static async deleteProperty(id: string): Promise<boolean> {
+  static async deleteProperty(
+    id: string,
+    requesterId: string,
+    requesterRole: string
+  ): Promise<boolean> {
     await DBConnection.getInstance().connect();
 
     try {
@@ -315,6 +340,28 @@ export class PropertyService {
 
       if (!property) {
         throw new ApiError(404, "Property not found");
+      }
+
+      const isAdmin = requesterRole === "admin";
+      // Debug logs for permission check
+      logger.info("DeleteProperty Debug", {
+        propertyId: id,
+        propertyCreatedBy:
+          property.createdBy?.toString?.() ?? property.createdBy,
+        requesterId,
+        requesterRole,
+      });
+      const isCreator = property.createdBy.toString() === requesterId;
+
+      if (!isAdmin && !isCreator) {
+        logger.warn("DeleteProperty Forbidden", {
+          propertyId: id,
+          propertyCreatedBy:
+            property.createdBy?.toString?.() ?? property.createdBy,
+          requesterId,
+          requesterRole,
+        });
+        throw new ApiError(403, "You can only delete properties you created");
       }
 
       // Collect all image URLs to delete
@@ -432,6 +479,90 @@ export class PropertyService {
     }
   }
 
+  static async getBrokerProperties(
+    filters: PropertyFilters = {},
+    page = 1,
+    limit = 10,
+    sortBy = "createdAt",
+    sortOrder: "asc" | "desc" = "desc",
+    requesterId?: string,
+    requesterRole?: string
+  ): Promise<{ properties: IProperty[]; total: number; pages: number }> {
+    await DBConnection.getInstance().connect();
+
+    try {
+      const query: Query = {};
+
+      // Apply filters
+      if (filters.type && filters.type !== "all") {
+        query.type = filters.type;
+      }
+
+      if (filters.category && filters.category !== "all") {
+        query.category = filters.category;
+      }
+
+      if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+        query.price = {};
+        if (filters.minPrice !== undefined) query.price.$gte = filters.minPrice;
+        if (filters.maxPrice !== undefined) query.price.$lte = filters.maxPrice;
+      }
+
+      if (filters.bedrooms !== undefined && filters.bedrooms > 0) {
+        query.bedrooms = { $gte: filters.bedrooms };
+      }
+
+      if (filters.bathrooms !== undefined && filters.bathrooms > 0) {
+        query.bathrooms = { $gte: filters.bathrooms };
+      }
+
+      if (filters.minArea !== undefined || filters.maxArea !== undefined) {
+        query.area = {};
+        if (filters.minArea !== undefined) query.area.$gte = filters.minArea;
+        if (filters.maxArea !== undefined) query.area.$lte = filters.maxArea;
+      }
+
+      if (filters.featured !== undefined) {
+        query.featured = filters.featured;
+      }
+
+      if (filters.location) {
+        query.location = { $regex: filters.location, $options: "i" };
+      }
+
+      if (filters.search) {
+        query.$or = [
+          { title: { $regex: filters.search, $options: "i" } },
+          { description: { $regex: filters.search, $options: "i" } },
+          { location: { $regex: filters.search, $options: "i" } },
+        ];
+      }
+
+      //If Broker, only show their properties
+      if (requesterRole !== "admin" && requesterId) {
+        query.createdBy = new mongoose.Types.ObjectId(requesterId);
+      }
+
+      const skip = (page - 1) * limit;
+      const sort: Record<string, 1 | -1> = {};
+      sort[sortBy] = sortOrder === "desc" ? -1 : 1;
+
+      const [properties, total] = await Promise.all([
+        Property.find(query).sort(sort).skip(skip).limit(limit),
+        Property.countDocuments(query),
+      ]);
+
+      return {
+        properties,
+        total,
+        pages: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      logger.error("Get properties error:", error);
+      throw new ApiError(500, "Failed to fetch properties");
+    }
+  }
+
   static async getFeaturedProperties(limit = 6): Promise<IProperty[]> {
     await DBConnection.getInstance().connect();
 
@@ -447,7 +578,10 @@ export class PropertyService {
     }
   }
 
-  static async getStats(): Promise<{
+  static async getStats(
+    requesterId: string,
+    requesterRole: string
+  ): Promise<{
     totalProperties: number;
     totalSales: number;
     totalRentals: number;
@@ -457,6 +591,11 @@ export class PropertyService {
     await DBConnection.getInstance().connect();
 
     try {
+      const query: Query =
+        requesterRole !== "admin"
+          ? { createdBy: new mongoose.Types.ObjectId(requesterId) }
+          : {};
+
       const [
         totalProperties,
         totalSales,
@@ -464,11 +603,12 @@ export class PropertyService {
         featuredProperties,
         totalValueResult,
       ] = await Promise.all([
-        Property.countDocuments(),
-        Property.countDocuments({ category: "sale" }),
-        Property.countDocuments({ category: "rent" }),
-        Property.countDocuments({ featured: true }),
+        Property.countDocuments(query),
+        Property.countDocuments({ ...query, category: "sale" }),
+        Property.countDocuments({ ...query, category: "rent" }),
+        Property.countDocuments({ ...query, featured: true }),
         Property.aggregate([
+          { $match: query },
           { $group: { _id: null, total: { $sum: "$price" } } },
         ]),
       ]);

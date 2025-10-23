@@ -28,18 +28,21 @@ export class InterestController {
         request.headers.get("x-request-id") ||
         `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      const authError = await AuthMiddleware.requireAuth(request);
-      if (authError) return authError;
-
-      const userId = request.headers.get("x-user-id")!;
+      const userId = request.headers.get("x-user-id") || undefined;
 
       const data = getValidatedData<CreateInterestData>(request);
 
-      if (data.userId !== userId) {
+      if (userId && data.userId && data.userId !== userId) {
         throw ApiError.forbidden("Cannot create interest for another user");
       }
 
-      const interest = await this.interestService.create(data);
+      //Set userId from auth header if authenticated
+      const interestData = {
+        ...data,
+        userId: userId || data.userId,
+      };
+
+      const interest = await this.interestService.create(interestData);
 
       return NextResponse.json(
         {
@@ -59,7 +62,7 @@ export class InterestController {
         request.headers.get("x-request-id") ||
         `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      const authError = await AuthMiddleware.requireAdmin(request);
+      const authError = await AuthMiddleware.requireBroker(request);
       if (authError) return authError;
 
       const url = new URL(request.url);
@@ -105,7 +108,6 @@ export class InterestController {
       const page = parseInt(url.searchParams.get("page") || "1", 10);
       const limit = parseInt(url.searchParams.get("limit") || "10", 10);
 
-      // Get userId from query params (for admin viewing specific user's interests) or from auth headers (for user viewing their own interests)
       const queryUserId = url.searchParams.get("userId");
       const authUserId = request.headers.get("x-user-id")!;
 
@@ -141,7 +143,7 @@ export class InterestController {
         request.headers.get("x-request-id") ||
         `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      const authError = await AuthMiddleware.requireAdmin(request);
+      const authError = await AuthMiddleware.requireBroker(request);
       if (authError) return authError;
 
       const data = getValidatedData<{ status: "new" | "contacted" | "closed" }>(
@@ -196,7 +198,7 @@ export class InterestController {
         request.headers.get("x-request-id") ||
         `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      const authError = await AuthMiddleware.requireAdmin(request);
+      const authError = await AuthMiddleware.requireBroker(request);
       if (authError) return authError;
 
       const stats = await this.interestService.getStats();
@@ -218,20 +220,34 @@ export class InterestController {
         request.headers.get("x-request-id") ||
         `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      const authError = await AuthMiddleware.requireAuth(request);
-      if (authError) return authError;
-
-      const userId = request.headers.get("x-user-id")!;
-
+      const userId = request.headers.get("x-user-id");
       const url = new URL(request.url);
       const propertyId = url.searchParams.get("propertyId");
+      const userEmail = url.searchParams.get("userEmail");
 
       if (!propertyId) {
         throw ApiError.badRequest("Property ID is required");
       }
 
+      const userIdentifier = userId || userEmail;
+
+      //Return no interest instead of error
+      if (!userIdentifier) {
+        return NextResponse.json(
+          {
+            success: true,
+            requestId,
+            data: {
+              hasInterest: false,
+              interest: null,
+            },
+          },
+          { status: 200 }
+        );
+      }
+
       const interest = await this.interestService.getUserInterest(
-        userId,
+        userIdentifier,
         propertyId
       );
 

@@ -29,6 +29,9 @@ export interface IProperty extends Document {
   features: string[];
   mainImage: string;
   roomTypeImages: IRoomType[];
+  youtubeLink?: string;
+  createdBy: mongoose.Types.ObjectId;
+  createdByRole: "admin" | "broker";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -162,11 +165,39 @@ const PropertySchema = new Schema<IProperty>(
         message: "Cannot have more than 20 room images",
       },
     },
+    youtubeLink: {
+      type: String,
+      trim: true,
+      validate: {
+        validator: function (url: string) {
+          if (!url) return true;
+
+          // Validate YouTube URL format
+          const youtubeRegex =
+            /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/)|youtu\.be\/)[\w-]+/;
+          return youtubeRegex.test(url);
+        },
+        message: "Must be a valid YouTube URL",
+      },
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Creator ID is required"],
+      index: true,
+    },
+    createdByRole: {
+      type: String,
+      enum: ["admin", "broker"],
+      required: [true, "User role is required"],
+      index: true,
+    },
   },
   {
     timestamps: true,
     toJSON: {
-      transform: function (doc, ret) {
+      transform: function (_doc, ret) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { _id, __v, ...cleanRet } = ret;
         return { ...cleanRet, id: _id };
       },
@@ -178,6 +209,8 @@ PropertySchema.index({ type: 1, category: 1 });
 PropertySchema.index({ price: 1 });
 PropertySchema.index({ featured: -1, createdAt: -1 });
 PropertySchema.index({ location: "text", title: "text", description: "text" });
+PropertySchema.index({ createdBy: 1, createdAt: -1 });
+PropertySchema.index({ createdByRole: 1, createdAt: -1 });
 
 PropertySchema.pre("save", function (next) {
   if (this.type === "plot") {

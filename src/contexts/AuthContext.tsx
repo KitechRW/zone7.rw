@@ -12,7 +12,7 @@ export const useAuth = () => {
   const user = session?.user as UserData | undefined;
   const isAuthenticated = !!user;
   const isAdmin =
-    user?.role === UserRole.OWNER || user?.role === UserRole.ADMIN;
+    user?.role === UserRole.ADMIN || user?.role === UserRole.BROKER;
   const authLoading = status === "loading";
 
   const logout = async () => {
