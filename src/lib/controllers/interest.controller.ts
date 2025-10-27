@@ -134,6 +134,39 @@ export class InterestController {
     }
   );
 
+  getInterestsByEmail = ErrorMiddleware.catchAsync(
+    async (request: NextRequest): Promise<NextResponse> => {
+      const requestId =
+        request.headers.get("x-request-id") ||
+        `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const url = new URL(request.url);
+
+      const email = url.searchParams.get("email");
+      const page = parseInt(url.searchParams.get("page") || "1", 10);
+      const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+
+      if (!email) {
+        throw ApiError.badRequest("Email is required");
+      }
+
+      const result = await this.interestService.getInterestsByEmail(
+        email,
+        page,
+        limit
+      );
+
+      return NextResponse.json(
+        {
+          success: true,
+          requestId,
+          data: result,
+        },
+        { status: 200 }
+      );
+    }
+  );
+
   updateStatus = ErrorMiddleware.catchAsync(
     async (
       request: NextRequest,

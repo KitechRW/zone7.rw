@@ -421,6 +421,86 @@ export class InterestService {
     }
   }
 
+  async getInterestsByEmail(
+    email: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{
+    interests: InterestWithDetails[];
+    total: number;
+    pages: number;
+  }> {
+    try {
+      await DBConnection.getInstance().connect();
+
+      // Find all interests with this email (both guest and authenticated)
+      const interests = await Interest.find({ userEmail: email })
+        .lean<LeanInterest[]>()
+        .sort({ createdAt: -1 });
+
+      if (interests.length === 0) {
+        return {
+          interests: [],
+          total: 0,
+          pages: 0,
+        };
+      }
+
+      // Get unique property IDs
+      const propertyIds = [
+        ...new Set(interests.map((interest) => interest.propertyId)),
+      ];
+
+      const propertyTitles = await this.getPropertyTitles(propertyIds);
+
+      // Enrich interests with property data
+      const enrichedInterests: InterestWithDetails[] = interests.map(
+        (interest) =>
+          ({
+            _id: interest._id.toString(),
+            id: interest._id.toString(),
+            userId: interest.userId,
+            propertyId: interest.propertyId,
+            userPhone: interest.userPhone,
+            message: interest.message,
+            status: interest.status,
+            userName: interest.userName || "Guest User",
+            userEmail: interest.userEmail,
+            propertyTitle:
+              propertyTitles.get(interest.propertyId) || "Property not found",
+            createdAt: interest.createdAt,
+            updatedAt: interest.updatedAt,
+          } as InterestWithDetails)
+      );
+
+      // Apply pagination
+      const total = enrichedInterests.length;
+      const pages = Math.ceil(total / limit);
+      const startIndex = (page - 1) * limit;
+      const paginatedInterests = enrichedInterests.slice(
+        startIndex,
+        startIndex + limit
+      );
+
+      return {
+        interests: paginatedInterests,
+        total,
+        pages,
+      };
+    } catch (error: unknown) {
+      logger.error("Failed to fetch interests by email", {
+        error: error instanceof Error && error.message,
+        email,
+      });
+
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      throw ApiError.internalServer("Failed to fetch interests by email");
+    }
+  }
+
   private async getPropertyTitles(
     propertyIds: string[]
   ): Promise<Map<string, string>> {

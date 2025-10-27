@@ -34,7 +34,7 @@ const Whatsapp = () => {
             alt="whatsapp"
             width={50}
             height={50}
-            className="xs:w-5 md:w-8 xs:h-5 md:h-8 invert"
+            className="xs:w-6 md:w-8 xs:h-6 md:h-8 invert"
           />
         </div>
       </div>

@@ -162,7 +162,7 @@ const AdminDashboard = () => {
                   transition={{ duration: 0.2 }}
                   className="bg-neutral-800 bg-clip-text text-transparent text-lg font-semibold whitespace-nowrap overflow-hidden"
                 >
-                  Admin Dashboard
+                  Dashboard
                 </motion.h3>
               )}
             </AnimatePresence>
@@ -203,7 +203,7 @@ const AdminDashboard = () => {
                 activeTab === "interests"
                   ? "text-light-blue"
                   : "text-gray-600 hover:bg-gray-100"
-              } ${!isOwner ? "pointer-events-none opacity-30" : ""}`}
+              } ${!isOwner ? "hidden" : ""}`}
             >
               <Heart className="w-6 h-6 flex-shrink-0" />
               <AnimatePresence mode="wait">
@@ -230,7 +230,7 @@ const AdminDashboard = () => {
                 activeTab === "users"
                   ? "text-light-blue"
                   : "text-gray-600 hover:bg-gray-100"
-              } ${!isOwner ? "pointer-events-none opacity-30" : ""}`}
+              } ${!isOwner ? "hidden" : ""}`}
             >
               <Users className="w-6 h-6 flex-shrink-0" />
               <AnimatePresence mode="wait">
