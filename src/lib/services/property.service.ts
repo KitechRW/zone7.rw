@@ -159,6 +159,7 @@ export class PropertyService {
         roomTypeImages: roomTypeImages,
         youtubeLink: data.youtubeLink?.trim() || undefined,
         createdBy: new mongoose.Types.ObjectId(userId),
+        createdByName: userExists.username,
         createdByRole: userRole,
       };
 

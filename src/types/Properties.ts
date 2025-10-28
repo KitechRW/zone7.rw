@@ -15,6 +15,7 @@ export interface Property {
   roomTypeImages: RoomTypeImage[];
   youtubeLink?: string;
   createdBy: string;
+  createdByName?: string;
   createdAt: string;
   updatedAt: string;
 }

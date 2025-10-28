@@ -31,6 +31,7 @@ export interface IProperty extends Document {
   roomTypeImages: IRoomType[];
   youtubeLink?: string;
   createdBy: mongoose.Types.ObjectId;
+  createdByName?: string;
   createdByRole: "admin" | "broker";
   createdAt: Date;
   updatedAt: Date;
@@ -185,6 +186,10 @@ const PropertySchema = new Schema<IProperty>(
       ref: "User",
       required: [true, "Creator ID is required"],
       index: true,
+    },
+    createdByName: {
+      type: String,
+      ref: "User",
     },
     createdByRole: {
       type: String,

@@ -42,17 +42,17 @@ export class EmailService {
   private brokerEmail: string;
 
   private constructor() {
-    this.apiKey = process.env.BREVO_API_KEY!;
-    this.fromEmail = process.env.BREVO_FROM_EMAIL!;
-    this.fromName = process.env.BREVO_FROM_NAME!;
+    this.apiKey = process.env.MAILERSEND_API_KEY!;
+    this.fromEmail = process.env.MAILERSEND_FROM_EMAIL!;
+    this.fromName = process.env.MAILERSEND_FROM_NAME!;
     this.brokerEmail = process.env.ADMIN_EMAIL!;
 
     if (!this.apiKey) {
-      throw new Error("BREVO_API_KEY environment variable is required");
+      throw new Error("MAILERSEND_API_KEY environment variable is required");
     }
 
     if (!this.fromEmail) {
-      throw new Error("BREVO_FROM_EMAIL environment variable is required");
+      throw new Error("MAILERSEND_FROM_EMAIL environment variable is required");
     }
 
     if (!this.brokerEmail) {
@@ -73,30 +73,30 @@ export class EmailService {
     htmlContent: string;
     textContent?: string;
   }): Promise<void> {
-    const brevoPayload = {
-      sender: {
-        name: this.fromName,
+    const mailersendPayload = {
+      from: {
         email: this.fromEmail,
+        name: this.fromName,
       },
       to: emailData.to,
       subject: emailData.subject,
-      htmlContent: emailData.htmlContent,
-      textContent: emailData.textContent,
+      html: emailData.htmlContent,
+      text: emailData.textContent,
     };
 
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    const response = await fetch("https://api.mailersend.com/v1/email", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "api-key": this.apiKey,
+        Authorization: `Bearer ${this.apiKey}`,
       },
-      body: JSON.stringify(brevoPayload),
+      body: JSON.stringify(mailersendPayload),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
-        errorData.message || `Brevo API error: ${response.status}`
+        errorData.message || `Mailersend API error: ${response.status}`
       );
     }
   }
@@ -192,12 +192,12 @@ export class EmailService {
               border-radius: 4px;
           }
           .credential-label {
-              font-weight: 700;
               color: #5c5c5c;
               font-size: 18px;
           }
           .credential-value {
               color: #1f2937;
+              font-weight: 700;
               font-size: 16px;
               word-break: break-all;
               margin-top: 5px;

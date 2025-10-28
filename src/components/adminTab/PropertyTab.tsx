@@ -26,6 +26,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import FilterBar, { FilterState } from "@/components/misc/FilterBar";
 import PropertyModal from "@/components/modals/PropertyModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { UserRole } from "@/lib/utils/permission";
 
 const PropertiesTab = () => {
   const {
@@ -347,6 +348,11 @@ const PropertiesTab = () => {
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Price
                   </th>
+                  {user?.role === UserRole.ADMIN && (
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Created by
+                    </th>
+                  )}
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
@@ -426,6 +432,13 @@ const PropertiesTab = () => {
                         {formatPrice(property.price)}
                       </div>
                     </td>
+                    {user?.role === UserRole.ADMIN && (
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-red-800">
+                          {property.createdByName}
+                        </div>
+                      </td>
+                    )}
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-1 sm:gap-2">
                         <button
