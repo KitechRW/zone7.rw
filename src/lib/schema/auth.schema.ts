@@ -18,7 +18,7 @@ export const registerSchema = z.object({
     .regex(/(?=.*\d)/, "Password must contain at least one number"),
 });
 
-export const createAdminSchema = z.object({
+export const createBrokerSchema = z.object({
   username: z
     .string()
     .min(3, "Username must be at least 3 characters")

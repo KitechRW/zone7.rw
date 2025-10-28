@@ -13,6 +13,9 @@ export interface Property {
   features: string[];
   mainImage: string;
   roomTypeImages: RoomTypeImage[];
+  youtubeLink?: string;
+  createdBy: string;
+  createdByName?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -43,6 +46,7 @@ export interface CreatePropertyFormData {
   featured: boolean;
   description: string;
   features: string[];
+  youtubeLink?: string;
   mainImageFile: File;
   roomTypeImageUploads: RoomTypeImageUpload[];
   removeRoomTypeImages?: string[];

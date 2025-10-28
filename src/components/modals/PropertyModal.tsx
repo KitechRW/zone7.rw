@@ -13,6 +13,7 @@ import {
   Property,
   RoomTypeImageUpload,
 } from "@/types/Properties";
+import { useProperty } from "@/contexts/PropertyContext";
 
 const ROOM_TYPES = [
   { value: "living_room", label: "Living Room" },
@@ -47,7 +48,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
   onClose,
   onSubmit,
 }) => {
-  const [loading, setLoading] = useState(false);
+  const { loading } = useProperty();
 
   const [formData, setFormData] = useState(() => ({
     title: property?.title || "",
@@ -61,6 +62,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
     featured: property?.featured ?? true,
     description: property?.description || "",
     features: property?.features || [],
+    youtubeLink: property?.youtubeLink || "",
   }));
 
   const [newFeature, setNewFeature] = useState("");
@@ -181,8 +183,6 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
     if (isReadOnly || loading) return;
 
     try {
-      setLoading(true);
-
       if (!formData.title || !formData.location || !formData.description) {
         alert("Please fill in all required fields.");
         return;
@@ -220,6 +220,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
         featured: formData.featured,
         description: formData.description,
         features: formData.features,
+        youtubeLink: formData.youtubeLink,
         roomTypeImageUploads,
         removeRoomTypeImages: imagesToRemove,
         mainImageFile: mainImage?.file as File,
@@ -235,12 +236,10 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
         submissionData.mainImageFile = mainImage.file;
       }
 
-      await onSubmit(submissionData);
+      onSubmit(submissionData);
     } catch (error) {
       console.error("Error saving property:", error);
       alert("Failed to save property. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -262,7 +261,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50 backdrop-blur-[4px]">
       <div className="bg-white rounded-sm shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
@@ -506,7 +505,7 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                   value={newFeature}
                   onChange={(e) => setNewFeature(e.target.value)}
                   placeholder="Access to road..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-black focus:border-blue-500 outline-none placeholder:text-neutral-400 placeholder:text-sm"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -554,6 +553,35 @@ const PropertyModal: React.FC<PropertyModalProps> = ({
                 No features added yet
               </p>
             )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="youtubeLink"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              YouTube Video Link (Optional)
+            </label>
+            <input
+              type="url"
+              id="youtubeLink"
+              name="youtubeLink"
+              value={formData.youtubeLink || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, youtubeLink: e.target.value })
+              }
+              placeholder="https://www.youtu.be/_a1B2c3..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring focus:ring-blue-200 text-sm text-black focus:border-blue-500 outline-none placeholder:text-neutral-400 placeholder:text-sm"
+              readOnly={isReadOnly}
+              disabled={loading}
+            />
+
+            <div className="flex items-center text-gray-500 mt-1 gap-1">
+              <Info className="w-2.5 h-2.5 inline-block" />
+              <p className="text-xs">
+                Paste a YouTube link to showcase a video tour of the property
+              </p>
+            </div>
           </div>
 
           <div>

@@ -1,20 +1,23 @@
 export interface Interest {
   id: string;
-  userId: string;
+  userId?: string;
   propertyId: string;
   userName: string;
   userEmail: string;
-  userPhone: string;
+  userPhone?: string;
   message?: string;
   status: "new" | "contacted" | "closed";
   propertyTitle: string;
   createdAt: string;
   updatedAt: string;
 }
+
 export interface CreateInterestData {
-  userId: string;
+  userId?: string;
   propertyId: string;
-  userPhone: string;
+  userName?: string;
+  userEmail: string;
+  userPhone?: string;
   message?: string;
 }
 

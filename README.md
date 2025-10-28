@@ -1,4 +1,4 @@
-# Restate.rw - Real Estate
+# Zone7.rw
 
 A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allows users to browse, buy, and rent properties in Rwanda.
 
@@ -8,7 +8,7 @@ A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allow
 
   - User registration and login
   - Password reset functionality
-  - Role-based access control (Admin/User)
+  - Role-based access control (Admin/Broker/User)
   - Protected routes with NextAuth
 
 - **Property Management**
@@ -52,36 +52,46 @@ A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allow
 
 - **Services**
   - Cloudinary for image storage
-  - Email service for notifications
-  - Logging service
+  - Brevo Email service for notifications
 
 ## Project Structure
 
 ```
-src/
-├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   ├── admin/             # Admin dashboard
-│   ├── auth/              # Authentication pages
-│   ├── properties/        # Property listings and details
-│   └── profile/           # User profile pages
-├── components/            # React components
-│   ├── adminTab/         # Admin dashboard tabs
-│   ├── layout/           # Layout components
-│   ├── misc/             # Miscellaneous components
-│   ├── modals/           # Modal components
-│   └── properties/       # Property-related components
-├── contexts/             # React Context providers
-├── lib/                  # Utility functions and configurations
-│   ├── config/          # Configuration files
-│   ├── controllers/     # API controllers
-│   ├── db/             # Database models and connection
-│   ├── middleware/     # Custom middleware
-│   ├── schema/         # Validation schemas
-│   ├── services/       # Business logic services
-│   ├── types/          # TypeScript types
-│   └── utils/          # Utility functions
-└── types/               # Global TypeScript types
+zone7.rw/
+├── public/                  # Static assets
+├── src/                     # Main source code
+│   ├── app/                 # Next.js app directory (routing, pages, layouts)
+│   │   ├── api/             # API routes (auth, contact, interests, properties, users)
+│   │   ├── admin/           # Admin dashboard (layout, page)
+│   │   ├── auth/            # Authentication pages (login, forgot/reset password)
+│   │   ├── contact/         # Contact page
+│   │   ├── profile/         # User profile page
+│   │   ├── properties/      # Property listings and details
+│   │   └── ...              # Error, not-found, providers, etc.
+│   ├── components/          # React components
+│   │   ├── adminTab/        # Admin dashboard tabs (InterestsTab, PropertyTab, UsersTab)
+│   │   ├── layout/          # Layout components (Header, Footer, etc.)
+│   │   ├── misc/            # Miscellaneous components (Avatar, Loader, etc.)
+│   │   ├── modals/          # Modal components (InterestModal, PropertyModal)
+│   │   └── properties/      # Property-related components (PropertyCard, PropertyGrid, etc.)
+│   ├── contexts/            # React Context providers (Auth, Property, Interest, Filter)
+│   ├── lib/                 # Backend logic and utilities
+│   │   ├── config/          # Configuration files
+│   │   ├── controllers/     # API controllers
+│   │   ├── db/              # Database connection and models
+│   │   ├── middleware/      # Custom middleware (auth, error, rateLimit, validation)
+│   │   ├── schema/          # Validation schemas
+│   │   ├── services/        # Business logic services (auth, property, email, etc.)
+│   │   ├── types/           # TypeScript types for backend
+│   │   └── utils/           # Utility functions (apiError, logger, password, etc.)
+│   └── util/                # Utility React components (Whatsapp, YoutubeThumbnail)
+├── types/                   # Global TypeScript types (Interests, Properties)
+├── package.json             # Project metadata and dependencies
+├── tsconfig.json            # TypeScript configuration
+├── next.config.ts           # Next.js configuration
+├── postcss.config.mjs       # PostCSS configuration
+├── eslint.config.mjs        # ESLint configuration
+└── README.md                # Project documentation
 ```
 
 ## Getting Started
@@ -89,7 +99,7 @@ src/
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/KitechRW/restate.rw.git
+   git clone https://github.com/KitechRW/zone7.rw
    ```
 
 2. Install dependencies:
@@ -102,14 +112,20 @@ src/
    Create a `.env` file with the following variables:
 
    ```
-   NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=your_secret
-   MONGODB_URI=your_mongodb_uri
-   CLOUDINARY_CLOUD_NAME=your_cloud_name
-   CLOUDINARY_API_KEY=your_api_key
-   CLOUDINARY_API_SECRET=your_api_secret
-   EMAIL_SERVER=your_email_server
-   EMAIL_FROM=your_email_from
+   NEXT_PUBLIC_COMPANY_NAME=
+   NEXT_PUBLIC_COMPANY_URL=
+   NEXT_PUBLIC_EMAIL=
+   NEXT_PUBLIC_PHONE=
+   NEXTAUTH_URL=
+   NEXTAUTH_SECRET=
+   MONGODB_URI=
+   ADMIN_EMAIL=
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+   NEXT_PUBLIC_CLOUDINARY_API_KEY=
+   CLOUDINARY_API_SECRET=
+   BREVO_API_KEY=
+   BREVO_FROM_EMAIL=
+   BREVO_FROM_NAME=
    ```
 
 4. Run the development server:
@@ -156,41 +172,28 @@ The application implements a hybrid authentication system built on NextAuth.js w
 - `InterestContext` - Interest management state
 - `FilterContext` - Property filtering state
 
-## Components
+## Components Overview
 
-### Layout Components
-
-- `Header` - Main navigation header
-- `Footer` - Site footer
-- `Welcome` - Homepage welcome section
-- `Benefits` - Features and benefits section
-
-### Property Components
-
-- `PropertyCard` - Property preview card
-- `PropertyDetails` - Detailed property view
-- `PropertyGrid` - Grid layout for properties
-
-### Admin Components
-
-- `PropertyTab` - Property management tab
-- `UsersTab` - User management tab
-- `InterestsTab` - Interest management tab
+- **Layout Components**: `Header`, `Footer`, `Welcome`, `Benefits`, etc.
+- **Property Components**: `PropertyCard`, `PropertyDetails`, `PropertyGrid`, etc.
+- **Admin Components**: `PropertyTab`, `UsersTab`, `InterestsTab`
+- **Miscellaneous**: `Avatar`, `Loader`, `Dropdown`, `SearchBar`, etc.
+- **Modals**: `InterestModal`, `PropertyModal`
 
 ## Middleware
 
-- `authMiddleware` - Route protection
-- `errorMiddleware` - Error handling
-- `rateLimitMiddleware` - API rate limiting
-- `validationMiddleware` - Request validation
+- `auth.middleware.ts` - Route protection
+- `error.middleware.ts` - Error handling
+- `rateLimit.middleware.ts` - API rate limiting
+- `validation.middleware.ts` - Request validation
 
 ## Services
 
-- `authService` - Authentication logic
-- `propertyService` - Property management
-- `cloudinaryService` - Image upload and management
-- `emailService` - Email notifications
-- `resetService` - Password reset functionality
+- `auth.service.ts` - Authentication logic
+- `property.service.ts` - Property management
+- `cloudinary.service.ts` - Image upload and management
+- `email.service.ts` - Email notifications
+- `reset.service.ts` - Password reset functionality
 
 ## Contributing
 

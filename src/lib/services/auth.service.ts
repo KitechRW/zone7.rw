@@ -156,7 +156,7 @@ export class AuthService {
     }
   }
 
-  async createAdmin(credentials: {
+  async createBroker(credentials: {
     username: string;
     email: string;
   }): Promise<IUser> {
@@ -188,13 +188,13 @@ export class AuthService {
         email: credentials.email.toLowerCase().trim(),
         password: hashedPassword,
         provider: "credentials",
-        role: "admin",
+        role: "broker",
       });
 
       const savedUser = await user.save({ session });
 
       const emailService = EmailService.getInstance();
-      await emailService.sendAdminCredentials({
+      await emailService.sendBrokerCredentials({
         userEmail: credentials.email.toLowerCase().trim(),
         userName: credentials.username.trim(),
         password: generatedPassword,
@@ -210,7 +210,7 @@ export class AuthService {
       await session.abortTransaction();
 
       logger.error(
-        "Admin creation failed",
+        "Broker creation failed",
         error instanceof Error && error.message
       );
 
@@ -219,10 +219,10 @@ export class AuthService {
       }
 
       if (error instanceof Error && error.name?.includes("Mongo")) {
-        throw ApiError.internalServer("Database error during admin creation");
+        throw ApiError.internalServer("Database error during Broker creation");
       }
 
-      throw ApiError.internalServer("Admin creation failed");
+      throw ApiError.internalServer("Broker creation failed");
     } finally {
       session.endSession();
     }
@@ -355,22 +355,22 @@ export class AuthService {
     }
   }
 
-  async isUserAdmin(userId: string): Promise<boolean> {
+  async isUserBroker(userId: string): Promise<boolean> {
     try {
       const user = await this.getUserById(userId);
-      return user?.role === UserRole.ADMIN || user?.role === UserRole.OWNER;
+      return user?.role === UserRole.BROKER || user?.role === UserRole.ADMIN;
     } catch (error) {
-      logger.error("Admin check failed:", error);
+      logger.error("Broker check failed:", error);
       return false;
     }
   }
 
-  async isUserOwner(userId: string): Promise<boolean> {
+  async isUserAdmin(userId: string): Promise<boolean> {
     try {
       const user = await this.getUserById(userId);
-      return user?.role === UserRole.OWNER;
+      return user?.role === UserRole.ADMIN;
     } catch (error) {
-      logger.error("Owner check failed:", error);
+      logger.error("Admin check failed:", error);
       return false;
     }
   }
@@ -411,8 +411,8 @@ export class AuthService {
       const skip = (page - 1) * limit;
 
       const rolePriority: Record<string, number> = {
-        owner: 0,
-        admin: 1,
+        admin: 0,
+        broker: 1,
         user: 2,
       };
 
@@ -444,7 +444,7 @@ export class AuthService {
               return a.username.localeCompare(b.username);
             } else {
               if (roleA !== roleB) {
-                return roleA - roleB; // Always owner first for default
+                return roleA - roleB; // Always admin first for default
               }
               return (
                 new Date(a.createdAt).getTime() -
@@ -497,8 +497,8 @@ export class AuthService {
       await DBConnection.getInstance().connect();
 
       const requester = await this.getUserById(requesterId);
-      if (!requester || !this.isUserAdmin(requesterId)) {
-        throw ApiError.forbidden("Admin access required");
+      if (!requester || !this.isUserBroker(requesterId)) {
+        throw ApiError.forbidden("Broker access required");
       }
 
       if (userId === requesterId) {
@@ -511,18 +511,18 @@ export class AuthService {
       }
 
       if (
-        (user.role === UserRole.ADMIN || user.role === UserRole.OWNER) &&
-        requester.role !== UserRole.OWNER
+        (user.role === UserRole.BROKER || user.role === UserRole.ADMIN) &&
+        requester.role !== UserRole.ADMIN
       ) {
         throw ApiError.badRequest(
-          "Only owners can delete admin or owner accounts"
+          "Only admins can delete Broker or admin accounts"
         );
       }
 
-      if (user.role === UserRole.OWNER) {
-        const ownerCount = await User.countDocuments({ role: UserRole.OWNER });
-        if (ownerCount <= 1) {
-          throw ApiError.badRequest("Cannot delete the last owner account");
+      if (user.role === UserRole.ADMIN) {
+        const adminCount = await User.countDocuments({ role: UserRole.ADMIN });
+        if (adminCount <= 1) {
+          throw ApiError.badRequest("Cannot delete the last admin account");
         }
       }
 
@@ -541,8 +541,8 @@ export class AuthService {
 
   async getUserStats(): Promise<{
     totalUsers: number;
+    totalBrokers: number;
     totalAdmins: number;
-    totalOwners: number;
     recentRegistrations: number;
     activeUsers: number;
   }> {
@@ -555,22 +555,22 @@ export class AuthService {
 
       const [
         totalUsers,
+        totalBrokers,
         totalAdmins,
-        totalOwners,
         recentRegistrations,
         activeUsers,
       ] = await Promise.all([
         User.countDocuments({ role: UserRole.USER }),
+        User.countDocuments({ role: UserRole.BROKER }),
         User.countDocuments({ role: UserRole.ADMIN }),
-        User.countDocuments({ role: UserRole.OWNER }),
         User.countDocuments({ createdAt: { $gte: lastWeek } }),
         User.countDocuments({ lastLoginAt: { $gte: lastMonth } }),
       ]);
 
       return {
         totalUsers,
+        totalBrokers,
         totalAdmins,
-        totalOwners,
         recentRegistrations,
         activeUsers,
       };
@@ -598,32 +598,34 @@ export class AuthService {
         throw ApiError.notFound("User not found");
       }
 
-      const isRequesterOwner = requester.role === UserRole.OWNER;
-      const isRequesterAdmin =
-        requester.role === UserRole.ADMIN || isRequesterOwner;
+      const isRequesterAdmin = requester.role === UserRole.ADMIN;
+      const isRequesterBroker =
+        requester.role === UserRole.BROKER || isRequesterAdmin;
 
-      if (!isRequesterAdmin) {
-        throw ApiError.forbidden("Admin access required");
+      if (!isRequesterBroker) {
+        throw ApiError.forbidden("Broker access required");
       }
 
       if (
-        (role === UserRole.ADMIN ||
-          role === UserRole.OWNER ||
-          targetUser.role === UserRole.ADMIN ||
-          targetUser.role === UserRole.OWNER) &&
-        !isRequesterOwner
+        (role === UserRole.BROKER ||
+          role === UserRole.ADMIN ||
+          targetUser.role === UserRole.BROKER ||
+          targetUser.role === UserRole.ADMIN) &&
+        !isRequesterAdmin
       ) {
-        throw ApiError.forbidden("Only owners can manage admin or owner roles");
+        throw ApiError.forbidden(
+          "Only admins can manage Broker or admin roles"
+        );
       }
 
       if (
         userId === requesterId &&
-        requester.role === UserRole.OWNER &&
-        role !== UserRole.OWNER
+        requester.role === UserRole.ADMIN &&
+        role !== UserRole.ADMIN
       ) {
-        const ownerCount = await User.countDocuments({ role: UserRole.OWNER });
-        if (ownerCount <= 1) {
-          throw ApiError.badRequest("Cannot demote the only owner");
+        const adminCount = await User.countDocuments({ role: UserRole.ADMIN });
+        if (adminCount <= 1) {
+          throw ApiError.badRequest("Cannot demote the only admin");
         }
       }
 

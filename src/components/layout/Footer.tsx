@@ -57,8 +57,8 @@ const Footer: React.FC<FooterProps> = ({ scrollToHome }) => {
             <address className="not-italic text-gray-400 space-y-1">
               <p>KG Ave 123</p>
               <p>Giporoso, Kigali</p>
-              <p>info@realestate.com</p>
-              <p>+250 788 123 456</p>
+              <p>{process.env.NEXT_PUBLIC_EMAIL}</p>
+              <p>{process.env.NEXT_PUBLIC_PHONE}</p>
             </address>
           </div>
         </div>
