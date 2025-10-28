@@ -368,19 +368,19 @@ export class AuthService {
   async isUserAdmin(userId: string): Promise<boolean> {
     try {
       const user = await this.getUserById(userId);
-      return user?.role === UserRole.ADMIN || user?.role === UserRole.OWNER;
+      return user?.role === UserRole.BROKER || user?.role === UserRole.ADMIN;
     } catch (error) {
-      logger.error("Admin check failed:", error);
+      logger.error("Broker check failed:", error);
       return false;
     }
   }
 
-  async isUserOwner(userId: string): Promise<boolean> {
+  async isUserAdmin(userId: string): Promise<boolean> {
     try {
       const user = await this.getUserById(userId);
-      return user?.role === UserRole.OWNER;
+      return user?.role === UserRole.ADMIN;
     } catch (error) {
-      logger.error("Owner check failed:", error);
+      logger.error("Admin check failed:", error);
       return false;
     }
   }
@@ -553,7 +553,6 @@ export class AuthService {
     totalUsers: number;
     totalBrokers: number;
     totalAdmins: number;
-    totalOwners: number;
     recentRegistrations: number;
     activeUsers: number;
   }> {
@@ -582,7 +581,6 @@ export class AuthService {
         totalUsers,
         totalBrokers,
         totalAdmins,
-        totalOwners,
         recentRegistrations,
         activeUsers,
       };
@@ -642,23 +640,25 @@ export class AuthService {
       }
 
       if (
-        (role === UserRole.ADMIN ||
-          role === UserRole.OWNER ||
-          targetUser.role === UserRole.ADMIN ||
-          targetUser.role === UserRole.OWNER) &&
-        !isRequesterOwner
+        (role === UserRole.BROKER ||
+          role === UserRole.ADMIN ||
+          targetUser.role === UserRole.BROKER ||
+          targetUser.role === UserRole.ADMIN) &&
+        !isRequesterAdmin
       ) {
-        throw ApiError.forbidden("Only owners can manage admin or owner roles");
+        throw ApiError.forbidden(
+          "Only admins can manage Broker or admin roles"
+        );
       }
 
       if (
         userId === requesterId &&
-        requester.role === UserRole.OWNER &&
-        role !== UserRole.OWNER
+        requester.role === UserRole.ADMIN &&
+        role !== UserRole.ADMIN
       ) {
-        const ownerCount = await User.countDocuments({ role: UserRole.OWNER });
-        if (ownerCount <= 1) {
-          throw ApiError.badRequest("Cannot demote the only owner");
+        const adminCount = await User.countDocuments({ role: UserRole.ADMIN });
+        if (adminCount <= 1) {
+          throw ApiError.badRequest("Cannot demote the only admin");
         }
       }
 

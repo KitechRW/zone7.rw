@@ -8,8 +8,8 @@ Closes #[ISSUE_NUMBER]
 
 ## ✅ Changes
 
-- [✔️] Feature added
-- [✔️ ] Bug fixed
+- [ ] Feature added
+- [✔️] Bug fixed
 - [✔️] Refactoring
 - [ ] Other (please describe):
 

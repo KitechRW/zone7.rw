@@ -48,11 +48,11 @@ export class EmailService {
     this.brokerEmail = process.env.ADMIN_EMAIL!;
 
     if (!this.apiKey) {
-      throw new Error("BREVO_API_KEY environment variable is required");
+      throw new Error("MAILERSEND_API_KEY environment variable is required");
     }
 
     if (!this.fromEmail) {
-      throw new Error("BREVO_FROM_EMAIL environment variable is required");
+      throw new Error("MAILERSEND_FROM_EMAIL environment variable is required");
     }
 
     if (!this.brokerEmail) {

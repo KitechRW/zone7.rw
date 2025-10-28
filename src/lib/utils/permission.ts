@@ -4,7 +4,6 @@ export enum UserRole {
   USER = "user",
   BROKER = "broker",
   ADMIN = "admin",
-  OWNER = "owner",
 }
 
 const rolePermissions = {
@@ -27,14 +26,6 @@ const rolePermissions = {
     interests: ["read", "delete"],
     broker: ["access"],
     admin: ["access"],
-  },
-  [UserRole.OWNER]: {
-    properties: ["read", "create", "update", "delete"],
-    users: ["read", "update", "delete", "promote", "demote"],
-    profile: ["read", "update"],
-    interests: ["read", "delete"],
-    admin: ["access"],
-    owner: ["access"],
   },
 };
 
