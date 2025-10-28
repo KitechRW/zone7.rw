@@ -516,7 +516,7 @@ src/
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/KitechRW/restate.rw.git
+   git clone https://github.com/KitechRW/zone7.rw
    ```
 
 2. Install dependencies:
@@ -529,14 +529,20 @@ src/
    Create a `.env` file with the following variables:
 
    ```
-   NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=your_secret
-   MONGODB_URI=your_mongodb_uri
-   CLOUDINARY_CLOUD_NAME=your_cloud_name
-   CLOUDINARY_API_KEY=your_api_key
-   CLOUDINARY_API_SECRET=your_api_secret
-   EMAIL_SERVER=your_email_server
-   EMAIL_FROM=your_email_from
+   NEXT_PUBLIC_COMPANY_NAME=
+   NEXT_PUBLIC_COMPANY_URL=
+   NEXT_PUBLIC_EMAIL=
+   NEXT_PUBLIC_PHONE=
+   NEXTAUTH_URL=
+   NEXTAUTH_SECRET=
+   MONGODB_URI=
+   ADMIN_EMAIL=
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+   NEXT_PUBLIC_CLOUDINARY_API_KEY=
+   CLOUDINARY_API_SECRET=
+   BREVO_API_KEY=
+   BREVO_FROM_EMAIL=
+   BREVO_FROM_NAME=
    ```
 
 4. Run the development server:
@@ -592,41 +598,28 @@ The application implements a hybrid authentication system built on NextAuth.js w
 - `InterestContext` - Interest management state
 - `FilterContext` - Property filtering state
 
-## Components
+## Components Overview
 
-### Layout Components
-
-- `Header` - Main navigation header
-- `Footer` - Site footer
-- `Welcome` - Homepage welcome section
-- `Benefits` - Features and benefits section
-
-### Property Components
-
-- `PropertyCard` - Property preview card
-- `PropertyDetails` - Detailed property view
-- `PropertyGrid` - Grid layout for properties
-
-### Admin Components
-
-- `PropertyTab` - Property management tab
-- `UsersTab` - User management tab
-- `InterestsTab` - Interest management tab
+- **Layout Components**: `Header`, `Footer`, `Welcome`, `Benefits`, etc.
+- **Property Components**: `PropertyCard`, `PropertyDetails`, `PropertyGrid`, etc.
+- **Admin Components**: `PropertyTab`, `UsersTab`, `InterestsTab`
+- **Miscellaneous**: `Avatar`, `Loader`, `Dropdown`, `SearchBar`, etc.
+- **Modals**: `InterestModal`, `PropertyModal`
 
 ## Middleware
 
-- `authMiddleware` - Route protection
-- `errorMiddleware` - Error handling
-- `rateLimitMiddleware` - API rate limiting
-- `validationMiddleware` - Request validation
+- `auth.middleware.ts` - Route protection
+- `error.middleware.ts` - Error handling
+- `rateLimit.middleware.ts` - API rate limiting
+- `validation.middleware.ts` - Request validation
 
 ## Services
 
-- `authService` - Authentication logic
-- `propertyService` - Property management
-- `cloudinaryService` - Image upload and management
-- `emailService` - Email notifications
-- `resetService` - Password reset functionality
+- `auth.service.ts` - Authentication logic
+- `property.service.ts` - Property management
+- `cloudinary.service.ts` - Image upload and management
+- `email.service.ts` - Email notifications
+- `reset.service.ts` - Password reset functionality
 
 ## Contributing
 
