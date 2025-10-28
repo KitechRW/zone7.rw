@@ -334,9 +334,9 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-700 -mt-1.5">Phone</h3>
-                    <Link href="tel:+250788123456">
+                    <Link href={`tel:${process.env.NEXT_PUBLIC_PHONE}`}>
                       <p className="text-gray-600 hover:text-gray-900">
-                        +250788123456
+                        {process.env.NEXT_PUBLIC_PHONE}
                       </p>
                     </Link>
                   </div>
@@ -348,9 +348,9 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-700 -mt-1.5">Email</h3>
-                    <Link href="mailto:info@realestate.com">
+                    <Link href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`}>
                       <p className="text-gray-600 hover:text-gray-900">
-                        info@realestate.com
+                        {process.env.NEXT_PUBLIC_EMAIL}
                       </p>
                     </Link>
                   </div>

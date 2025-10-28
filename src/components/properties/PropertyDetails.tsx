@@ -21,6 +21,7 @@ import { useInterest } from "@/contexts/InterestContext";
 import { useAuth } from "@/contexts/AuthContext";
 import InterestModal from "../modals/InterestModal";
 import { Interest } from "@/types/Interests";
+import { getYoutubeEmbedUrl } from "@/util/YoutubeThumbnail";
 
 interface PropertyDetailsProps {
   propertyId: string;
@@ -43,6 +44,7 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
   } | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [removingInterest, setRemovingInterest] = useState(false);
+  const [guestEmail, setGuestEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const loadProperty = async () => {
@@ -62,23 +64,51 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
     }
   }, [propertyId, fetchProperty, clearError]);
 
+  //Load guest email from localStorage
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const storedEmail = localStorage.getItem("guest_email");
+
+      if (storedEmail) {
+        setGuestEmail(storedEmail);
+      }
+    }
+  }, [isAuthenticated]);
+
   // Check if user already has interest in this property
   useEffect(() => {
     const checkInterest = async () => {
-      if (isAuthenticated && currentProperty) {
-        try {
-          const result = await checkUserInterest(propertyId);
-          setUserInterest(result);
-        } catch (error) {
-          console.error("Failed to check user interest:", error);
+      if (currentProperty) {
+        const emailToCheck = isAuthenticated ? user?.email : guestEmail;
+
+        if (emailToCheck) {
+          try {
+            const result = await checkUserInterest(propertyId, emailToCheck);
+            setUserInterest(result);
+          } catch (error) {
+            console.error("Failed to check user interest:", error);
+          }
+        } else {
+          //default to no interest if no email to check
+          setUserInterest({
+            hasInterest: false,
+            interest: null,
+          });
         }
       }
     };
 
-    if (currentProperty && isAuthenticated) {
+    if (currentProperty) {
       checkInterest();
     }
-  }, [currentProperty, isAuthenticated, propertyId, checkUserInterest]);
+  }, [
+    currentProperty,
+    isAuthenticated,
+    propertyId,
+    checkUserInterest,
+    user?.email,
+    guestEmail,
+  ]);
 
   // Combine main image with room images when property loads
   useEffect(() => {
@@ -97,34 +127,43 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
   };
 
   const placeInterest = () => {
-    if (!isAuthenticated) {
-      router.push("/auth");
-      return;
-    }
     setShowInterestModal(true);
   };
 
   const interestSubmit = async (data: {
-    userPhone: string;
+    userName?: string;
+    userEmail: string;
+    userPhone?: string;
     message?: string;
   }) => {
-    if (!user || !currentProperty) return;
+    if (!currentProperty) return;
 
     try {
       setInterestLoading(true);
 
       await createInterest({
-        userId: user.id,
+        userId: user?.id,
         propertyId: propertyId,
+        userName: data.userName,
+        userEmail: data.userEmail,
         userPhone: data.userPhone,
         message: data.message,
       });
+
+      // Store guest email in localStorage
+      if (!isAuthenticated) {
+        localStorage.setItem("guest_email", data.userEmail);
+        setGuestEmail(data.userEmail);
+      }
 
       setShowInterestModal(false);
       setShowSuccessMessage(true);
 
       // Update user interest status
-      const result = await checkUserInterest(propertyId);
+      const result = await checkUserInterest(
+        propertyId,
+        user?.email || data.userEmail
+      );
       setUserInterest(result);
 
       setTimeout(() => setShowSuccessMessage(false), 5000);
@@ -537,6 +576,24 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
                 </div>
               </div>
             </div>
+
+            {currentProperty.youtubeLink && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                  Watch the tour of this {currentProperty.type}
+                </h3>
+                <div className="aspect-video  w-full">
+                  <iframe
+                    className=" w-full h-full rounded-lg"
+                    src={getYoutubeEmbedUrl(currentProperty.youtubeLink)}
+                    title="Property Video Tour"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -547,6 +604,9 @@ const PropertyDetails: React.FC<PropertyDetailsProps> = ({ propertyId }) => {
         onSubmit={interestSubmit}
         loading={interestLoading}
         propertyTitle={currentProperty?.title || ""}
+        isAuthenticated={isAuthenticated}
+        userEmail={isAuthenticated ? user?.email ?? "" : ""}
+        userName={isAuthenticated ? user?.username ?? "" : ""}
       />
 
       <Footer2 />

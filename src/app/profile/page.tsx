@@ -41,19 +41,42 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const loadUserInterests = async () => {
-      if (!user?.id) return;
+      if (!user?.id || !user?.email) return;
 
       try {
         setLoading(true);
         setError(null);
 
-        // Use the consistent interest context method
-        const result = await fetchUserInterests(user.id);
-        const interests = result.interests || [];
+        //Catch interests placed before and after signup
+        const [userIdInterests, emailInterests] = await Promise.all([
+          fetchUserInterests(user.id).catch(() => ({
+            interests: [],
+            total: 0,
+            pages: 0,
+          })),
+          fetchInterestsByEmail(user.email).catch(() => ({
+            interests: [],
+            total: 0,
+            pages: 0,
+          })),
+        ]);
+
+        // Merge interests and remove duplicates
+        const allInterests = [...userIdInterests.interests];
+
+        // Add email-based interests that aren't already in the list
+        emailInterests.interests.forEach((emailInterest: Interest) => {
+          const isDuplicate = allInterests.some(
+            (interest) => interest.propertyId === emailInterest.propertyId
+          );
+          if (!isDuplicate) {
+            allInterests.push(emailInterest);
+          }
+        });
 
         // Fetch property details for each interest
         const interestedPropsData = await Promise.all(
-          interests.map(async (interest) => {
+          allInterests.map(async (interest) => {
             try {
               const property = await fetchProperty(interest.propertyId);
               return { interest, property };
@@ -67,6 +90,13 @@ const ProfilePage = () => {
           })
         );
 
+        // Sort by creation date (newest first)
+        interestedPropsData.sort(
+          (a, b) =>
+            new Date(b.interest.createdAt).getTime() -
+            new Date(a.interest.createdAt).getTime()
+        );
+
         setInterestedProperties(interestedPropsData);
       } catch (err) {
         console.error("Error fetching user interests:", err);
@@ -78,10 +108,36 @@ const ProfilePage = () => {
       }
     };
 
+    const fetchInterestsByEmail = async (email: string) => {
+      try {
+        const response = await fetch(
+          `/api/interests/by-email?email=${encodeURIComponent(email)}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch interests by email");
+        }
+        const result = await response.json();
+        return {
+          interests: result.data.interests || [],
+          total: result.data.total || 0,
+          pages: result.data.pages || 0,
+        };
+      } catch (error) {
+        console.error("Error fetching interests by email:", error);
+        return { interests: [], total: 0, pages: 0 };
+      }
+    };
+
     if (isAuthenticated) {
       loadUserInterests();
     }
-  }, [user?.id, isAuthenticated, fetchProperty, fetchUserInterests]);
+  }, [
+    user?.id,
+    isAuthenticated,
+    user?.email,
+    fetchProperty,
+    fetchUserInterests,
+  ]);
 
   const removeInterest = async (interestId: string) => {
     try {
@@ -178,6 +234,12 @@ const ProfilePage = () => {
                 <h2 className="text-xl font-semibold text-gray-900 flex items-center">
                   Your Interested Properties ({interestedProperties.length})
                 </h2>
+
+                {interestedProperties.some((item) => !item.interest.userId) && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Including interests placed before signup
+                  </p>
+                )}
               </div>
 
               <div className="p-5">

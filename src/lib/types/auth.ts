@@ -29,12 +29,12 @@ export interface RegisterCredentials {
   password: string;
 }
 
-export interface CreateAdminRequest {
+export interface CreateBrokerRequest {
   username: string;
   email: string;
 }
 
-export interface CreateAdminCredentials {
+export interface CreateBrokerCredentials {
   success: true;
   message: string;
   data: {

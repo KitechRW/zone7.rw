@@ -29,7 +29,7 @@ const Welcome: React.FC<WelcomeProps> = ({ homeRef }) => {
   };
 
   return (
-    <section ref={homeRef} className="relative w-screen h-[750px] mx-auto py-5">
+    <section ref={homeRef} className="relative w-screen h-[800px] mx-auto py-5">
       <div>
         <div className="absolute inset-0 bg-black/60 z-10"></div>
         <Image

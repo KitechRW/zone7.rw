@@ -27,7 +27,7 @@ export interface ContactNotificationData {
   submissionDate: string;
 }
 
-export interface AdminCredentialsData {
+export interface BrokerCredentialsData {
   userEmail: string;
   userName: string;
   password: string;
@@ -39,24 +39,24 @@ export class EmailService {
   private apiKey: string;
   private fromEmail: string;
   private fromName: string;
-  private adminEmail: string;
+  private brokerEmail: string;
 
   private constructor() {
-    this.apiKey = process.env.BREVO_API_KEY!;
-    this.fromEmail = process.env.BREVO_FROM_EMAIL!;
-    this.fromName = process.env.BREVO_FROM_NAME!;
-    this.adminEmail = process.env.OWNER_EMAIL!;
+    this.apiKey = process.env.MAILERSEND_API_KEY!;
+    this.fromEmail = process.env.MAILERSEND_FROM_EMAIL!;
+    this.fromName = process.env.MAILERSEND_FROM_NAME!;
+    this.brokerEmail = process.env.ADMIN_EMAIL!;
 
     if (!this.apiKey) {
-      throw new Error("BREVO_API_KEY environment variable is required");
+      throw new Error("MAILERSEND_API_KEY environment variable is required");
     }
 
     if (!this.fromEmail) {
-      throw new Error("BREVO_FROM_EMAIL environment variable is required");
+      throw new Error("MAILERSEND_FROM_EMAIL environment variable is required");
     }
 
-    if (!this.adminEmail) {
-      throw new Error("OWNER_EMAIL environment variable is required");
+    if (!this.brokerEmail) {
+      throw new Error("ADMIN_EMAIL environment variable is required");
     }
   }
 
@@ -73,36 +73,36 @@ export class EmailService {
     htmlContent: string;
     textContent?: string;
   }): Promise<void> {
-    const brevoPayload = {
-      sender: {
-        name: this.fromName,
+    const mailersendPayload = {
+      from: {
         email: this.fromEmail,
+        name: this.fromName,
       },
       to: emailData.to,
       subject: emailData.subject,
-      htmlContent: emailData.htmlContent,
-      textContent: emailData.textContent,
+      html: emailData.htmlContent,
+      text: emailData.textContent,
     };
 
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    const response = await fetch("https://api.mailersend.com/v1/email", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "api-key": this.apiKey,
+        Authorization: `Bearer ${this.apiKey}`,
       },
-      body: JSON.stringify(brevoPayload),
+      body: JSON.stringify(mailersendPayload),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(
-        errorData.message || `Brevo API error: ${response.status}`
+        errorData.message || `Mailersend API error: ${response.status}`
       );
     }
   }
 
-  //ADMIN CREATION EMAIL
-  async sendAdminCredentials(data: AdminCredentialsData): Promise<void> {
+  //BROKER CREATION EMAIL
+  async sendBrokerCredentials(data: BrokerCredentialsData): Promise<void> {
     try {
       await this.sendEmail({
         to: [
@@ -111,16 +111,16 @@ export class EmailService {
             name: data.userName,
           },
         ],
-        subject: "Admin Account Created - Login Credentials",
-        htmlContent: this.generateAdminCredentialsTemplate(data),
-        textContent: this.generateAdminCredentialsText(data),
+        subject: "Broker Account Created - Login Credentials",
+        htmlContent: this.generateBrokerCredentialsTemplate(data),
+        textContent: this.generateBrokerCredentialsText(data),
       });
 
-      logger.info("Admin credentials email sent successfully", {
+      logger.info("Broker credentials email sent successfully", {
         userEmail: data.userEmail,
       });
     } catch (error) {
-      logger.error("Failed to send admin credentials email", {
+      logger.error("Failed to send broker credentials email", {
         error: error instanceof Error ? error.message : "Unknown error",
         data: { ...data, password: "[REDACTED]" },
       });
@@ -128,14 +128,16 @@ export class EmailService {
     }
   }
 
-  private generateAdminCredentialsTemplate(data: AdminCredentialsData): string {
+  private generateBrokerCredentialsTemplate(
+    data: BrokerCredentialsData
+  ): string {
     return `
   <!DOCTYPE html>
   <html lang="en">
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Admin Account Created</title>
+      <title>Broker Account Created</title>
       <style>
           body {
               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -190,12 +192,12 @@ export class EmailService {
               border-radius: 4px;
           }
           .credential-label {
-              font-weight: 700;
               color: #5c5c5c;
               font-size: 18px;
           }
           .credential-value {
               color: #1f2937;
+              font-weight: 700;
               font-size: 16px;
               word-break: break-all;
               margin-top: 5px;
@@ -245,7 +247,7 @@ export class EmailService {
   <body>
       <div class="container">
           <div class="header">
-              <h1>Welcome to the Admin Team!</h1>
+              <h1>Welcome to the Brokers Team!</h1>
           </div>
 
           <div class="content">
@@ -254,10 +256,10 @@ export class EmailService {
               </div>
 
               <div class="message">
-                  Your admin account has been created successfully for ${
+                  Your Broker account has been created successfully for ${
                     process.env.NEXT_PUBLIC_COMPANY_NAME
                   }. 
-                  <br/>Below are your login credentials to access the admin dashboard.
+                  <br/>Below are your login credentials to access the broker dashboard.
               </div>
 
               <div class="credentials-box">
@@ -272,7 +274,7 @@ export class EmailService {
               </div>
 
               <div class="login-button">
-                  <a href="${data.loginUrl}">Access Admin Dashboard</a>
+                  <a href="${data.loginUrl}">Access Broker Dashboard</a>
               </div>
 
               <div class="security-info">
@@ -297,13 +299,13 @@ export class EmailService {
   `;
   }
 
-  private generateAdminCredentialsText(data: AdminCredentialsData): string {
+  private generateBrokerCredentialsText(data: BrokerCredentialsData): string {
     return `
-ADMIN ACCOUNT CREATED
+BROKER ACCOUNT CREATED
 
 Hello ${data.userName},
 
-Your admin account has been created successfully for ${process.env.NEXT_PUBLIC_COMPANY_NAME}.
+Your Broker account has been created successfully for ${process.env.NEXT_PUBLIC_COMPANY_NAME}.
 
 LOGIN CREDENTIALS:
 Email: ${data.userEmail}
@@ -321,7 +323,7 @@ If you have any questions or need assistance, please contact our support team.
 
 ---
 ${process.env.NEXT_PUBLIC_COMPANY_NAME}
-Admin System
+Broker System
   `.trim();
   }
 
@@ -333,8 +335,8 @@ Admin System
       await this.sendEmail({
         to: [
           {
-            email: this.adminEmail,
-            name: "Property Admin",
+            email: this.brokerEmail,
+            name: "Property Broker",
           },
         ],
         subject: `New Interest: ${data.propertyTitle}`,
@@ -788,8 +790,8 @@ Automated security system
       await this.sendEmail({
         to: [
           {
-            email: this.adminEmail,
-            name: "Contact Form Admin",
+            email: this.brokerEmail,
+            name: "Contact Form Broker",
           },
         ],
         subject: `Contact Form: ${data.subject}`,

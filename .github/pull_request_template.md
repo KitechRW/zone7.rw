@@ -23,7 +23,7 @@ Closes #[ISSUE_NUMBER]
 
 Steps for testing this PR:
 
-1. Browse (https://restate.kitech.rw/admin) to test property and user management
+1. Browse https://zone7.kitech.rw
 2.
 3.
 

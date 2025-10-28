@@ -9,6 +9,7 @@ import Welcome from "@/components/layout/Welcome";
 import Benefits from "@/components/layout/Benefits";
 import Footer from "@/components/layout/Footer";
 import PropertyListings from "@/components/layout/FeaturedProperties";
+import Whatsapp from "@/util/Whatsapp";
 
 const Home = () => {
   const [isLoading, SetIsLoading] = useState<boolean>(true);
@@ -54,6 +55,7 @@ const Home = () => {
       </Head>
 
       <Suspense fallback={<Loader className="h-screen" />}>
+        <Whatsapp />
         <Header scrollToProperties={propertyScroll} scrollToHome={homeScroll} />
         <Welcome homeRef={homeRef} />
         <PropertyListings propertyRef={propertyRef} />

@@ -148,6 +148,33 @@ const InterestsTab = ({
 
   //Load data when filters change
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoadingUsers(true);
+        const response = await fetch("/api/users");
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data.data || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  //Set selected user from users tab
+  useEffect(() => {
+    if (filterByUserId) {
+      setSelectedUserId(filterByUserId);
+    }
+  }, [filterByUserId]);
+
+  //Load data when filters change
+  useEffect(() => {
     const loadData = async () => {
       try {
         const activeUserId = filterByUserId || selectedUserId;
@@ -657,7 +684,7 @@ const InterestsTab = ({
                           </div>
 
                           {detailsModal === interest.id && (
-                            <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-40">
+                            <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 backdrop-blur-[4px]">
                               <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-gray-700 min-w-sm mx-4 rounded-sm">
                                 <h4 className="text-xl text-center font-semibold">
                                   Full Message
@@ -677,7 +704,7 @@ const InterestsTab = ({
                           )}
 
                           {deleteConfirm === interest.id && (
-                            <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
+                            <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 backdrop-blur-[4px]">
                               <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-black w-80 max-w-sm mx-4 rounded-sm">
                                 <h4 className="text-lg text-center font-bold">
                                   Remove Interest?

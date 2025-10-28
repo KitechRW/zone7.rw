@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Avatar from "@/components/misc/Avatar";
 import { Variants, motion, AnimatePresence } from "framer-motion";
+import { UserRole } from "@/lib/utils/permission";
 
 type AdminTab = "properties" | "users" | "interests";
 
@@ -34,6 +35,8 @@ const AdminDashboard = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
+
+  const isOwner = user?.role === UserRole.ADMIN;
 
   const login = useCallback(() => {
     router.push("/auth");
@@ -183,7 +186,7 @@ const AdminDashboard = () => {
                   transition={{ duration: 0.2 }}
                   className="bg-neutral-800 bg-clip-text text-transparent text-lg font-semibold whitespace-nowrap overflow-hidden"
                 >
-                  Admin Dashboard
+                  Dashboard
                 </motion.h3>
               )}
             </AnimatePresence>
@@ -217,13 +220,14 @@ const AdminDashboard = () => {
             </button>
 
             <button
+              disabled={!isOwner}
               title="Interests"
               onClick={() => changeTab("interests")}
               className={`w-full flex items-center gap-3 rounded-sm text-left transition-colors cursor-pointer ${
                 activeTab === "interests"
                   ? "text-light-blue"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+              } ${!isOwner ? "hidden" : ""}`}
             >
               <Heart className="w-6 h-6 flex-shrink-0" />
               <AnimatePresence mode="wait">
@@ -243,13 +247,14 @@ const AdminDashboard = () => {
             </button>
 
             <button
+              disabled={!isOwner}
               title="Users"
               onClick={() => changeTab("users")}
               className={`w-full flex items-center gap-3 rounded-sm text-left transition-colors cursor-pointer ${
                 activeTab === "users"
                   ? "text-light-blue"
                   : "text-gray-600 hover:bg-gray-100"
-              }`}
+              } ${!isOwner ? "hidden" : ""}`}
             >
               <Users className="w-6 h-6 flex-shrink-0" />
               <AnimatePresence mode="wait">
@@ -317,6 +322,7 @@ const AdminDashboard = () => {
       authLoading,
       sidebarVariants,
       textVariants,
+      isOwner,
       changeTab,
       logout,
       login,

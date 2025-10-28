@@ -1,27 +1,27 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Home, Shield, Award, Heart, MapPinHouse } from "lucide-react";
+import React from "react";
+import { Shield, MapPinHouse } from "lucide-react";
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import CountUp from "react-countup";
+// import { useInView } from "react-intersection-observer";
+// import CountUp from "react-countup";
 import Link from "next/link";
 
 const Benefits = () => {
-  const [count, setCount] = useState(false);
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.5 });
+  // const [count, setCount] = useState(false);
+  // const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.5 });
 
-  useEffect(() => {
-    if (inView) {
-      setCount(true);
-    }
-  }, [inView]);
+  // useEffect(() => {
+  //   if (inView) {
+  //     setCount(true);
+  //   }
+  // }, [inView]);
 
-  const stats = [
-    { number: 1500, label: "Happy Clients", icon: Heart },
-    { number: 900, label: "Properties Sold", icon: Home },
-    { number: 6, label: "Years Experience", icon: Award },
-  ];
+  // const stats = [
+  //   { number: 1500, label: "Happy Clients", icon: Heart },
+  //   { number: 900, label: "Properties Sold", icon: Home },
+  //   { number: 6, label: "Years Experience", icon: Award },
+  // ];
 
   return (
     <section>
@@ -97,7 +97,7 @@ const Benefits = () => {
         </motion.div>
       </div>
 
-      <div className="bg-gradient-to-r from-light-blue/10 to-white/20 p-10 mb-10 relative overflow-hidden">
+      {/* <div className="bg-gradient-to-r from-light-blue/10 to-white/20 p-10 mb-10 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="relative py-5 z-10">
             <h3 className="xs:text-4xl md:text-5xl font-bold text-black text-center mb-16">
@@ -140,7 +140,7 @@ const Benefits = () => {
           <div className="absolute bottom-10 right-10 w-6 h-3 bg-gray-300  rounded-full animate-spin delay-300" />
           <div className="absolute bottom-20 right-20 rotate-12 w-10 h-10 bg-gray-200 rounded-full animate-bounce delay-700" />
         </div>
-      </div>
+      </div> */}
 
       <div className="max-w-7xl mx-auto xs:px-10 lg:px-5 text-center py-10 mb-10 relative overflow-hidden">
         <div className="relative">

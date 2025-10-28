@@ -152,8 +152,8 @@ const LoginPage = () => {
             const session = await getSession();
 
             if (
-              session?.user.role === UserRole.OWNER ||
-              session?.user.role === UserRole.ADMIN
+              session?.user.role === UserRole.ADMIN ||
+              session?.user.role === UserRole.BROKER
             ) {
               router.push("/admin");
             } else {
@@ -191,8 +191,8 @@ const LoginPage = () => {
 
           const session = await getSession();
           if (
-            session?.user.role === UserRole.OWNER ||
-            session?.user.role === UserRole.ADMIN
+            session?.user.role === UserRole.ADMIN ||
+            session?.user.role === UserRole.BROKER
           ) {
             router.push("/admin");
           } else {
@@ -278,7 +278,7 @@ const LoginPage = () => {
         <div className="relative max-w-[650px] z-10 flex flex-col justify-center p-12 text-white gap-5">
           <h1 className="text-5xl font-bold">Find Your Dream Home</h1>
           <p className="text-xl text-white/90 leading-relaxed">
-            Your journey to homeownership starts here.
+            Your journey to home ownership starts here.
           </p>
         </div>
       </div>
