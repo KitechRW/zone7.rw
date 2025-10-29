@@ -94,6 +94,7 @@ zone7.rw/
 └── README.md                # Project documentation
 ```
 
+<<<<<<< HEAD
 A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allows users to browse, buy, and rent properties in Rwanda.
 
 <<<<<<< HEAD
@@ -294,6 +295,8 @@ src/
 └── types/               # Global TypeScript types
 ```
 
+=======
+>>>>>>> 3871659f8d014f18aedbab4e8ce205aeff23bece
 ## Getting Started
 
 1. Clone the repository:
@@ -354,10 +357,13 @@ The application implements a hybrid authentication system built on NextAuth.js w
   - Refresh token rotation
   - Rate limiting on sensitive endpoints
   - HTTP-only cookies for refresh tokens
+<<<<<<< HEAD
     <<<<<<< HEAD
   - CSRF protection
   - Input validation with Zod > > > > > > > f1e01a3 (1. MongoDB setup (#6))
     =======
+=======
+>>>>>>> 3871659f8d014f18aedbab4e8ce205aeff23bece
   - Secure password reset flow
   - Device and user agent tracking
 
@@ -406,4 +412,7 @@ The application implements a hybrid authentication system built on NextAuth.js w
 3. Commit your changes: `git commit -m 'Add my feature'`
 4. Push to the branch: `git push origin feature/my-feature`
 5. Submit a pull request
+<<<<<<< HEAD
    > > > > > > > 48f8bee (Feature/password reset (#12))
+=======
+>>>>>>> 3871659f8d014f18aedbab4e8ce205aeff23bece
