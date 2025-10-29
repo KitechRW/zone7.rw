@@ -31,7 +31,7 @@ export default withAuth(
         loginUrl.searchParams.set("callbackUrl", pathname);
         return NextResponse.redirect(loginUrl);
       }
-      if (req.nextauth.token?.user?.role !== UserRole.ADMIN) {
+      if (req.nextauth.token?.user?.role !== UserRole.BROKER) {
         return NextResponse.redirect(new URL("/unauthorized", origin));
       }
     }
@@ -49,7 +49,7 @@ export default withAuth(
         }
 
         if (pathname.startsWith("/admin")) {
-          return token?.user?.role === UserRole.ADMIN;
+          return token?.user?.role === UserRole.BROKER;
         }
 
         // Protected routes require authentication

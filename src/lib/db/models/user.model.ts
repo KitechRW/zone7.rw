@@ -6,7 +6,7 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   provider: "credentials";
-  role: "owner" | "admin" | "user";
+  role: "admin" | "broker" | "user";
   emailVerified?: Date;
   refreshTokens: Array<{
     token: string;
@@ -56,7 +56,7 @@ const UserSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ["owner", "admin", "user"],
+      enum: ["admin", "broker", "user"],
       required: true,
       default: "user",
     },

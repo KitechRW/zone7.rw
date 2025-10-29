@@ -30,13 +30,22 @@ interface PropertyContextType {
     page?: number,
     limit?: number
   ) => Promise<{ properties: Property[]; total: number; pages: number }>;
+  fetchBrokerProperties: (
+    filters?: PropertyFilters,
+    page?: number,
+    limit?: number
+  ) => Promise<{ properties: Property[]; total: number; pages: number }>;
   fetchProperty: (id: string) => Promise<Property>;
   createProperty: (data: CreatePropertyFormData) => Promise<Property>;
   updateProperty: (
     id: string,
     data: Partial<CreatePropertyFormData>
   ) => Promise<Property>;
-  deleteProperty: (id: string) => Promise<void>;
+  deleteProperty: (
+    id: string,
+    userId: string,
+    userRole: string
+  ) => Promise<void>;
   fetchFeaturedProperties: (limit?: number) => Promise<Property[]>;
   fetchStats: () => Promise<PropertyStats>;
 
@@ -79,6 +88,11 @@ class PropertyAPI {
       formData.append("features", feature);
     });
 
+    // Add youtube link
+    if (data.youtubeLink) {
+      formData.append("youtubeLink", data.youtubeLink);
+    }
+
     // Add main image
     if (data.mainImageFile) {
       formData.append("mainImage", data.mainImageFile);
@@ -91,7 +105,7 @@ class PropertyAPI {
       formData.append("roomDescriptions", roomUpload.description || "");
     });
 
-    const response = await fetch("/api/properties", {
+    const response = await fetch("/api/properties/admin", {
       method: "POST",
       body: formData,
     });
@@ -132,6 +146,33 @@ class PropertyAPI {
     };
   }
 
+  static async getBrokerProperties(
+    filters: PropertyFilters = {},
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{ properties: Property[]; total: number; pages: number }> {
+    const params = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        params.append(key, value.toString());
+      }
+    });
+
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+
+    // ADMIN endpoint - requires authentication
+    const response = await fetch(`/api/properties/admin?${params}`);
+    const result = await this.handleResponse(response);
+
+    return {
+      properties: result.properties,
+      total: result.total,
+      pages: result.pages,
+    };
+  }
+
   static async getById(id: string): Promise<Property> {
     const response = await fetch(`/api/properties/${id}`);
     const result = await this.handleResponse(response);
@@ -151,19 +192,14 @@ class PropertyAPI {
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         if (key === "features" && Array.isArray(value)) {
+          // Handle features array as each feature should be a string
           value.forEach((feature) => {
-            if (typeof feature === "object" && feature !== null) {
-              if (typeof feature === "object" && feature !== null) {
-                formData.append("roomImages", feature.file);
-                formData.append("roomTypes", feature.roomType);
-                formData.append("roomDescriptions", feature.description || "");
-              } else {
-                //The case when roomUpload is a string
-                formData.append("roomImages", feature);
-              }
+            if (typeof feature === "string") {
+              formData.append("features", feature);
             }
           });
         } else if (key === "roomTypeImageUploads" && Array.isArray(value)) {
+          //new room type images to upload
           (value as RoomTypeImageUpload[]).forEach((roomUpload) => {
             formData.append("roomTypeImages", roomUpload.file);
             formData.append("roomTypes", roomUpload.roomType);
@@ -172,21 +208,25 @@ class PropertyAPI {
         } else if (key === "mainImageFile") {
           formData.append("mainImage", value as File);
         } else if (key === "removeRoomTypeImages" && Array.isArray(value)) {
-          (value as RoomTypeImageUpload[]).forEach((roomUpload) => {
-            formData.append("roomTypeImages", roomUpload.file);
-            formData.append("roomTypes", roomUpload.roomType);
-            formData.append("roomDescriptions", roomUpload.description || "");
+          // Handle room images to remove
+          (value as string[]).forEach((imageUrl) => {
+            formData.append("removeRoomTypeImages", imageUrl);
           });
+        } else if (key === "youtubeLink") {
+          formData.append("youtubeLink", value as string);
         } else if (
+          // Handle all other simple fields (title, description, price, etc.)
           key !== "roomTypeImageUploads" &&
-          key !== "removeRoomTypeImages"
+          key !== "removeRoomTypeImages" &&
+          key !== "features" &&
+          key !== "mainImageFile"
         ) {
           formData.append(key, value.toString());
         }
       }
     });
 
-    const response = await fetch(`/api/properties/${id}`, {
+    const response = await fetch(`/api/properties/admin/${id}`, {
       method: "PUT",
       body: formData,
     });
@@ -195,11 +235,18 @@ class PropertyAPI {
     return result.property;
   }
 
-  static async delete(id: string): Promise<void> {
-    const response = await fetch(`/api/properties/${id}`, {
+  static async delete(
+    id: string,
+    userId: string,
+    userRole: string
+  ): Promise<void> {
+    const response = await fetch(`/api/properties/admin/${id}`, {
       method: "DELETE",
+      headers: {
+        "x-user-id": userId,
+        "x-user-role": userRole,
+      },
     });
-
     await this.handleResponse(response);
   }
 
@@ -210,7 +257,7 @@ class PropertyAPI {
   }
 
   static async getStats(): Promise<PropertyStats> {
-    const response = await fetch("/api/properties/stats");
+    const response = await fetch("/api/properties/admin/stats");
     const result = await this.handleResponse(response);
     return result.stats;
   }
@@ -248,6 +295,38 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
         clearError();
 
         const result = await PropertyAPI.getAll(filters, page, limit);
+
+        setProperties(result.properties);
+
+        setPagination({
+          total: result.total,
+          pages: result.pages,
+          currentPage: page,
+        });
+
+        return result;
+      } catch (err) {
+        handleError(err);
+        setProperties([]);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [clearError, handleError]
+  );
+
+  const fetchBrokerProperties = useCallback(
+    async (filters?: PropertyFilters, page: number = 1, limit: number = 10) => {
+      try {
+        setLoading(true);
+        clearError();
+
+        const result = await PropertyAPI.getBrokerProperties(
+          filters,
+          page,
+          limit
+        );
 
         setProperties(result.properties);
 
@@ -365,12 +444,12 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
   );
 
   const deleteProperty = useCallback(
-    async (id: string) => {
+    async (id: string, userId: string, userRole: string) => {
       try {
         setLoading(true);
         clearError();
 
-        await PropertyAPI.delete(id);
+        await PropertyAPI.delete(id, userId, userRole);
 
         // Remove from the list
         setProperties((prev) => prev.filter((p) => p.id !== id));
@@ -438,6 +517,7 @@ export const PropertyProvider: React.FC<{ children: ReactNode }> = ({
     pagination,
 
     fetchProperties,
+    fetchBrokerProperties,
     fetchProperty,
     createProperty,
     updateProperty,

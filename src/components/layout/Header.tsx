@@ -10,6 +10,7 @@ import { motion, Variants, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Avatar from "../misc/Avatar";
 import { useAuth } from "@/contexts/AuthContext";
+import { UserRole } from "@/lib/utils/permission";
 
 interface HeaderProps {
   scrollToProperties: () => void;
@@ -34,6 +35,9 @@ const Header: React.FC<HeaderProps> = ({
     action();
     setIsMenuOpen(false);
   };
+
+  const isAdmin =
+    user?.role === UserRole.ADMIN || user?.role === UserRole.BROKER;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -91,7 +95,7 @@ const Header: React.FC<HeaderProps> = ({
                 <Image
                   src={logoblue}
                   alt="Logo"
-                  className="xs:w-20 md:w-24"
+                  className="xs:w-16 md:w-20"
                   priority
                 />
               </Link>
@@ -117,12 +121,12 @@ const Header: React.FC<HeaderProps> = ({
                   <button className="flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
                     <Avatar userName={user.username} />
                   </button>
-                  <div className="absolute right-5 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum/90 rounded-md shadow-lg group-hover:block backdrop-blur-sm">
-                    <div className="flex flex-col items-center justify-center gap-2">
+                  <div className="absolute right-5 min-w-48 z-50 items-center hidden px-5 py-5 bg-platinum rounded-md shadow-lg group-hover:block backdrop-blur-sm">
+                    <div className="flex flex-col items-center justify-center">
                       <Link
                         href="/profile"
                         title="My account"
-                        className="hover:bg-black/5 rounded-md p-2 w-full"
+                        className="hover:bg-black/5 rounded-md p-2 w-full mb-2"
                       >
                         <div className="flex items-center gap-4">
                           <div className="flex-1 min-w-0">
@@ -135,6 +139,16 @@ const Header: React.FC<HeaderProps> = ({
                           </div>
                         </div>
                       </Link>
+
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          title="Go to dashboard"
+                          className="hover:bg-black/5 rounded-md p-2 w-full font-semibold text-black text-sm mb-2"
+                        >
+                          <p>Dashboard</p>
+                        </Link>
+                      )}
                       <button
                         onClick={logout}
                         className="w-full px-2 pt-1 pb-2 text-sm text-white font-medium bg-black rounded cursor-pointer"
@@ -174,7 +188,7 @@ const Header: React.FC<HeaderProps> = ({
           <div className="relative max-w-7xl mx-auto flex items-center justify-between xs:px-10 lg:px-5 py-1 h-20">
             <div>
               <Link href="/" className="text-3xl font-bold text-white">
-                <Image src={logoWhite} alt="Logo" className="xs:w-20 md:w-24" />
+                <Image src={logoWhite} alt="Logo" className="xs:w-16 md:w-20" />
               </Link>
             </div>
 
@@ -192,12 +206,13 @@ const Header: React.FC<HeaderProps> = ({
                   <button className="relative flex items-center justify-center overflow-hidden rounded-full xs:w-0 md:w-8">
                     <Avatar userName={user.username} />
                   </button>
+
                   <div className="absolute right-5 min-w-48 z-50 hidden px-5 py-4 bg-black/50 backdrop-blur-lg rounded-md shadow-lg group-hover:block">
-                    <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="flex flex-col items-center justify-center">
                       <Link
                         href="/profile"
                         title="My account"
-                        className="hover:bg-white/15 rounded-md p-2 w-full"
+                        className="hover:bg-white/15 rounded-md p-2 w-full mb-2"
                       >
                         <div className="flex items-center gap-4">
                           <div className="flex-1 min-w-0">
@@ -210,6 +225,17 @@ const Header: React.FC<HeaderProps> = ({
                           </div>
                         </div>
                       </Link>
+
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          title="Go to dashboard"
+                          className="hover:bg-white/15 rounded-md p-2 w-full font-semibold text-gray-100 text-sm mb-2"
+                        >
+                          <p>Dashboard</p>
+                        </Link>
+                      )}
+
                       <button
                         onClick={logout}
                         className="w-full px-2 pt-2 pb-3 font-medium text-sm text-black bg-platinum rounded transition cursor-pointer"
@@ -256,9 +282,9 @@ const Header: React.FC<HeaderProps> = ({
             className="absolute top-0 right-0 md:hidden w-1/2 p-5 h-screen bg-platinum/80 backdrop-blur-sm shadow-lg rounded-bl-lg"
           >
             <div className="relative h-full py-5">
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <ArrowRight
-                  className="w-6 h-6 text-black -mt-4 cursor-pointer"
+                  className="w-6 h-6 text-black -mt-4 mb-5 cursor-pointer"
                   onClick={() => setIsMenuOpen(false)}
                 />
                 <h2
@@ -272,6 +298,14 @@ const Header: React.FC<HeaderProps> = ({
                     Properties
                   </h2>
                 </Link>
+
+                {isAdmin && (
+                  <Link href="/admin">
+                    <p className="text-black font-medium hover:text-cyan-700 transition cursor-pointer">
+                      Dashboard
+                    </p>
+                  </Link>
+                )}
               </div>
 
               <div className="absolute bottom-20 w-full">

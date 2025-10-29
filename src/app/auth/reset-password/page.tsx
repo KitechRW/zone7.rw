@@ -221,7 +221,7 @@ const ResetPasswordPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-sm sm:px-10">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
                 Invalid Reset Link
@@ -246,7 +246,7 @@ const ResetPasswordPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-sm sm:px-10">
             <div className="text-center">
               <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
                 <CheckCircle className="h-8 w-8 text-green-600" />
@@ -260,7 +260,7 @@ const ResetPasswordPage = () => {
               </p>
               <Link
                 href="/auth"
-                className="inline-flex items-center px-8 py-2.5 text-sm font-medium rounded-md text-white bg-blue-600 hover:shadow-lg transition-colors duration-200"
+                className="inline-flex items-center px-8 py-2.5 text-sm font-medium rounded-sm text-white bg-blue-600 hover:shadow-lg transition-colors duration-200"
               >
                 Sign In
               </Link>
@@ -295,10 +295,10 @@ const ResetPasswordPage = () => {
           </p>
         </div>
 
-        <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-sm sm:px-10">
           <div className="space-y-6">
             {generalError && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="bg-red-50 border border-red-200 rounded-sm p-4">
                 <div className="flex">
                   <AlertCircle className="h-5 w-5 text-red-400 mt-0.5 mr-3" />
                   <div className="text-sm text-red-800">
@@ -403,7 +403,7 @@ const ResetPasswordPage = () => {
                 type="submit"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-full flex justify-center py-4 px-4 rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
+                className="w-full flex justify-center py-4 px-4 rounded-sm shadow-sm text-sm font-medium text-white bg-blue-600 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer"
               >
                 {loading ? (
                   <>

@@ -25,6 +25,8 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import FilterBar, { FilterState } from "@/components/misc/FilterBar";
 import PropertyModal from "@/components/modals/PropertyModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserRole } from "@/lib/utils/permission";
 
 const PropertiesTab = () => {
   const {
@@ -33,7 +35,7 @@ const PropertiesTab = () => {
     error,
     stats,
     pagination,
-    fetchProperties,
+    fetchBrokerProperties,
     createProperty,
     updateProperty,
     deleteProperty,
@@ -48,6 +50,8 @@ const PropertiesTab = () => {
     toggleFilter,
     clearAllFilters,
   } = useFilter();
+
+  const { user } = useAuth();
 
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(
     null
@@ -119,9 +123,9 @@ const PropertiesTab = () => {
 
   useEffect(() => {
     const filters = createPropertyFilters(activeFilters, searchQuery);
-    fetchProperties(filters, 1, 10);
+    fetchBrokerProperties(filters, 1, 10);
     setCurrentPage(1);
-  }, [activeFilters, searchQuery, fetchProperties]);
+  }, [activeFilters, searchQuery, fetchBrokerProperties]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-RW", {
@@ -143,10 +147,10 @@ const PropertiesTab = () => {
     clearError();
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, userId: string, userRole: string) => {
     if (deleteConfirm === id) {
       try {
-        await deleteProperty(id);
+        await deleteProperty(id, userId, userRole);
         setDeleteConfirm(null);
       } catch (error) {
         console.error("Failed to delete property:", error);
@@ -179,7 +183,7 @@ const PropertiesTab = () => {
   const handlePageChange = async (page: number) => {
     setCurrentPage(page);
     const filters = createPropertyFilters(activeFilters, searchQuery);
-    await fetchProperties(filters, page, 10);
+    await fetchBrokerProperties(filters, page, 10);
   };
 
   return (
@@ -344,6 +348,11 @@ const PropertiesTab = () => {
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Price
                   </th>
+                  {user?.role === UserRole.ADMIN && (
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Created by
+                    </th>
+                  )}
                   <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
@@ -423,6 +432,13 @@ const PropertiesTab = () => {
                         {formatPrice(property.price)}
                       </div>
                     </td>
+                    {user?.role === UserRole.ADMIN && (
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-blue-900">
+                          {property.createdByName}
+                        </div>
+                      </td>
+                    )}
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-1 sm:gap-2">
                         <button
@@ -448,7 +464,7 @@ const PropertiesTab = () => {
                         </button>
                       </div>
                       {deleteConfirm === property.id && (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
+                        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4 backdrop-blur-[4px]">
                           <div className="flex flex-col items-center justify-center gap-5 bg-white p-4 text-gray-800 w-full max-w-sm rounded-sm">
                             <h4 className="text-lg text-center font-bold">
                               Confirm Delete
@@ -466,7 +482,13 @@ const PropertiesTab = () => {
                                 Cancel
                               </button>
                               <button
-                                onClick={() => handleDelete(property.id)}
+                                onClick={() =>
+                                  handleDelete(
+                                    property.id,
+                                    user?.id as string,
+                                    user?.role as string
+                                  )
+                                }
                                 className="bg-red-600 text-white font-semibold px-3 sm:px-4 py-2 rounded-sm hover:bg-red-700 cursor-pointer flex-1"
                               >
                                 {propertiesLoading ? (
@@ -490,7 +512,7 @@ const PropertiesTab = () => {
             <div className="text-center py-12">
               <Building2 className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">
-                No properties found
+                No properties added yet
               </h3>
               <p className="mt-1 text-sm text-gray-500">
                 {searchQuery ||

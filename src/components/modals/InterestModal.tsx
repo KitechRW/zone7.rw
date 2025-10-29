@@ -1,12 +1,21 @@
-import { Loader2, MessageCircle, Phone, X } from "lucide-react";
+import { useInterest } from "@/contexts/InterestContext";
+import { Loader2, ShieldAlert, X } from "lucide-react";
 import { useState } from "react";
 
 interface InterestModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: { userPhone: string; message?: string }) => void;
+  onSubmit: (data: {
+    userName?: string;
+    userEmail: string;
+    userPhone?: string;
+    message?: string;
+  }) => void;
   loading: boolean;
   propertyTitle: string;
+  isAuthenticated?: boolean;
+  userEmail?: string;
+  userName?: string;
 }
 
 const InterestModal: React.FC<InterestModalProps> = ({
@@ -15,12 +24,22 @@ const InterestModal: React.FC<InterestModalProps> = ({
   onSubmit,
   loading,
   propertyTitle,
+  isAuthenticated = false,
+  userEmail: initialUserEmail = "",
+  userName: initialUserName = "",
 }) => {
+  const [userName, setUserName] = useState(initialUserName);
+  const [userEmail, setUserEmail] = useState(initialUserEmail);
   const [userPhone, setUserPhone] = useState("");
   const [message, setMessage] = useState("");
-  const [errors, setErrors] = useState<{ phone?: string; message?: string }>(
-    {}
-  );
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    phone?: string;
+    message?: string;
+  }>({});
+
+  const { error: interestError } = useInterest();
 
   const validatePhone = (phone: string) => {
     const normalized = phone.replace(/[\s\-()]/g, "");
@@ -32,11 +51,20 @@ const InterestModal: React.FC<InterestModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newErrors: { phone?: string; message?: string } = {};
+    const newErrors: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      message?: string;
+    } = {};
 
-    if (!userPhone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!validatePhone(userPhone.trim())) {
+    if (!userEmail.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail.trim())) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (userPhone.trim() && !validatePhone(userPhone.trim())) {
       newErrors.phone = "Please enter a valid phone number";
     }
 
@@ -48,7 +76,9 @@ const InterestModal: React.FC<InterestModalProps> = ({
 
     if (Object.keys(newErrors).length === 0) {
       onSubmit({
-        userPhone: userPhone.trim(),
+        userName: userName.trim() || undefined,
+        userEmail: userEmail.trim(),
+        userPhone: userPhone.trim() || undefined,
         message: message.trim() || undefined,
       });
     }
@@ -56,6 +86,8 @@ const InterestModal: React.FC<InterestModalProps> = ({
 
   const handleClose = () => {
     if (!loading) {
+      setUserName(initialUserName);
+      setUserEmail(initialUserEmail);
       setUserPhone("");
       setMessage("");
       setErrors({});
@@ -66,8 +98,8 @@ const InterestModal: React.FC<InterestModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="bg-white rounded-sm shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px]">
+      <div className="bg-white rounded-sm shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -88,6 +120,64 @@ const InterestModal: React.FC<InterestModalProps> = ({
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {!isAuthenticated && (
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Name
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="name"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="Your name"
+                    disabled={loading}
+                    className={`w-full px-2 text-sm py-3 border-2 rounded-sm text-neutral-700 focus:border-light-blue outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                      errors.name
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </div>
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                )}
+              </div>
+            )}
+
+            {!isAuthenticated && (
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Email <span className="text-red-800">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    id="email"
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
+                    placeholder="your.email@example.com"
+                    disabled={loading}
+                    className={`w-full px-2 text-sm py-3 border-2 rounded-sm text-neutral-700 focus:border-light-blue outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                      errors.email
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                )}
+              </div>
+            )}
+
             <div>
               <label
                 htmlFor="phone"
@@ -96,7 +186,6 @@ const InterestModal: React.FC<InterestModalProps> = ({
                 Phone Number
               </label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <input
                   type="tel"
                   id="phone"
@@ -104,7 +193,7 @@ const InterestModal: React.FC<InterestModalProps> = ({
                   onChange={(e) => setUserPhone(e.target.value)}
                   placeholder="+250 788 123 456"
                   disabled={loading}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-sm text-neutral-700 focus:border-light-blue outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`w-full px-2 text-sm py-3 border-2 rounded-sm text-neutral-700 focus:border-light-blue outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     errors.phone
                       ? "border-red-500 bg-red-50"
                       : "border-gray-300"
@@ -124,7 +213,6 @@ const InterestModal: React.FC<InterestModalProps> = ({
                 Comment (Optional)
               </label>
               <div className="relative">
-                <MessageCircle className="absolute left-3 top-3.5 h-4 w-4 text-gray-500" />
                 <textarea
                   id="message"
                   value={message}
@@ -132,7 +220,7 @@ const InterestModal: React.FC<InterestModalProps> = ({
                   placeholder="Tell us more about your interest or any questions you have..."
                   rows={4}
                   disabled={loading}
-                  className={`w-full pl-10 pr-4 py-2 border-2 rounded-sm text-neutral-700 focus:border-blue-500 outline-none transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`w-full px-2 text-sm py-2 border-2 rounded-sm text-neutral-700 focus:border-blue-500 outline-none transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
                     errors.message
                       ? "border-red-500 bg-red-50"
                       : "border-gray-300"
@@ -175,11 +263,25 @@ const InterestModal: React.FC<InterestModalProps> = ({
             </div>
           </form>
 
+          {interestError && (
+            <p className="flex items-center pt-0.5 mt-5 text-red-500 text-xs">
+              <ShieldAlert className="w-4 h-4 mr-1" /> {interestError}
+            </p>
+          )}
+
           <div className="mt-10 p-3 bg-blue-50 rounded-sm">
             <p className="text-xs text-blue-900">
-              💡 By placing interest, you&#39;ll be contacted by our team to
-              discuss this property. Your information will be shared with the
-              property owner.
+              By placing interest, you&#39;ll be contacted by our team to
+              discuss this property.
+              {!isAuthenticated && (
+                <span>
+                  <br />
+                  <br />
+                  <strong>Note:</strong> Email is required, Name and Phone
+                  number are optional but strongly recommended for easy and
+                  quick communication.
+                </span>
+              )}
             </p>
           </div>
         </div>

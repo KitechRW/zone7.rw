@@ -5,7 +5,7 @@ import { ApiError } from "../utils/apiError";
 import { ErrorMiddleware } from "../middleware/error.middleware";
 import { RateLimitMiddleware } from "../middleware/rateLimit.middleware";
 import { getValidatedData } from "../middleware/validation.middleware";
-import { UserRole, isOwner, isAdminOrOwner } from "../utils/permission";
+import { isadmin, isBrokerOrAdmin, UserRole } from "../utils/permission";
 import { AuthMiddleware } from "../middleware/auth.middleware";
 import { IUser } from "../db/models/user.model";
 
@@ -118,7 +118,7 @@ export class AuthController {
     }
   );
 
-  createAdmin = ErrorMiddleware.catchAsync(
+  createBroker = ErrorMiddleware.catchAsync(
     async (request: NextRequest): Promise<NextResponse> => {
       const requestId =
         request.headers.get("x-request-id") ||
@@ -128,13 +128,13 @@ export class AuthController {
         request
       );
 
-      const user = await this.authService.createAdmin(credentials);
+      const user = await this.authService.createBroker(credentials);
 
       return NextResponse.json(
         {
           success: true,
           requestId,
-          message: "Admin user created successfully",
+          message: "Broker user created successfully",
           data: {
             id: user._id,
             username: user.username,
@@ -270,7 +270,7 @@ export class AuthController {
 
   getAllUsers = ErrorMiddleware.catchAsync(
     async (request: NextRequest): Promise<NextResponse> => {
-      const authError = await AuthMiddleware.requireAdmin(request);
+      const authError = await AuthMiddleware.requireBroker(request);
       if (authError) return authError;
 
       const { searchParams } = new URL(request.url);
@@ -353,7 +353,7 @@ export class AuthController {
 
   getUserStats = ErrorMiddleware.catchAsync(
     async (request: NextRequest): Promise<NextResponse> => {
-      const authError = await AuthMiddleware.requireAdmin(request);
+      const authError = await AuthMiddleware.requireBroker(request);
       if (authError) return authError;
 
       const stats = await this.authService.getUserStats();
@@ -374,7 +374,7 @@ export class AuthController {
       request: NextRequest,
       context: RouteContext
     ): Promise<NextResponse> => {
-      const authError = await AuthMiddleware.requireAdmin(request);
+      const authError = await AuthMiddleware.requireBroker(request);
       if (authError) return authError;
 
       const requesterId = request.headers.get("x-user-id")!;
@@ -390,28 +390,28 @@ export class AuthController {
         throw ApiError.notFound("User not found");
       }
 
-      if (role === UserRole.ADMIN || role === UserRole.OWNER) {
-        if (!isOwner(requesterRole)) {
+      if (role === UserRole.BROKER || role === UserRole.ADMIN) {
+        if (!isadmin(requesterRole)) {
           throw ApiError.forbidden(
-            "Only owners can promote users to admin or owner roles"
+            "Only admins can promote users to broker or admin roles"
           );
         }
       }
 
       if (
-        targetUser.role === UserRole.ADMIN ||
-        targetUser.role === UserRole.OWNER
+        targetUser.role === UserRole.BROKER ||
+        targetUser.role === UserRole.ADMIN
       ) {
-        if (!isOwner(requesterRole)) {
+        if (!isadmin(requesterRole)) {
           throw ApiError.forbidden(
-            "Only owners can modify admin or owner roles"
+            "Only admins can modify broker or admin roles"
           );
         }
       }
 
-      if (role === UserRole.OWNER) {
+      if (role === UserRole.ADMIN) {
         throw ApiError.badRequest(
-          "Owner role assignment requires special authorization"
+          "Admin role assignment requires special authorization"
         );
       }
 
@@ -437,7 +437,7 @@ export class AuthController {
       request: NextRequest,
       context: RouteContext
     ): Promise<NextResponse> => {
-      const authError = await AuthMiddleware.requireAdmin(request);
+      const authError = await AuthMiddleware.requireBroker(request);
       if (authError) return authError;
 
       const requesterId = request.headers.get("x-user-id")!;
@@ -465,7 +465,7 @@ export class AuthController {
       const userRole = request.headers.get("x-user-role") as UserRole;
       const userId = request.headers.get("x-user-id");
 
-      if (!isAdminOrOwner(userRole) && context.params.id !== userId) {
+      if (!isBrokerOrAdmin(userRole) && context.params.id !== userId) {
         throw ApiError.forbidden("Access denied");
       }
 

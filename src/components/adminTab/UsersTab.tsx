@@ -44,7 +44,7 @@ interface UsersTabProps {
   onViewUserInterests: (userId: string, userName: string) => void;
 }
 
-interface CreateAdminForm {
+interface CreateBrokerForm {
   username: string;
   email: string;
 }
@@ -68,9 +68,9 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [roleOpen, setRoleOpen] = useState<string | null>(null);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
-  const [createAdminModal, setCreateAdminModal] = useState(false);
-  const [creatingAdmin, setCreatingAdmin] = useState(false);
-  const [createAdminForm, setCreateAdminForm] = useState<CreateAdminForm>({
+  const [createBrokerModal, setCreateBrokerModal] = useState(false);
+  const [creatingBroker, setCreatingBroker] = useState(false);
+  const [createBrokerForm, setCreateBrokerForm] = useState<CreateBrokerForm>({
     username: "",
     email: "",
   });
@@ -137,7 +137,24 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
         }
 
         const data: UsersResponse = await response.json();
-        setUsers(data.data);
+        // Admin first, then brokers (newest to oldest), then users (newest to oldest)
+        const sortedUsers = [...data.data].sort((a, b) => {
+          if (a.role === UserRole.ADMIN && b.role !== UserRole.ADMIN) return -1;
+          if (b.role === UserRole.ADMIN && a.role !== UserRole.ADMIN) return 1;
+
+          if (a.role === UserRole.BROKER && b.role !== UserRole.BROKER)
+            return -1;
+          if (b.role === UserRole.BROKER && a.role !== UserRole.BROKER)
+            return 1;
+
+          if (a.role === b.role) {
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          }
+          return 0;
+        });
+        setUsers(sortedUsers);
         setPagination(data.pagination);
         setCurrentPage(page);
       } catch (err) {
@@ -228,23 +245,23 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     }
   };
 
-  const validateCreateAdminForm = (): boolean => {
+  const validateCreateBrokerForm = (): boolean => {
     const errors: typeof formErrors = {};
     let isValid = true;
 
-    if (!createAdminForm.username.trim()) {
+    if (!createBrokerForm.username.trim()) {
       errors.username = "Username is required";
       isValid = false;
-    } else if (createAdminForm.username.trim().length < 3) {
+    } else if (createBrokerForm.username.trim().length < 3) {
       errors.username = "Username must be at least 3 characters";
       isValid = false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!createAdminForm.email.trim()) {
+    if (!createBrokerForm.email.trim()) {
       errors.email = "Email is required";
       isValid = false;
-    } else if (!emailRegex.test(createAdminForm.email)) {
+    } else if (!emailRegex.test(createBrokerForm.email)) {
       errors.email = "Please enter a valid email";
       isValid = false;
     }
@@ -253,11 +270,11 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     return isValid;
   };
 
-  const createAdmin = async () => {
-    if (!validateCreateAdminForm()) return;
+  const createBroker = async () => {
+    if (!validateCreateBrokerForm()) return;
 
     try {
-      setCreatingAdmin(true);
+      setCreatingBroker(true);
       setError(null);
 
       const response = await fetch("/api/auth/create-admin", {
@@ -266,14 +283,14 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: createAdminForm.username.trim(),
-          email: createAdminForm.email.trim(),
+          username: createBrokerForm.username.trim(),
+          email: createBrokerForm.email.trim(),
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create admin user");
+        throw new Error(errorData.message || "Failed to create Broker user");
       }
 
       const data = await response.json();
@@ -295,9 +312,9 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
 
       setUsers((prevUsers) => [normalized, ...prevUsers]);
 
-      setCreateAdminForm({ username: "", email: "" });
+      setCreateBrokerForm({ username: "", email: "" });
       setFormErrors({});
-      setCreateAdminModal(false);
+      setCreateBrokerModal(false);
 
       setIsSuccess(true);
 
@@ -306,10 +323,10 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
       }, 5000);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to create admin user"
+        err instanceof Error ? err.message : "Failed to create Broker user"
       );
     } finally {
-      setCreatingAdmin(false);
+      setCreatingBroker(false);
     }
   };
 
@@ -358,9 +375,9 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     setLoadingDetails(false);
   };
 
-  const closeCreateAdminModal = () => {
-    setCreateAdminModal(false);
-    setCreateAdminForm({ username: "", email: "" });
+  const closeCreateBrokerModal = () => {
+    setCreateBrokerModal(false);
+    setCreateBrokerForm({ username: "", email: "" });
     setFormErrors({});
     setError(null);
   };
@@ -409,24 +426,24 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
 
   const canManageUser = (targetUser: User) => {
     if (currentUserId === targetUser._id) return false; //can't manage self
-    if (currentUserRole === UserRole.OWNER) return true; //owners can manage anyone
-    if (currentUserRole === UserRole.ADMIN) {
-      return targetUser.role === UserRole.USER; //admins can only manage regular users
+    if (currentUserRole === UserRole.ADMIN) return true; //admins can manage anyone
+    if (currentUserRole === UserRole.BROKER) {
+      return targetUser.role === UserRole.USER; //Brokers can only manage regular users
     }
     return false;
   };
 
-  const canCreateAdmin = () => {
-    return currentUserRole === UserRole.OWNER;
+  const canCreateBroker = () => {
+    return currentUserRole === UserRole.ADMIN;
   };
 
   const getAvailableRoles = (targetUser: User): UserRole[] => {
     const roles: UserRole[] = [];
 
-    if (currentUserRole === UserRole.OWNER) {
+    if (currentUserRole === UserRole.ADMIN) {
       if (targetUser.role !== UserRole.USER) roles.push(UserRole.USER);
-      if (targetUser.role !== UserRole.ADMIN) roles.push(UserRole.ADMIN);
-    } else if (currentUserRole === UserRole.ADMIN) {
+      if (targetUser.role !== UserRole.BROKER) roles.push(UserRole.BROKER);
+    } else if (currentUserRole === UserRole.BROKER) {
       if (targetUser.role === UserRole.USER) {
       }
     }
@@ -436,9 +453,9 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
 
   const getRoleColor = (role: UserRole) => {
     switch (role) {
-      case UserRole.OWNER:
-        return "text-green-600 bg-green-50";
       case UserRole.ADMIN:
+        return "text-green-600 bg-green-50";
+      case UserRole.BROKER:
         return "text-light-blue bg-blue-50";
       case UserRole.USER:
         return "text-gray-600 bg-gray-100";
@@ -478,7 +495,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
     );
   }
 
-  if (error && !createAdminModal) {
+  if (error && !createBrokerModal) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-sm p-6">
         <div className="text-red-800 font-medium">Error: {error}</div>
@@ -549,18 +566,18 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                     <option value="username-desc">Username Z-A</option>
                     <option value="email-asc">Email A-Z</option>
                     <option value="email-desc">Email Z-A</option>
-                    <option value="role-asc">Role (Owner First)</option>
+                    <option value="role-asc">Role (Admin First)</option>
                     <option value="role-desc">Role (User First)</option>
                   </select>
                 </div>
               </div>
 
-              {canCreateAdmin() && (
+              {canCreateBroker() && (
                 <button
-                  onClick={() => setCreateAdminModal(true)}
+                  onClick={() => setCreateBrokerModal(true)}
                   className="px-4 py-2.5 bg-blue-800 text-white rounded-sm font-medium hover:shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
                 >
-                  Create Admin
+                  Create a Broker
                 </button>
               )}
             </div>
@@ -766,7 +783,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
           )}
 
           {deleteConfirm && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+            <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 backdrop-blur-[4px]">
               <div className="flex flex-col items-center justify-center gap-6 bg-white p-6 text-black w-80 max-w-sm mx-4 rounded-sm">
                 <h4 className="text-lg text-center font-bold">Delete User?</h4>
                 <p className="text-sm text-gray-600 text-center">
@@ -849,7 +866,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
       </div>
 
       {viewingUser && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-5">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-5 backdrop-blur-[4px]">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="overflow-y-auto p-6">
               {loadingDetails ? (
@@ -945,17 +962,17 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
         </div>
       )}
 
-      {createAdminModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      {createBrokerModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-[4px]">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">
-                Create an Admin
+                Create a Broker
               </h3>
               <button
-                onClick={closeCreateAdminModal}
+                onClick={closeCreateBrokerModal}
                 className="text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
-                disabled={creatingAdmin}
+                disabled={creatingBroker}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -970,7 +987,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                createAdmin();
+                createBroker();
               }}
               className="space-y-4"
             >
@@ -980,10 +997,10 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                 </label>
                 <input
                   type="text"
-                  value={createAdminForm.username}
+                  value={createBrokerForm.username}
                   onChange={(e) => {
-                    setCreateAdminForm({
-                      ...createAdminForm,
+                    setCreateBrokerForm({
+                      ...createBrokerForm,
                       username: e.target.value,
                     });
                     if (formErrors.username) {
@@ -996,7 +1013,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       : "border-gray-300 focus:border-light-blue"
                   }`}
                   placeholder="Enter username"
-                  disabled={creatingAdmin}
+                  disabled={creatingBroker}
                 />
                 {formErrors.username && (
                   <p className="mt-1 text-xs text-red-600">
@@ -1011,10 +1028,10 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                 </label>
                 <input
                   type="email"
-                  value={createAdminForm.email}
+                  value={createBrokerForm.email}
                   onChange={(e) => {
-                    setCreateAdminForm({
-                      ...createAdminForm,
+                    setCreateBrokerForm({
+                      ...createBrokerForm,
                       email: e.target.value,
                     });
                     if (formErrors.email) {
@@ -1027,7 +1044,7 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
                       : "border-gray-300 focus:border-light-blue"
                   }`}
                   placeholder="Enter email address"
-                  disabled={creatingAdmin}
+                  disabled={creatingBroker}
                 />
                 {formErrors.email && (
                   <p className="mt-1 text-xs text-red-600">
@@ -1038,29 +1055,29 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
 
               <div className="bg-blue-50/70 border border-blue-200 rounded-sm p-3 mt-4">
                 <p className="text-xs text-blue-800">
-                  <strong>Note:</strong> This user will be created with admin
-                  rights and can access the admin dashboard.
+                  <strong>Note:</strong> This user will be created with some
+                  admin rights and can access the admin dashboard.
                 </p>
               </div>
 
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={closeCreateAdminModal}
+                  onClick={closeCreateBrokerModal}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-sm hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
-                  disabled={creatingAdmin}
+                  disabled={creatingBroker}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-sm hover:shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
-                  disabled={creatingAdmin}
+                  disabled={creatingBroker}
                 >
-                  {creatingAdmin && (
+                  {creatingBroker && (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   )}
-                  {creatingAdmin ? "Creating..." : "Create Admin"}
+                  {creatingBroker ? "Creating..." : "Create Broker"}
                 </button>
               </div>
             </form>

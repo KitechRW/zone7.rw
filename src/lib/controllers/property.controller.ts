@@ -6,11 +6,30 @@ import {
 } from "../services/property.service";
 import { ErrorMiddleware } from "../middleware/error.middleware";
 import logger from "../utils/logger";
+import { UserRole } from "../utils/permission";
 
 export class PropertyController {
   static createProperty = ErrorMiddleware.catchAsync(
     async (req: NextRequest): Promise<NextResponse> => {
       try {
+        const userId = req.headers.get("x-user-id");
+        const userRole = req.headers.get("x-user-role") as UserRole;
+
+        if (!userId || !userRole) {
+          return NextResponse.json(
+            { error: "Unauthenticated" },
+            { status: 401 }
+          );
+        }
+
+        // Ensure only admin and broker can create properties
+        if (!["admin", "broker"].includes(userRole)) {
+          return NextResponse.json(
+            { error: "Only admins and brokers can create properties" },
+            { status: 403 }
+          );
+        }
+
         const formData = await req.formData();
 
         // Extract basic data
@@ -33,6 +52,7 @@ export class PropertyController {
           : undefined;
 
         const features = formData.getAll("features") as string[];
+        const youtubeLink = formData.get("youtubeLink") as string | null;
 
         // Extract main image file
         const mainImageFile = formData.get("mainImage") as File;
@@ -145,9 +165,14 @@ export class PropertyController {
           features: features.filter((f) => f && f.trim().length > 0),
           mainImageFile,
           roomTypeImageUploads,
+          youtubeLink: youtubeLink?.trim() || undefined,
         };
 
-        const property = await PropertyService.createProperty(propertyData);
+        const property = await PropertyService.createProperty(
+          propertyData,
+          userId,
+          userRole
+        );
 
         const propertyResponse = property.toJSON
           ? property.toJSON()
@@ -176,6 +201,13 @@ export class PropertyController {
 
   static updateProperty = ErrorMiddleware.catchAsync(
     async (req: NextRequest): Promise<NextResponse> => {
+      const userId = req.headers.get("x-user-id");
+      const userRole = req.headers.get("x-user-role") as UserRole;
+
+      if (!userId || !userRole) {
+        return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+      }
+
       const formData = await req.formData();
       const id = formData.get("id") as string;
 
@@ -219,6 +251,11 @@ export class PropertyController {
       const bathrooms = formData.get("bathrooms");
       if (bathrooms) updateData.bathrooms = parseInt(bathrooms as string);
 
+      const youtubeLink = formData.get("youtubeLink");
+      if (youtubeLink !== null) {
+        updateData.youtubeLink = (youtubeLink as string).trim() || undefined;
+      }
+
       const features = formData.getAll("features") as string[];
       if (features.length > 0)
         updateData.features = features.filter((f) => f.trim());
@@ -255,7 +292,11 @@ export class PropertyController {
       if (removeRoomTypeImages.length > 0)
         updateData.removeRoomTypeImages = removeRoomTypeImages;
 
-      const property = await PropertyService.updateProperty(updateData);
+      const property = await PropertyService.updateProperty(
+        updateData,
+        userId,
+        userRole
+      );
 
       const propertyResponse = property.toJSON
         ? property.toJSON()
@@ -274,6 +315,13 @@ export class PropertyController {
 
   static deleteProperty = ErrorMiddleware.catchAsync(
     async (req: NextRequest): Promise<NextResponse> => {
+      const userId = req.headers.get("x-user-id");
+      const userRole = req.headers.get("x-user-role") as UserRole;
+
+      if (!userId || !userRole) {
+        return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+      }
+
       const { searchParams } = new URL(req.url);
       const id = searchParams.get("id");
 
@@ -284,7 +332,7 @@ export class PropertyController {
         );
       }
 
-      await PropertyService.deleteProperty(id);
+      await PropertyService.deleteProperty(id, userId, userRole);
 
       return NextResponse.json(
         { success: true, message: "Property deleted successfully" },
@@ -388,6 +436,74 @@ export class PropertyController {
     }
   );
 
+  static getBrokerProperties = ErrorMiddleware.catchAsync(
+    async (req: NextRequest): Promise<NextResponse> => {
+      const userId = req.headers.get("x-user-id");
+      const userRole = req.headers.get("x-user-role");
+
+      const { searchParams } = new URL(req.url);
+
+      const filters = {
+        type: searchParams.get("type") as "all" | "house" | "plot",
+        category: searchParams.get("category") as "sale" | "rent",
+        minPrice: searchParams.get("minPrice")
+          ? parseInt(searchParams.get("minPrice")!)
+          : undefined,
+        maxPrice: searchParams.get("maxPrice")
+          ? parseInt(searchParams.get("maxPrice")!)
+          : undefined,
+        bedrooms: searchParams.get("bedrooms")
+          ? parseInt(searchParams.get("bedrooms")!)
+          : undefined,
+        bathrooms: searchParams.get("bathrooms")
+          ? parseInt(searchParams.get("bathrooms")!)
+          : undefined,
+        minArea: searchParams.get("minArea")
+          ? parseInt(searchParams.get("minArea")!)
+          : undefined,
+        maxArea: searchParams.get("maxArea")
+          ? parseInt(searchParams.get("maxArea")!)
+          : undefined,
+        featured: searchParams.get("featured")
+          ? searchParams.get("featured") === "true"
+          : undefined,
+        location: searchParams.get("location") || undefined,
+        search: searchParams.get("search") || undefined,
+      };
+
+      const page = parseInt(searchParams.get("page") || "1");
+      const limit = parseInt(searchParams.get("limit") || "10");
+      const sortBy = searchParams.get("sortBy") || "createdAt";
+      const sortOrder = (searchParams.get("sortOrder") || "desc") as
+        | "asc"
+        | "desc";
+
+      const result = await PropertyService.getBrokerProperties(
+        filters,
+        page,
+        limit,
+        sortBy,
+        sortOrder,
+        userId || undefined,
+        userRole || undefined
+      );
+
+      const propertiesResponse = result.properties.map((property) =>
+        property.toJSON ? property.toJSON() : property.toObject()
+      );
+
+      return NextResponse.json(
+        {
+          success: true,
+          properties: propertiesResponse,
+          total: result.total,
+          pages: result.pages,
+        },
+        { status: 200 }
+      );
+    }
+  );
+
   static getFeaturedProperties = ErrorMiddleware.catchAsync(
     async (req: NextRequest): Promise<NextResponse> => {
       const { searchParams } = new URL(req.url);
@@ -408,8 +524,18 @@ export class PropertyController {
   );
 
   static getStats = ErrorMiddleware.catchAsync(
-    async (): Promise<NextResponse> => {
-      const stats = await PropertyService.getStats();
+    async (req: NextRequest): Promise<NextResponse> => {
+      const userId = req.headers.get("x-user-id");
+      const userRole = req.headers.get("x-user-role") as UserRole;
+
+      if (!userId || !userRole) {
+        return NextResponse.json(
+          { error: "Authentication required" },
+          { status: 401 }
+        );
+      }
+
+      const stats = await PropertyService.getStats(userId, userRole);
 
       return NextResponse.json({ success: true, stats }, { status: 200 });
     }

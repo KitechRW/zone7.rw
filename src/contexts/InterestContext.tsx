@@ -42,7 +42,10 @@ interface InterestContextType {
   ) => Promise<Interest>;
   deleteInterest: (id: string) => Promise<void>;
   fetchStats: () => Promise<InterestStats>;
-  checkUserInterest: (propertyId: string) => Promise<{
+  checkUserInterest: (
+    propertyId: string,
+    userEmail?: string
+  ) => Promise<{
     hasInterest: boolean;
     interest: Interest | null;
   }>;
@@ -162,13 +165,21 @@ class InterestAPI {
     };
   }
 
-  static async checkUserInterest(propertyId: string): Promise<{
+  static async checkUserInterest(
+    propertyId: string,
+    userEmail?: string
+  ): Promise<{
     hasInterest: boolean;
     interest: Interest | null;
   }> {
-    const response = await fetch(
-      `/api/interests/check?propertyId=${propertyId}`
-    );
+    const params = new URLSearchParams();
+    params.append("propertyId", propertyId);
+
+    if (userEmail) {
+      params.append("userEmail", userEmail);
+    }
+
+    const response = await fetch(`/api/interests/check?${params.toString()}`);
     const result = await this.handleResponse(response);
 
     if (result.data.interest) {
@@ -379,10 +390,10 @@ export const InterestProvider: React.FC<{ children: ReactNode }> = ({
   }, [clearError, handleError]);
 
   const checkUserInterest = useCallback(
-    async (propertyId: string) => {
+    async (propertyId: string, userEmail?: string) => {
       try {
         clearError();
-        return await InterestAPI.checkUserInterest(propertyId);
+        return await InterestAPI.checkUserInterest(propertyId, userEmail);
       } catch (err) {
         handleError(err);
         throw err;
