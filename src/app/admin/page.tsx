@@ -27,9 +27,6 @@ const AdminDashboard = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
   const [pageLoading, setPageLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("properties");
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -87,14 +84,6 @@ const AdminDashboard = () => {
       window.history.replaceState({}, "", newUrl.toString());
     }
   }, [searchParams]);
-
-  const changeTab = useCallback((tab: AdminTab) => {
-    setActiveTab(tab);
-
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set("tab", tab);
-    window.history.pushState({}, "", newUrl.toString());
-  }, []);
 
   // Initialize data
   useEffect(() => {

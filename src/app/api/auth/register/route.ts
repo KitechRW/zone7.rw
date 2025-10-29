@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  validate,
-  validateRequest,
-} from "@/lib/middleware/validation.middleware";
+import { validateRequest } from "@/lib/middleware/validation.middleware";
 import { AuthController } from "@/lib/controllers/auth.controller";
 import { registerSchema } from "@/lib/schema/auth.schema";
 import { ApiError } from "@/lib/utils/apiError";

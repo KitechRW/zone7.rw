@@ -434,7 +434,7 @@ const PropertiesTab = () => {
                     </td>
                     {user?.role === UserRole.ADMIN && (
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-red-800">
+                        <div className="text-sm font-medium text-blue-900">
                           {property.createdByName}
                         </div>
                       </td>

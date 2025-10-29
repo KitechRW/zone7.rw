@@ -137,7 +137,24 @@ const UsersTab = ({ onViewUserInterests }: UsersTabProps) => {
         }
 
         const data: UsersResponse = await response.json();
-        setUsers(data.data);
+        // Admin first, then brokers (newest to oldest), then users (newest to oldest)
+        const sortedUsers = [...data.data].sort((a, b) => {
+          if (a.role === UserRole.ADMIN && b.role !== UserRole.ADMIN) return -1;
+          if (b.role === UserRole.ADMIN && a.role !== UserRole.ADMIN) return 1;
+
+          if (a.role === UserRole.BROKER && b.role !== UserRole.BROKER)
+            return -1;
+          if (b.role === UserRole.BROKER && a.role !== UserRole.BROKER)
+            return 1;
+
+          if (a.role === b.role) {
+            return (
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+          }
+          return 0;
+        });
+        setUsers(sortedUsers);
         setPagination(data.pagination);
         setCurrentPage(page);
       } catch (err) {
