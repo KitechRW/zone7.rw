@@ -7,7 +7,6 @@ import {
   RefreshTokenData,
   RegisterCredentials,
 } from "../types/auth";
-import { getEmailRole } from "../utils/admin";
 import { ApiError } from "../utils/apiError";
 import logger from "../utils/logger";
 import { Password } from "../utils/password";
@@ -74,14 +73,12 @@ export class AuthService {
 
       const hashedPassword = await Password.hash(credentials.password);
 
-      const role = getEmailRole(credentials.email);
-
       const user = new User({
         username: credentials.username.trim(),
         email: credentials.email.toLowerCase().trim(),
         password: hashedPassword,
         provider: "credentials",
-        role,
+        role: UserRole.USER,
       });
 
       return await user.save();
