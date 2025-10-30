@@ -8,13 +8,9 @@ Closes #[ISSUE_NUMBER]
 
 ## ✅ Changes
 
-- [✔️] Feature added
-  <<<<<<< HEAD
-- [✔️ ] Bug fixed
-- # [✔️] Refactoring
-- [ ] Bug fixed
-- [ ] Refactoring
-  > > > > > > > ac094bb (FIRST WEBPAGE LOOK (#2))
+- [ ] Feature added
+- [✔️] Bug fixed
+- [✔️] Refactoring
 - [ ] Other (please describe):
 
 ---

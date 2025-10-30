@@ -7,7 +7,6 @@ import {
   RefreshTokenData,
   RegisterCredentials,
 } from "../types/auth";
-import { getEmailRole } from "../utils/admin";
 import { ApiError } from "../utils/apiError";
 import logger from "../utils/logger";
 import { Password } from "../utils/password";
@@ -74,14 +73,12 @@ export class AuthService {
 
       const hashedPassword = await Password.hash(credentials.password);
 
-      const role = getEmailRole(credentials.email);
-
       const user = new User({
         username: credentials.username.trim(),
         email: credentials.email.toLowerCase().trim(),
         password: hashedPassword,
         provider: "credentials",
-        role,
+        role: UserRole.USER,
       });
 
       return await user.save();
@@ -604,6 +601,29 @@ export class AuthService {
 
       if (!isRequesterBroker) {
         throw ApiError.forbidden("Broker access required");
+      }
+
+      if (
+        (role === UserRole.BROKER ||
+          role === UserRole.ADMIN ||
+          targetUser.role === UserRole.BROKER ||
+          targetUser.role === UserRole.ADMIN) &&
+        !isRequesterAdmin
+      ) {
+        throw ApiError.forbidden(
+          "Only admins can manage Broker or admin roles"
+        );
+      }
+
+      if (
+        userId === requesterId &&
+        requester.role === UserRole.ADMIN &&
+        role !== UserRole.ADMIN
+      ) {
+        const adminCount = await User.countDocuments({ role: UserRole.ADMIN });
+        if (adminCount <= 1) {
+          throw ApiError.badRequest("Cannot demote the only admin");
+        }
       }
 
       if (
