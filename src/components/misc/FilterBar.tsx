@@ -298,6 +298,10 @@ const FilterBar = ({
         .slider::-moz-range-thumb {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 7fd0816c2a30c631f8f9e72b7a2abd0d95048d00
           height: 8px;
           width: 8px;
 =======
@@ -308,6 +312,13 @@ const FilterBar = ({
           height: 8px;
           width: 8px;
 >>>>>>> 44eaffa (Admin management (#11))
+<<<<<<< HEAD
+=======
+=======
+          height: 8px;
+          width: 8px;
+>>>>>>> 3871659f8d014f18aedbab4e8ce205aeff23bece
+>>>>>>> 7fd0816c2a30c631f8f9e72b7a2abd0d95048d00
           border-radius: 50%;
           background: #3399ff;
           cursor: pointer;

@@ -9,7 +9,10 @@ A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allow
   - User registration and login
   - Password reset functionality
   - Role-based access control (Admin/Broker/User)
+<<<<<<< HEAD
     <<<<<<< HEAD
+=======
+>>>>>>> 7fd0816c2a30c631f8f9e72b7a2abd0d95048d00
   - Protected routes with NextAuth
 
 - **Property Management**
@@ -95,7 +98,14 @@ zone7.rw/
 └── README.md                # Project documentation
 ```
 
+<<<<<<< HEAD
 A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allows users to browse, buy, and rent properties in Rwanda.
+=======
+<<<<<<< HEAD
+A modern real estate built with Next.js, TypeScript, and Tailwind CSS that allows users to browse, buy, and rent properties in Rwanda.
+
+<<<<<<< HEAD
+>>>>>>> 7fd0816c2a30c631f8f9e72b7a2abd0d95048d00
 
 1. Clone the repository:
 
@@ -294,6 +304,7 @@ src/
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 ## Features
 
@@ -424,6 +435,11 @@ zone7.rw/
 
 > > > > > > > 3871659f8d014f18aedbab4e8ce205aeff23bece
 > > > > > > > 7fd0816 (Enabled the assignment of admin role to users on database level)
+=======
+=======
+
+> > > > > > > 3871659f8d014f18aedbab4e8ce205aeff23bece
+>>>>>>> 7fd0816c2a30c631f8f9e72b7a2abd0d95048d00
 
 ## Getting Started
 
@@ -485,14 +501,22 @@ The application implements a hybrid authentication system built on NextAuth.js w
   - Rate limiting on sensitive endpoints
   - HTTP-only cookies for refresh tokens
     <<<<<<< HEAD
+<<<<<<< HEAD
     =======
     <<<<<<< HEAD
+=======
+>>>>>>> 7fd0816c2a30c631f8f9e72b7a2abd0d95048d00
     <<<<<<< HEAD
   - CSRF protection
   - Input validation with Zod > > > > > > > f1e01a3 (1. MongoDB setup (#6))
     =======
+<<<<<<< HEAD
     ======= > > > > > > > 3871659f8d014f18aedbab4e8ce205aeff23bece
     > > > > > > > 7fd0816 (Enabled the assignment of admin role to users on database level)
+=======
+    =======
+    > > > > > > > 3871659f8d014f18aedbab4e8ce205aeff23bece
+>>>>>>> 7fd0816c2a30c631f8f9e72b7a2abd0d95048d00
   - Secure password reset flow
   - Device and user agent tracking
 
@@ -544,9 +568,13 @@ The application implements a hybrid authentication system built on NextAuth.js w
    <<<<<<< HEAD
    > > > > > > > # 48f8bee (Feature/password reset (#12))
    > > > > > > >
+<<<<<<< HEAD
    > > > > > > > <<<<<<< HEAD
    > > > > > > >
    > > > > > > > # 48f8bee (Feature/password reset (#12))
    > > > > > > >
    > > > > > > > 3871659f8d014f18aedbab4e8ce205aeff23bece
    > > > > > > > 7fd0816 (Enabled the assignment of admin role to users on database level)
+=======
+   > > > > > > > 3871659f8d014f18aedbab4e8ce205aeff23bece
+>>>>>>> 7fd0816c2a30c631f8f9e72b7a2abd0d95048d00

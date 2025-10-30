@@ -365,16 +365,6 @@ export class AuthService {
   async isUserAdmin(userId: string): Promise<boolean> {
     try {
       const user = await this.getUserById(userId);
-      return user?.role === UserRole.BROKER || user?.role === UserRole.ADMIN;
-    } catch (error) {
-      logger.error("Broker check failed:", error);
-      return false;
-    }
-  }
-
-  async isUserAdmin(userId: string): Promise<boolean> {
-    try {
-      const user = await this.getUserById(userId);
       return user?.role === UserRole.ADMIN;
     } catch (error) {
       logger.error("Admin check failed:", error);
